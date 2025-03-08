@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Load Header and Footer
-    fetch("../components/header/header.html")
+    fetch("../../components/header/header.html")  // ✅ Corrected path
         .then(response => response.text())
         .then(data => document.getElementById("header").innerHTML = data);
 
-    fetch("../components/footer/footer.html")
+    fetch("../../components/footer/footer.html")  // ✅ Corrected path
         .then(response => response.text())
         .then(data => document.getElementById("footer").innerHTML = data);
 
