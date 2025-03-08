@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algomatics - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="homepage.css">
+    <style>
+        body {
+            font-family: 'Silkscreen', serif;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+            text-align: center;
+        }
+        .gif-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 10px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div id="header"></div>
+
+<div class="gif-container">
+</div>
+
+<div class="content">
+    <h1 class="text-5xl font-bold">ALGOMATICS</h1>
+    <p class="text-lg mt-4">An interactive tool that visually demonstrates mathematical functions, equations, data structures, and algorithms.</p>
+
+    <div class="dropdown mt-6">
+        <button class="bg-blue-200 text-black px-6 py-3 rounded-full font-bold" id="explore-btn">Explore Subjects</button>
+        <div class="dropdown-content" id="dropdown-menu">
+            <a href="math.html">Math</a>
+            <a href="algorithms.html">Algorithms</a>
+        </div>
+    </div>
+</div>
+
+<div id="footer"></div>
+
+<script src="homepage.js"></script>
+</body>
+</html>
