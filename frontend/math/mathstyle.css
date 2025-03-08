@@ -1,0 +1,22 @@
+body {
+    font-family: 'Silkscreen',serif;
+}
+.header-bg, .footer-bg {
+    background-color: rgba(67, 42, 221, 0.8);
+}
+.video-bg {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    z-index: -1;
+    object-fit: cover;
+}
+.content {
+    position: relative;
+    z-index: 1;
+}
+.nav-link:hover {
+    color: #75107d;
+}
