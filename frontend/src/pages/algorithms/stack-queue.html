@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stack & Queue Visualization</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+  <h1>Stack & Queue Visualization</h1>
+
+  <div class="sections">
+    <div class="stack-section">
+      <h2>Stack (LIFO)</h2>
+      <div class="controls">
+        <input type="text" id="stackInput" placeholder="Enter value">
+        <button id="pushBtn">Push</button>
+        <button id="popBtn">Pop</button>
+        <button id="clearStackBtn">Clear Stack</button>
+      </div>
+      <div class="stack-container" id="stack"></div>
+    </div>
+
+    <div class="queue-section">
+      <h2>Queue (FIFO)</h2>
+      <div class="controls">
+        <input type="text" id="queueInput" placeholder="Enter value">
+        <button id="enqueueBtn">Enqueue</button>
+        <button id="dequeueBtn">Dequeue</button>
+        <button id="clearQueueBtn">Clear Queue</button>
+      </div>
+      <div class="queue-container" id="queue"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
