@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quadratic Equations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="quadratics.css">
+  <script src="https://unpkg.com/gsap@3.12.2/dist/gsap.min.js"></script>
+</head>
+<body>
+<video class="video-bg" autoplay muted loop>
+  <source src="background-video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<div class="header-bg animate-fade-in">
+  <h1>Quadratic Equations</h1>
+</div>
+
+<div class="content">
+  <div class="container">
+    <h2 class="animate-slide-in">Methods to Solve Quadratic Equations</h2>
+    <button class="method-btn" data-method="Factoring">Factoring</button>
+    <button class="method-btn" data-method="Completing the Square">Completing the Square</button>
+    <button class="method-btn" data-method="Quadratic Formula">Quadratic Formula</button>
+  </div>
+
+  <div class="input-container">
+    <h2>Enter a Quadratic Equation</h2>
+    <label>a: <input type="number" id="input-a" value="1"></label>
+    <label>b: <input type="number" id="input-b" value="-5"></label>
+    <label>c: <input type="number" id="input-c" value="6"></label>
+    <button id="solve-btn">Solve</button>
+  </div>
+
+  <div class="graph-container">
+    <h2>Quadratic Graph</h2>
+    <div id="quadratic-graph" class="graph"></div>
+  </div>
+</div>
+
+<div class="footer-bg animate-fade-in">
+  <p>© 2025 Quadratic Solver. All rights reserved.</p>
+</div>
+
+<script src="quadratics.js"></script>
+</body>
+</html>
