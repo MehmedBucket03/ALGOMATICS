@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polynomial Operations Visualizer</title>
+    <link rel="stylesheet" href="themes.css">
+</head>
+<body>
+<div class="container">
+    <h1>Polynomial Operations Visualizer</h1>
+
+    <div class="input-section">
+        <label for="polynomialInput">Enter Polynomial Expression:</label>
+        <input type="text" id="polynomialInput" placeholder="e.g., x^2 + 5x + 6">
+        <button id="visualizeBtn">Visualize</button>
+    </div>
+
+    <div class="visualization">
+        <h2>Visualization Area</h2>
+        <div id="animationArea"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
