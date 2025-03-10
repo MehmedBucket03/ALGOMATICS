@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Search Visualization</title>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="BinarySearch.css"> <!-- Linking to the new external CSS -->
+</head>
+<body>
+<div class="header-bg">
+  <h1>Binary Search Visualization</h1>
+  <p>Learn how Binary Search works with step-by-step visualization.</p>
+</div>
+
+<div class="container">
+
+  <h3>Input List (Sorted)</h3>
+  <div class="input-container">
+    <input type="text" id="list-input" placeholder="Enter numbers separated by commas">
+    <button onclick="initializeBinarySearch()">Initialize List</button>
+    <button onclick="addToList()">Add to List</button>
+  </div>
+
+  <h3>Search Target</h3>
+  <div class="input-container">
+    <input type="number" id="search-target" placeholder="Enter target number">
+    <button onclick="startBinarySearch()">Start Search</button>
+  </div>
+
+  <div class="visualization-container">
+    <div class="table-container">
+      <h3>Binary Search Table</h3>
+      <table id="binary-search-table">
+        <thead>
+        <tr><th>Index</th><th>Value</th></tr>
+        </thead>
+        <tbody id="binary-table-body"></tbody>
+      </table>
+    </div>
+    <div class="tree-container">
+      <h3>Search Path Tree</h3>
+      <canvas id="tree-canvas" width="500" height="400"></canvas>
+    </div>
+  </div>
+
+  <div class="explanation-box">
+    <h3>How Binary Search Works</h3>
+    <p>Binary search is a divide-and-conquer algorithm for finding a specific value within a sorted list.
+      It repeatedly divides the search interval in half, checking the middle element and narrowing the search to
+      the left or right half based on the comparison.</p>
+  </div>
+</div>
+
+<div class="footer-bg">
+  <p>Created for learning purposes - Binary Search Visualization</p>
+</div>
+
+<script src="BinarySearch.js"></script>
+</body>
+</html>
