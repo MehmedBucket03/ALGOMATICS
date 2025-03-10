@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System of Equations</title>
+    <link rel="stylesheet" href="equations.css">
+    <script src="https://unpkg.com/gsap@3.12.2/dist/gsap.min.js"></script>
+</head>
+<body>
+
+<div class="header-bg animate-fade-in">
+    <h1>System of Equations</h1>
+</div>
+
+<div class="content">
+    <div class="container">
+        <h2 class="animate-slide-in">Methods to Solve Systems of Equations</h2>
+        <button class="method-btn" id="substitution-btn">Substitution</button>
+        <button class="method-btn" id="elimination-btn">Elimination</button>
+    </div>
+
+    <div class="input-container">
+        <h2>Enter Two Equations</h2>
+        <label>Equation 1: <input type="text" id="equation1" placeholder="e.g., y = 2x + 3"></label>
+        <label>Equation 2: <input type="text" id="equation2" placeholder="e.g., x + y = 5"></label>
+        <button id="graph-btn">Graph</button>
+    </div>
+
+    <div class="graph-container">
+        <h2>Graph Visualization</h2>
+        <div id="desmos-calculator" class="graph"></div>
+    </div>
+
+    <div class="explanation-box" id="explanation-box">
+        <div id="explanation-content"></div>
+        <button id="close-btn">Close</button>
+    </div>
+</div>
+
+<script src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script src="equations.js"></script>
+</body>
+</html>

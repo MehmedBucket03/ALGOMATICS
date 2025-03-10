@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polynomial Division Calculator</title>
+  <link rel="stylesheet" href="polynomial.css">
+  <script src="https://unpkg.com/gsap@3.12.2/dist/gsap.min.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <h1>Polynomial Division Calculator</h1>
+</div>
+
+<div class="input-container">
+  <h2>Select Division Method</h2>
+  <button id="long-division-btn" class="method-btn">Long Division</button>
+  <button id="synthetic-division-btn" class="method-btn">Synthetic Division</button>
+
+  <div id="division-inputs">
+    <label>Dividend: <input type="text" id="dividend" placeholder="e.g., x^3 + 2x^2 - 5x + 6"></label>
+    <label>Divisor: <input type="text" id="divisor" placeholder="e.g., x - 2"></label>
+    <button id="calculate-btn">Divide</button>
+  </div>
+</div>
+
+<div class="long-division-container">
+  <h2 id="division-title">Long Division Steps</h2>
+  <div id="division-visualization" class="division-grid"></div>
+</div>
+
+<div class="result-container">
+  <h2>Final Answer:</h2>
+  <p id="final-answer"></p>
+</div>
+
+<script src="polynomial.js"></script>
+</body>
+</html>
