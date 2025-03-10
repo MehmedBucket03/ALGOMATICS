@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Search Visualization</title>
+    <link rel="stylesheet" href="LinearSearch.css">
+</head>
+<body>
+
+<video autoplay muted loop class="video-bg">
+    <source src="background.mp4" type="video/mp4">
+</video>
+
+<header class="header-bg">
+    <h1>Linear Search Visualization</h1>
+</header>
+
+<div class="container">
+    <h2>What is Linear Search?</h2>
+    <p>Linear search works by sequentially checking each element in the list until the desired value is found or the end of the list is reached.</p>
+
+    <h3>Properties of Linear Search</h3>
+    <ul>
+        <li><strong>Time Complexity:</strong> Worst-case complexity is O(n).</li>
+        <li><strong>Space Complexity:</strong> Requires O(1) extra space.</li>
+        <li><strong>Efficiency:</strong> Good for small datasets, but slow for large ones.</li>
+        <li><strong>Implementation:</strong> Uses a simple loop.</li>
+    </ul>
+
+    <h3>Advantages & Disadvantages</h3>
+    <div class="explanation-box">
+        <h3>Advantages</h3>
+        <ul>
+            <li>Works with unsorted data.</li>
+            <li>Simple to implement.</li>
+            <li>Low memory usage.</li>
+        </ul>
+
+        <h3>Disadvantages</h3>
+        <ul>
+            <li>Slow for large datasets.</li>
+            <li>No early termination.</li>
+            <li>Inefficient for sorted data.</li>
+        </ul>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Try Linear Search</h2>
+    <div class="input-container">
+        <input type="number" id="addInput" placeholder="Enter a number">
+        <button class="method-btn" onclick="addNumber()">Add Number</button>
+
+        <input type="number" id="searchInput" placeholder="Enter number">
+        <button id="solve-btn" onclick="linearSearch()">Search</button>
+    </div>
+
+    <div class="graph-container">
+        <h3>Array Visualization</h3>
+        <div class="array-container" id="arrayContainer"></div>
+        <p id="resultMessage"></p>
+    </div>
+</div>
+
+<footer class="footer-bg">
+    <p>© 2025 Linear Search Visualization</p>
+</footer>
+
+<script src="LinearSearch.js"></script>
+
+</body>
+</html>
