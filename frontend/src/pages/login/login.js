@@ -1,7 +1,7 @@
-// ✅ Log that the script is loaded
+// login.js
 console.log("Login.js loaded");
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM fully loaded");
 
     // Get references to DOM elements
@@ -15,10 +15,10 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Login button:", loginButton);
 
     // Add event listener for login button
-    loginButton.addEventListener("click", function () {
+    loginButton.addEventListener('click', function() {
         console.log("Login button clicked");
 
-        // Show a simple alert to confirm click is working
+        // Simple alert to confirm click is working
         alert("Login attempt starting...");
 
         // Get email and password values
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const password = passwordInput.value;
 
         console.log("Email entered:", email);
-        console.log("Password entered:", password.replace(/./g, "*")); // Mask password for security in logs
+        console.log("Password entered:", password.replace(/./g, '*'));
 
         // Basic validation
         if (!email || !password) {
@@ -34,8 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Check if Firebase is available
-        if (typeof firebase === "undefined") {
+        // Check if firebase is available
+        if (typeof firebase === 'undefined') {
             console.error("Firebase is not defined!");
             showError("Authentication service unavailable. Please try again later.");
             return;
@@ -43,20 +43,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Sign in with Firebase
         console.log("Attempting Firebase auth...");
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(email, password)
+        firebase.auth().signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 // Successful login
                 const user = userCredential.user;
                 console.log("Logged in successfully:", user.email);
 
                 // Show success message
-                showSuccess("Login successful! Redirecting to home page...");
+                showSuccess("Login successful! Redirecting...");
 
-                // Redirect to home page (`index.html`) after a brief delay
+                // Redirect to dashboard or home page after a brief delay
                 setTimeout(() => {
-                    window.location.href = "../homepage/homepage.html"; // Adjust path if necessary
+                    window.location.href = '../homepage/homepage.html';
                 }, 1500);
             })
             .catch((error) => {
@@ -66,17 +64,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error("Login error:", errorCode, errorMessage);
 
                 // Show appropriate error message
-                switch (errorCode) {
-                    case "auth/user-not-found":
+                switch(errorCode) {
+                    case 'auth/user-not-found':
                         showError("No account found with this email");
                         break;
-                    case "auth/wrong-password":
+                    case 'auth/wrong-password':
                         showError("Incorrect password");
                         break;
-                    case "auth/invalid-email":
+                    case 'auth/invalid-email':
                         showError("Invalid email format");
                         break;
-                    case "auth/too-many-requests":
+                    case 'auth/too-many-requests':
                         showError("Too many failed attempts. Try again later");
                         break;
                     default:
@@ -85,37 +83,39 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
-    // ✅ Helper function to show error message
+    // Helper function to show error message
     function showError(message) {
         console.log("Showing error:", message);
 
         // Check if error message element already exists
-        let errorElement = document.querySelector(".error-message");
+        let errorElement = document.querySelector('.error-message');
 
         if (!errorElement) {
             // Create error message element if it doesn't exist
-            errorElement = document.createElement("p");
-            errorElement.className = "error-message text-red-500 mt-2";
+            errorElement = document.createElement('p');
+            errorElement.className = 'error-message text-red-500 mt-2';
             loginBox.appendChild(errorElement);
         }
 
         errorElement.textContent = message;
     }
 
-    // ✅ Helper function to show success message
+    // Helper function to show success message
     function showSuccess(message) {
         console.log("Showing success:", message);
 
         // Check if success message element already exists
-        let successElement = document.querySelector(".success-message");
+        let successElement = document.querySelector('.success-message');
 
         if (!successElement) {
             // Create success message element if it doesn't exist
-            successElement = document.createElement("p");
-            successElement.className = "success-message text-green-500 mt-2";
+            successElement = document.createElement('p');
+            successElement.className = 'success-message text-green-500 mt-2';
             loginBox.appendChild(successElement);
         }
 
         successElement.textContent = message;
+
+
     }
 });
