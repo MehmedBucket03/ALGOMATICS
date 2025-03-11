@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Redirect to dashboard or home page after a brief delay
                 setTimeout(() => {
-                    window.location.href = '../dashboard/dashboard.html';
+                    window.location.href = '../homepage/homepage.html';
                 }, 1500);
             })
             .catch((error) => {
@@ -115,5 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         successElement.textContent = message;
+
+
     }
 });
