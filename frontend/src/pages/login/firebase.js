@@ -11,11 +11,15 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+console.log("Initializing Firebase...");
 firebase.initializeApp(firebaseConfig);
+console.log("Firebase initialized successfully");
 
 // Initialize services
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-console.log("Firebase initialized");
+console.log("Auth available:", typeof firebase.auth);
+console.log("Firestore available:", typeof firebase.firestore);
+console.log("Storage available:", typeof firebase.storage);
