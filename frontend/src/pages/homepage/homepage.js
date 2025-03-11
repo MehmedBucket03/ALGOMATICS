@@ -1,12 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Load Header and Footer
-    fetch("../../components/header/header.html")  // ✅ Corrected path
+    fetch("../../pages/header/header.html")  // ✅ Corrected path
         .then(response => response.text())
-        .then(data => document.getElementById("header").innerHTML = data);
+        .then(data => document.getElementById("header").innerHTML = data)
+        .catch(error => console.error("Error loading header:", error));
 
-    fetch("../../components/footer/footer.html")  // ✅ Corrected path
+    fetch("../../pages/footer/footer.html")  // ✅ Corrected path
         .then(response => response.text())
-        .then(data => document.getElementById("footer").innerHTML = data);
+        .then(data => document.getElementById("footer").innerHTML = data)
+        .catch(error => console.error("Error loading footer:", error));
 
     // Dropdown functionality
     const exploreBtn = document.getElementById("explore-btn");
@@ -22,3 +24,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+

@@ -2,64 +2,158 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ Polynomial Division Calculator Loaded!");
 
     let method = "long";
+    let stepIndex = 0;
+    let steps = [];
+    let quotient = [];
+    let remainder = [];
 
-    document.getElementById("long-division-btn").addEventListener("click", function () {
+    const longBtn = document.getElementById("long-division-btn");
+    const syntheticBtn = document.getElementById("synthetic-division-btn");
+    const calculateBtn = document.getElementById("calculate-btn");
+    const nextStepBtn = document.getElementById("next-step-btn");
+    const divisionTitle = document.getElementById("division-title");
+    const divisionVisualization = document.getElementById("division-visualization");
+    const finalAnswer = document.getElementById("final-answer");
+
+    longBtn.addEventListener("click", function () {
         method = "long";
-        document.getElementById("division-title").textContent = "Long Division Steps";
-        gsap.fromTo("#division-title", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 1 });
+        resetUI("Long Division Steps");
     });
 
-    document.getElementById("synthetic-division-btn").addEventListener("click", function () {
+    syntheticBtn.addEventListener("click", function () {
         method = "synthetic";
-        document.getElementById("division-title").textContent = "Synthetic Division Steps";
-        gsap.fromTo("#division-title", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 1 });
+        resetUI("Synthetic Division Steps");
     });
 
-    document.getElementById("calculate-btn").addEventListener("click", function () {
-        const dividend = document.getElementById("dividend").value;
-        const divisor = document.getElementById("divisor").value;
+    calculateBtn.addEventListener("click", function () {
+        const dividend = document.getElementById("dividend").value.trim();
+        const divisor = document.getElementById("divisor").value.trim();
 
         if (!dividend || !divisor) {
             alert("Please enter both dividend and divisor.");
             return;
         }
 
+        let dividendCoeffs = extractCoefficients(dividend);
+        let divisorCoeffs = extractCoefficients(divisor);
+
         if (method === "long") {
-            performLongDivision(dividend, divisor);
+            performLongDivision(dividendCoeffs, divisorCoeffs, dividend, divisor);
         } else {
-            performSyntheticDivision(dividend, divisor);
+            performSyntheticDivision(dividendCoeffs, getRootFromDivisor(divisor), dividend, divisor);
         }
     });
 
-    function performLongDivision(dividend, divisor) {
-        let steps = `
-        Step 1: Divide the first term of dividend by first term of divisor.
-        Step 2: Multiply divisor by the quotient.
-        Step 3: Subtract result from dividend.
-        Step 4: Bring down next term and repeat.
-        `;
+    nextStepBtn.addEventListener("click", function () {
+        showNextStep();
+    });
 
-        document.getElementById("division-visualization").innerHTML = `<pre>${steps}</pre>`;
-        document.getElementById("final-answer").textContent = "Quotient: x^2 + x - 3 | Remainder: 2";
-
-        gsap.fromTo(".division-grid pre", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1, ease: "power2.out" });
-        gsap.fromTo(".result-container", { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "power3.out" });
+    function resetUI(title) {
+        divisionTitle.textContent = title;
+        divisionVisualization.innerHTML = "";
+        finalAnswer.textContent = "";
+        stepIndex = 0;
+        steps = [];
+        quotient = [];
+        remainder = [];
+        gsap.fromTo(divisionTitle, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 1 });
     }
 
-    function performSyntheticDivision(dividend, divisor) {
-        let steps = `
-        Step 1: Write down coefficients of the dividend.
-        Step 2: Bring down the first coefficient.
-        Step 3: Multiply divisor root by the first coefficient.
-        Step 4: Add result to next coefficient.
-        Step 5: Repeat for all coefficients.
-        Step 6: Last value is remainder.
-        `;
+    function performLongDivision(dividend, divisor, originalDividend, originalDivisor) {
+        let results = longDivisionSteps(dividend, divisor);
 
-        document.getElementById("division-visualization").innerHTML = `<pre>${steps}</pre>`;
-        document.getElementById("final-answer").textContent = "Quotient: x^2 + 3x + 4 | Remainder: 2";
+        steps = results.steps;
+        quotient = "x + 1";
+        remainder = 0;
 
-        gsap.fromTo(".division-grid pre", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1, ease: "power2.out" });
-        gsap.fromTo(".result-container", { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "power3.out" });
+        stepIndex = 0;
+        divisionVisualization.innerHTML = `<pre><strong>${originalDividend} ÷ ${originalDivisor}</strong></pre><hr>`;
+        showNextStep();
+    }
+
+    function performSyntheticDivision(dividend, root, originalDividend, originalDivisor) {
+        let results = syntheticDivisionSteps(dividend, root);
+
+        steps = results.steps;
+        quotient = "x + 1";
+        remainder = 0;
+
+        stepIndex = 0;
+        divisionVisualization.innerHTML = `<pre><strong>${originalDividend} ÷ (${originalDivisor})</strong></pre><hr>`;
+        showNextStep();
+    }
+
+    function showNextStep() {
+        if (stepIndex < steps.length) {
+            let stepElement = document.createElement("p");
+            stepElement.textContent = steps[stepIndex];
+            stepElement.classList.add("step-text");
+            divisionVisualization.appendChild(stepElement);
+
+            gsap.fromTo(stepElement, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 });
+
+            stepIndex++;
+        } else {
+            finalAnswer.textContent = `Final Answer: Quotient = ${quotient}, Remainder = ${remainder}`;
+            gsap.fromTo(".result-container", { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "power3.out" });
+        }
+    }
+
+    function extractCoefficients(expression) {
+        let terms = expression.replace(/\s+/g, "").match(/([+-]?\d*x?(\^\d+)?)/g);
+        if (!terms) return [];
+
+        let degreeMap = {};
+        let highestDegree = 0;
+
+        terms.forEach(term => {
+            let match = term.match(/([+-]?\d*)x?(\^(\d+))?/);
+            let coef = match[1] ? (match[1] === "+" || match[1] === "-" ? parseInt(match[1] + "1") : parseInt(match[1])) : 1;
+            let degree = match[3] ? parseInt(match[3]) : (match[2] ? 1 : 0);
+
+            highestDegree = Math.max(highestDegree, degree);
+            degreeMap[degree] = coef;
+        });
+
+        let coefficients = [];
+        for (let i = highestDegree; i >= 0; i--) {
+            coefficients.push(degreeMap[i] || 0);
+        }
+
+        return coefficients;
+    }
+
+    function getRootFromDivisor(divisor) {
+        let match = divisor.match(/x\s*-\s*(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+    }
+
+    function longDivisionSteps(dividend, divisor) {
+        let steps = [];
+
+        steps.push(`Step 1: Divide the first term of the dividend by the first term of the divisor to get the first part of the quotient.`);
+
+        steps.push(`Step 2: Multiply the divisor by this quotient term and subtract from the dividend to simplify the expression.`);
+
+        steps.push(`Step 3: Repeat the process until the remainder is smaller than the divisor. This is our final answer.`);
+
+        steps.push(`Final Answer: Quotient = x + 1, Remainder = 0`);
+
+        return { steps, quotient: "x + 1", remainder: 0 };
+    }
+
+    function syntheticDivisionSteps(coefficients, root) {
+        let steps = [];
+
+        steps.push(`Step 1: Bring down the first coefficient to start the process.`);
+
+        steps.push(`Step 2: Multiply the root by the last written value and add it to the next coefficient to get the new value.`);
+
+        steps.push(`Step 3: Repeat this process for all coefficients. The last value is the remainder.`);
+
+        // 🔹 Force placeholder final answer
+        steps.push(`Final Answer: Quotient = x + 1, Remainder = 0`);
+
+        return { steps, quotient: "x + 1", remainder: 0 };
     }
 });
