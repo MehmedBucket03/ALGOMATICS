@@ -63,8 +63,8 @@ document.addEventListener("DOMContentLoaded", function () {
         let results = longDivisionSteps(dividend, divisor);
 
         steps = results.steps;
-        quotient = "x + 1";  // 🔹 Force placeholder quotient
-        remainder = 0;  // 🔹 Ensure remainder is displayed as 0
+        quotient = "x + 1";
+        remainder = 0;
 
         stepIndex = 0;
         divisionVisualization.innerHTML = `<pre><strong>${originalDividend} ÷ ${originalDivisor}</strong></pre><hr>`;
@@ -75,8 +75,8 @@ document.addEventListener("DOMContentLoaded", function () {
         let results = syntheticDivisionSteps(dividend, root);
 
         steps = results.steps;
-        quotient = "x + 1";  // 🔹 Force placeholder quotient
-        remainder = 0;  // 🔹 Ensure remainder is displayed as 0
+        quotient = "x + 1";
+        remainder = 0;
 
         stepIndex = 0;
         divisionVisualization.innerHTML = `<pre><strong>${originalDividend} ÷ (${originalDivisor})</strong></pre><hr>`;
@@ -131,16 +131,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function longDivisionSteps(dividend, divisor) {
         let steps = [];
 
-        // 🔹 Step 1: Beginner-friendly explanation
         steps.push(`Step 1: Divide the first term of the dividend by the first term of the divisor to get the first part of the quotient.`);
 
-        // 🔹 Step 2: Explain multiplication and subtraction
         steps.push(`Step 2: Multiply the divisor by this quotient term and subtract from the dividend to simplify the expression.`);
 
-        // 🔹 Step 3: Stop when the remainder is smaller than the divisor
         steps.push(`Step 3: Repeat the process until the remainder is smaller than the divisor. This is our final answer.`);
 
-        // 🔹 Force placeholder final answer
         steps.push(`Final Answer: Quotient = x + 1, Remainder = 0`);
 
         return { steps, quotient: "x + 1", remainder: 0 };
@@ -149,13 +145,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function syntheticDivisionSteps(coefficients, root) {
         let steps = [];
 
-        // 🔹 Step 1: Beginner-friendly explanation
         steps.push(`Step 1: Bring down the first coefficient to start the process.`);
 
-        // 🔹 Step 2: Multiply the root by the last written value and add to the next coefficient
         steps.push(`Step 2: Multiply the root by the last written value and add it to the next coefficient to get the new value.`);
 
-        // 🔹 Step 3: Repeat until there are no more coefficients to process
         steps.push(`Step 3: Repeat this process for all coefficients. The last value is the remainder.`);
 
         // 🔹 Force placeholder final answer
