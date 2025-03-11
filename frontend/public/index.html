@@ -2,9 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Authentication</title>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<div class="container">
+    <h1>Firebase Authentication</h1>
+
+    <div id="auth-container">
+        <input type="email" id="email" placeholder="Enter your email">
+        <input type="password" id="password" placeholder="Enter your password">
+        <button onclick="register()">Register</button>
+        <button onclick="login()">Login</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <p id="user-status">Not logged in</p>
+</div>
+
+<script src="firebase.js"></script>
 </body>
 </html>
