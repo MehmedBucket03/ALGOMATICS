@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Arrays</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="arrays.css">
+
+
+    <!-- header code -->
+
+</head>
+<body class="text-center">
+
+<div class="content">
+    <header class="py-4">
+        <nav class="header-bg text-white py-2 px-6 rounded-full mx-4 flex justify-between items-center">
+            <div class="flex space-x-4">
+                <a class="text-white nav-link" href="home.html">HOME</a>
+                <a class="text-white nav-link" href="about.html">ABOUT</a>
+                <a class="text-white nav-link" href="math.html">MATH</a>
+                <a class="text-white nav-link" href="algorithms.html">ALGORITHMS</a>
+            </div>
+            <a class="bg-[#6d149f] text-white px-4 py-2 rounded-full hover:bg-[#75107d]" href="login.html">LOGIN / SIGN UP</a>
+        </nav>
+    </header>
+    <main class="py-8">
+        <h1 class="text-3xl text-white font-bold">Arrays</h1>
+        <p class="text-lg text-white mt-2 mb-4">
+            An <span class="font-bold text-xl">array</span> is a linear data structure that collects elements of the same data type and stores them in contiguous and adjacent memory locations. Arrays work on an index system starting from 0 to (n-1), where n is the size of the array.
+        </p>
+
+        <!-- animation code -->
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-blue-800 p-6 rounded-lg shadow-lg w-full max-w-md">
+                <h1 class="text-2xl text-white font-bold mb-4">Array Animation</h1>
+                <p class="mb-4 text-white">
+                    This animation demonstrates how items are added to an array data structure. When you enter a number and click "Add Item", the number is appended to the end of the array, and a visual representation of the array is updated to include the new item.
+                </p>
+                <div class="flex mb-4">
+                    <input id="item-value" type="number" class="border border-gray-300 p-2 rounded-l w-full" placeholder="Enter a number" min="0" step="1">
+                    <button id="add-item" class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">
+                        Add Item
+                    </button>
+                </div>
+                <div id="array-container" class="flex flex-wrap mb-4">
+
+                </div>
+                <div id="array-length" class="bg-blue-100 text-blue-800 p-2 rounded-lg mb-4">
+                    Array Length: 0 (Next index: 0)
+                </div>
+                <div class="flex mb-4">
+                    <input id="delete-index" type="number" class="border border-gray-300 p-2 rounded-l w-full" placeholder="Enter index to delete" min="0" step="1">
+                    <button id="delete-item" class="bg-purple-500 text-white px-4 py-2 rounded-r hover:bg-purple-800">
+                        Delete Item
+                    </button>
+                </div>
+                <div id="explanation" class="explanation">
+                    The item has been added to the end of the array.
+                </div>
+            </div>
+        </div>
+        <!-- animation code -->
+
+    </main>
+
+    <!-- footer code -->
+
+    <section class="footer-bg text-white py-4">
+        <div class="bg-blue-300 p-4 mt-4 mx-8 rounded-lg flex justify-center items-center space-x-4">
+            <div class="bg-purple-500 w-16 h-16"></div>
+            <div class="bg-blue-500 w-16 h-16"></div>
+            <div class="bg-blue-900 w-16 h-16"></div>
+        </div>
+        <footer class="mt-4">
+            <div class="flex justify-between px-8">
+                <div class="text-left">
+                    <a class="block text-white nav-link" href="home.html">Home</a>
+                    <a class="block text-white nav-link" href="about.html">About</a>
+                    <a class="block text-white nav-link" href="math.html">Math</a>
+                    <a class="block text-white nav-link" href="algorithms.html">Algorithms</a>
+                </div>
+                <div class="text-right">
+                    <a class="block text-white nav-link" href="terms.html">Terms & Conditions</a>
+                    <p>© 2025 by ALGOMATICS.</p>
+                </div>
+            </div>
+        </footer>
+    </section>
+</div>
+<script src="arrays.js"></script>
+
+</body>
+</html>
