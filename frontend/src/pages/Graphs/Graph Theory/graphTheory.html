@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph Theory Visualizations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="graphTheory.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.0/gsap.min.js"></script>
+</head>
+<body>
+<div class="header-bg">
+  <h1>Graph Theory Visualizations</h1>
+</div>
+<div class="explanation-box">
+  <h3>Depth-First Search (DFS) Algorithm</h3>
+  <p>
+    Depth-First Search (DFS) is an algorithm used to explore all the nodes in a graph. The algorithm starts at a given node and explores as far as possible along each branch before backtracking. It uses a stack (or recursion) to remember the path it’s taking.
+    DFS is useful for tasks such as solving puzzles, checking for connectivity in graphs, and topological sorting.
+  </p>
+</div>
+<div class="container">
+  <div class="input-container">
+    <button onclick="startDFS()">DFS</button>
+    <button onclick="resetGraph()">Reset Graph</button>
+
+    <button onclick="startBFS()">BFS</button>
+    <button onclick="startTopologicalSort()">Topological Sort</button>
+  </div>
+
+
+  <div id="graph-container">
+    <svg id="graph" width="500" height="500"></svg>
+  </div>
+
+  <div class="explanation-box">
+    <h3>Graph Theory Algorithms</h3>
+    <p>Click on the buttons to visualize Depth-First Search (DFS), Breadth-First Search (BFS), or Topological Sort.</p>
+  </div>
+
+  <div class="visualization-container">
+    <div class="tree-container">
+      <div class="canvas-wrapper">
+        <canvas id="tree-canvas" width="500" height="500"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-bg">
+  <p>&copy; 2025 Graph Visualization Project</p>
+</div>
+
+<script src="graphTheory.js"></script>
+</body>
+</html>

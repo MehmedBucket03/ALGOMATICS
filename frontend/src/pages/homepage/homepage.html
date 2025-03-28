@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Algomatics - Home</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="homepage.css">
+
     <style>
         body {
             font-family: 'Silkscreen', serif;
@@ -25,7 +30,6 @@
             overflow: hidden;
             z-index: -1;
         }
-
         .content {
             position: relative;
             z-index: 1;
@@ -60,26 +64,33 @@
     </style>
 </head>
 <body>
+
+<!-- Header -->
 <div id="header"></div>
 
-<div class="gif-container">
-</div>
+<!-- Background GIF -->
+<div class="gif-container"></div>
 
+<!-- Main Content -->
 <div class="content">
     <h1 class="text-5xl font-bold">ALGOMATICS</h1>
     <p class="text-lg mt-4">An interactive tool that visually demonstrates mathematical functions, equations, data structures, and algorithms.</p>
 
+    <!-- Explore Subjects Dropdown -->
     <div class="dropdown mt-6">
         <button class="bg-blue-200 text-black px-6 py-3 rounded-full font-bold" id="explore-btn">Explore Subjects</button>
         <div class="dropdown-content" id="dropdown-menu">
-            <a href="math.html">Math</a>
-            <a href="algorithms.html">Algorithms</a>
+            <a href="../math/math.html" id="math-link">Math</a>
+            <a href="../algorithms/algorithms.html" id="algorithms-link">Algorithms</a>
         </div>
     </div>
 </div>
 
-<div id="footer"> </div>
+<!-- Footer -->
+<div id="footer"></div>
 
+<!-- Scripts -->
 <script src="homepage.js"></script>
+
 </body>
 </html>

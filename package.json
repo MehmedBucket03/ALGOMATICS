@@ -10,5 +10,8 @@
     "type": "git",
     "url": "https://github.com/MehmedBucket03/ALGOMATICS.git"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "firebase": "^11.4.0"
+  }
 }
