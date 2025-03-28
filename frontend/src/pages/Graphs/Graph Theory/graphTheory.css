@@ -4,8 +4,6 @@ body {
     padding: 0;
     color: black;
     text-align: center;
-    background: url('https://via.placeholder.com/1920x1080/eee') no-repeat center center fixed; /* Optional background */
-    background-size: cover;
 }
 
 .header-bg, .footer-bg {
@@ -16,8 +14,8 @@ body {
 }
 
 .container {
-    width: 60%;
-    margin: 20px auto;
+    width: 80%;
+    margin: 40px auto;
     padding: 20px;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
@@ -26,21 +24,10 @@ body {
 }
 
 .input-container {
-    margin: 10px;
+    margin: 20px;
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-input {
-    padding: 10px;
-    width: 70%;
-    max-width: 300px;
-    margin-right: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-family: 'Silkscreen', serif;
+    gap: 20px;
 }
 
 button {
@@ -69,15 +56,14 @@ button:hover {
 
 .visualization-container {
     display: flex;
-    justify-content: space-between;
-    gap: 20px;
+    justify-content: center;
+    gap: 40px;
     margin: 20px 0;
 }
 
 .tree-container {
     position: relative;
     width: 100%;
-    max-width: 100%;
     height: 500px;
     display: flex;
     flex-direction: column;
@@ -85,56 +71,17 @@ button:hover {
     overflow: hidden;
 }
 
-/* Wrapper to enable scrolling & zooming */
 .canvas-wrapper {
     width: 100%;
     height: 100%;
-    overflow: auto; /* Enables scrolling */
+    overflow: auto;
     position: relative;
     border: 1px solid #ddd;
     background-color: #f9f9f9;
     cursor: grab;
 }
 
-/* Ensures the canvas scales properly */
 #tree-canvas {
-    transform-origin: center center;
-    transition: transform 0.2s ease-out;
-}
-
-
-
-#binary-search-table {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-#binary-search-table th, #binary-search-table td {
-    padding: 12px;
-    text-align: center;
-    border-bottom: 2px solid rgba(67, 42, 221, 0.2);
-}
-
-#binary-search-table th {
-    background: rgba(67, 42, 221, 0.8);
-    color: white;
-    font-weight: bold;
-}
-
-#binary-search-table tr:nth-child(even) {
-    background: rgba(67, 42, 221, 0.1);
-}
-
-#binary-search-table tr.highlight {
-    background: yellow !important;
-}
-
-canvas {
     border: 1px solid #ddd;
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.95);
@@ -143,13 +90,4 @@ canvas {
 h3 {
     color: #432add;
     margin-bottom: 10px;
-}
-
-.highlight {
-    background-color: #ffeb3b;
-    transition: background-color 0.5s ease-in-out;
-}
-
-.tree-container {
-    transition: transform 0.2s ease-in-out;
 }

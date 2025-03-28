@@ -74,34 +74,13 @@ button:hover {
     margin: 20px 0;
 }
 
-.tree-container {
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    height: 500px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
+.table-container, .tree-container {
+    flex: 1;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
-
-/* Wrapper to enable scrolling & zooming */
-.canvas-wrapper {
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Enables scrolling */
-    position: relative;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    cursor: grab;
-}
-
-/* Ensures the canvas scales properly */
-#tree-canvas {
-    transform-origin: center center;
-    transition: transform 0.2s ease-out;
-}
-
 
 
 #binary-search-table {
@@ -143,13 +122,4 @@ canvas {
 h3 {
     color: #432add;
     margin-bottom: 10px;
-}
-
-.highlight {
-    background-color: #ffeb3b;
-    transition: background-color 0.5s ease-in-out;
-}
-
-.tree-container {
-    transition: transform 0.2s ease-in-out;
 }

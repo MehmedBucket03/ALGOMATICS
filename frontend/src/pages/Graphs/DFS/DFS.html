@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFS Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        canvas {
+            background: white;
+            border: 2px solid black;
+        }
+
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 200px;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background: lightgray;
+        }
+
+        .stack-container {
+            border: 2px solid black;
+            padding: 10px;
+            width: 80px;
+            background: white;
+        }
+
+        .stack-box {
+            background-color: lightblue;
+            border: 1px solid black;
+            padding: 10px;
+            margin: 5px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background: darkblue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: navy;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DFS Graph Traversal Visualization</h1>
+<button id="startDFS">Start DFS</button>
+<button id="pauseDFS">Pause</button>
+
+<div class="container">
+    <!-- Graph Canvas -->
+    <canvas id="canvas" width="600" height="400"></canvas>
+
+    <!-- Tables for Visited Nodes and Stack -->
+    <div class="table-container">
+        <table id="visitedTable">
+            <tr><th>Visited Nodes</th></tr>
+        </table>
+
+        <table id="stackTable">
+            <tr><th>Stack (Next to Visit)</th></tr>
+        </table>
+    </div>
+
+    <!-- Stack Representation -->
+    <div class="stack-container">
+        <h3>Stack</h3>
+        <div id="stack"></div>
+    </div>
+</div>
+
+<script>
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+    let stack = [];
+    let visited = new Set();
+    let isPaused = false;
+    let graph = {
+        1: [2, 3],
+        2: [4, 5],
+        3: [6],
+        4: [],
+        5: [],
+        6: []
+    };
+    let positions = {
+        1: {x: 300, y: 100},
+        2: {x: 200, y: 200},
+        3: {x: 400, y: 200},
+        4: {x: 150, y: 300},
+        5: {x: 250, y: 300},
+        6: {x: 450, y: 300}
+    };
+
+    function delay(ms) {
+        return new Promise(resolve => {
+            let checkPause = () => {
+                if (!isPaused) resolve();
+                else setTimeout(checkPause, 100);
+            };
+            setTimeout(checkPause, ms);
+        });
+    }
+
+    function drawGraph(activeNode = null) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let node in graph) {
+            graph[node].forEach(neighbor => {
+                ctx.beginPath();
+                ctx.moveTo(positions[node].x, positions[node].y);
+                ctx.lineTo(positions[neighbor].x, positions[neighbor].y);
+                ctx.strokeStyle = visited.has(parseInt(neighbor)) ? "gray" : "black";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+
+        for (let node in positions) {
+            ctx.beginPath();
+            ctx.arc(positions[node].x, positions[node].y, 25, 0, 2 * Math.PI);
+
+            if (activeNode == node) {
+                ctx.fillStyle = "orange";
+            } else if (visited.has(parseInt(node))) {
+                ctx.fillStyle = "blue";
+            } else {
+                ctx.fillStyle = "white";
+            }
+
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = "black";
+            ctx.fillText(node, positions[node].x - 5, positions[node].y + 5);
+        }
+    }
+
+    function updateTable() {
+        const visitedTable = document.getElementById("visitedTable");
+        const stackTable = document.getElementById("stackTable");
+
+        visitedTable.innerHTML = `<tr><th>Visited Nodes</th></tr>` +
+            Array.from(visited).map(n => `<tr><td>${n}</td></tr>`).join("");
+
+        stackTable.innerHTML = `<tr><th>Stack (Next to Visit)</th></tr>` +
+            stack.map(n => `<tr><td>${n}</td></tr>`).reverse().join("");
+    }
+
+    function updateStackImage() {
+        const stackDiv = document.getElementById("stack");
+        stackDiv.innerHTML = stack
+            .map(n => `<div class="stack-box">${n}</div>`)
+            .reverse()
+            .join("");
+    }
+
+    function drawArrow(from, to, color = "green", dashed = false) {
+        ctx.beginPath();
+        ctx.moveTo(positions[from].x, positions[from].y);
+        ctx.lineTo(positions[to].x, positions[to].y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 4;
+
+        if (dashed) ctx.setLineDash([5, 5]);
+        else ctx.setLineDash([]);
+
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    async function dfs(node) {
+        if (visited.has(node)) return;
+
+        stack.push(node);
+        updateTable();
+        updateStackImage();
+
+        visited.add(node);
+        drawGraph(node);
+        await delay(1000);
+
+        for (let neighbor of graph[node]) {
+            if (!visited.has(neighbor)) {
+                drawArrow(node, neighbor);
+                await dfs(neighbor);
+            }
+        }
+
+        stack.pop();
+        updateTable();
+        updateStackImage();
+        drawGraph();
+    }
+
+    document.getElementById("startDFS").addEventListener("click", async () => {
+        visited.clear();
+        stack = [];
+        isPaused = false;
+        drawGraph();
+        await dfs(1);
+        updateTable();
+    });
+
+    document.getElementById("pauseDFS").addEventListener("click", () => {
+        isPaused = !isPaused;
+        document.getElementById("pauseDFS").textContent = isPaused ? "Resume" : "Pause";
+    });
+
+    drawGraph();
+</script>
+</body>
+</html>
