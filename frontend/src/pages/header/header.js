@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     links.forEach(link => {
         if (link.getAttribute("href") === currentUrl) {
-            link.classList.add("text-yellow-300"); // Adds a highlight effect
+            link.classList.add("text-yellow-300");
         }
     });
 });

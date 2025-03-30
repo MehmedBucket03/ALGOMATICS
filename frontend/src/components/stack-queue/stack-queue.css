@@ -1,0 +1,80 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #0D1B2A;
+    color: white;
+    margin: 0;
+    padding: 20px;
+}
+.navbar {
+    background: #6A0DAD;
+    padding: 15px;
+    text-align: center;
+}
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 18px;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    margin-top: 30px;
+}
+.stack-container, .queue-container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2);
+    width: 250px;
+    text-align: center;
+}
+input {
+    font-size: 16px;
+    padding: 8px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: none;
+    text-align: center;
+    width: 80%;
+}
+button {
+    background-color: #FFC107;
+    color: black;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #FFD700;
+}
+.data-structure {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    min-height: 200px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid white;
+}
+
+.stack-item, .queue-item {
+    width: 100px;
+    height: 40px;
+    background: #FF4081;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
