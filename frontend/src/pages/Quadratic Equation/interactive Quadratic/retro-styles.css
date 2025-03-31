@@ -1,0 +1,100 @@
+/* Retro Style */
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen&family=Press+Start+2P&display=swap');
+
+body {
+    background: linear-gradient(to right, #ff9de6, #d27cff); /* Pink to Purple Gradient */
+    color: pink;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 8px 8px 0px #ff00ff, -8px -8px 0px #00ffff; /* Retro 3D shadow effect */
+    backdrop-filter: blur(10px);
+}
+
+.section {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(67, 42, 221, 0.2); /* Subtle purple tint */
+    border-radius: 5px;
+    box-shadow: 4px 4px 0px #ff00ff, -4px -4px 0px #00ffff;
+}
+
+h1, h2, h3 {
+    color: #ffcc00; /* Bright yellow for headers */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.problem, .explanation, .try-it {
+    font-size: 18px;
+    color: ghostwhite;
+    margin-bottom: 10px;
+}
+
+.solution, .user-solution {
+    font-size: 16px;
+    color: paleturquoise;
+    margin-top: 10px;
+    background: black;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 4px 4px 0px #ff00ff, -4px -4px 0px #00ffff;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    background-color: #ffcc00;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+    box-shadow: 4px 4px 0px #ff00ff, -4px -4px 0px #00ffff;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background-color: #d4a600;
+    transform: translateY(-2px);
+}
+
+input {
+    padding: 8px;
+    font-size: 14px;
+    margin: 0 5px;
+    border-radius: 5px;
+    border: 2px solid #fff;
+    background: black;
+    color: paleturquoise;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+}
+
+/* Retro Pixelated Text */
+.pixel-text {
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 4px 4px 0 #000, 6px 6px 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Glitch Effect */
+@keyframes glitch {
+    0% { text-shadow: 2px 2px 0px #ff00ff, -2px -2px 0px #00ffff; }
+    50% { text-shadow: -2px -2px 0px #ff00ff, 2px 2px 0px #00ffff; }
+    100% { text-shadow: 2px -2px 0px #ff00ff, -2px 2px 0px #00ffff; }
+}
+
+.glitch {
+    animation: glitch 0.9s infinite alternate;
+}
