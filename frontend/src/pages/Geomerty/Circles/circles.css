@@ -1,0 +1,166 @@
+/* Base styles from the first style (Silkscreen) */
+body {
+    font-family: 'Silkscreen', serif;
+    margin: 0;
+    padding: 0;
+    color: black;
+    text-align: center;
+    background: url('https://via.placeholder.com/1920x1080/eee') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.header-bg, .footer-bg {
+    background-color: rgba(67, 42, 221, 0.8);
+    padding: 15px;
+    text-align: center;
+    color: white;
+}
+
+.container {
+    width: 60%;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    display: flex; /* From second style */
+    flex-direction: column; /* From second style */
+    align-items: center; /* From second style */
+    gap: 20px; /* From second style */
+}
+
+h1 {
+    color: #333; /* From second style */
+    margin-bottom: 20px; /* From second style */
+}
+
+/* SVG styling */
+svg {
+    border: 1px solid #ccc; /* From second style */
+    background-color: white; /* From second style */
+    border-radius: 10px; /* From second style */
+    max-width: 100%; /* Ensure it fits container */
+}
+
+/* Button and controls styling */
+.controls {
+    display: flex; /* From second style */
+    gap: 15px; /* From second style */
+}
+
+button {
+    padding: 12px 25px; /* From second style */
+    font-size: 16px; /* From second style */
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background: #ffcc00; /* From first style */
+    font-family: 'Silkscreen', serif; /* From first style */
+    transition: background 0.3s ease, transform 0.2s ease; /* Combined transitions */
+    color: black; /* Ensure readability on yellow */
+}
+
+button:hover {
+    background: #d4a600; /* From first style */
+    transform: scale(1.05); /* From second style */
+}
+
+/* Controls group (sliders) */
+.controls-group {
+    margin-top: 20px;
+    font-family: 'Silkscreen', serif;
+    opacity: 0; /* For GSAP fade-in */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.controls-group label {
+    margin-right: 10px;
+}
+
+.controls-group input[type="range"] {
+    width: 200px;
+    vertical-align: middle;
+    padding: 5px; /* Slight padding for better appearance */
+    border-radius: 5px;
+    border: 1px solid #ccc; /* From first style input */
+}
+
+.controls-group span {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+/* Explanation styling */
+.explanation {
+    max-width: 400px; /* From second style */
+    padding: 20px; /* From first style */
+    margin: 20px 0; /* From first style */
+    background: white; /* From first style */
+    border-radius: 10px; /* From first style */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* From first style */
+    text-align: left; /* From first style */
+    font-size: 18px; /* From second style */
+    animation: fadeIn 0.5s forwards; /* From second style */
+}
+
+/* Formulas container */
+.formulas-container {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    text-align: center;
+    width: 100%;
+    max-width: 500px; /* Limit width for readability */
+}
+
+.formulas {
+    font-family: 'Silkscreen', serif;
+    font-size: 16px;
+    color: #333; /* From second style */
+}
+
+/* Fade-in animation from second style */
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+/* Optional: Enhance readability of formulas */
+.formulas b {
+    color: #432add; /* From first style h3 color */
+}
+
+/* Add to your existing circles.css */
+.slider-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Silkscreen', serif;
+}
+
+.slider-container label {
+    font-size: 16px;
+    color: #333;
+}
+
+.slider-container input[type="range"] {
+    width: 200px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    vertical-align: middle;
+}
+
+.slider-container span {
+    font-weight: bold;
+    color: #432add; /* Matches h3 color from your first style */
+}
