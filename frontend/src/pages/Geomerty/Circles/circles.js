@@ -403,15 +403,19 @@ drawCirclePoints();
 
 // Add size control with slider
 const sizeSlider = document.getElementById('sizeSlider');
+const sizeValue = document.getElementById('sizeValue'); // Reference to the span
+
 if (sizeSlider) {
     sizeSlider.addEventListener('input', (e) => {
-        radiusScale = Math.max(0.5, Math.min(2, parseFloat(e.target.value))); // Limit scale between 0.5x and 2x
-        updateRadius(); // Animate circle size change
+        radiusScale = Math.max(0.5, Math.min(2, parseFloat(e.target.value)));
+        updateRadius();
+        if (sizeValue) {
+            sizeValue.textContent = `${radiusScale.toFixed(1)}x`; // Update displayed value
+        }
         if (currentAnimation) {
             currentAnimation(); // Redraw current animation with new radius
         }
     });
 }
-
 // Set initial circle size
 updateRadius();
