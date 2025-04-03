@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortest Path Visualization</title>
+    <!-- Animate.css CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="shortestPath.css">
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+<!-- Loading Screen -->
+<div id="loading-screen">
+    <div class="tetrominos">
+        <div class="tetromino box1"></div>
+        <div class="tetromino box2"></div>
+        <div class="tetromino box3"></div>
+        <div class="tetromino box4"></div>
+    </div>
+</div>
+
+<!-- Header Section -->
+<div class="header-bg animate__animated animate__fadeIn">
+    <h1 class="pixel-text glitch">Shortest Path Visualization</h1>
+    <p>Learn how the shortest path algorithms work with step-by-step visualization.</p>
+</div>
+
+<!-- Graph Canvas -->
+<div id="canvas-container" class="section animate__animated animate__fadeIn" style="animation-delay: 0.5s;">
+    <canvas id="graphCanvas" width="600" height="300"></canvas>
+</div>
+
+<!-- Controls Section -->
+<div id="controls" class="section animate__animated animate__fadeIn" style="animation-delay: 1s;">
+    <button onclick="runDijkstra()">Run Dijkstra</button>
+    <button onclick="runBellmanFord()">Run Bellman-Ford</button>
+    <button onclick="runFloydWarshall()">Run Floyd-Warshall</button>
+    <button onclick="resetGraph()">Reset Graph</button>
+    <button onclick="goToFloydWarshall()">Go to Floyd-Warshall</button>
+</div>
+
+<!-- Explanation Pane -->
+<div id="explanation" class="section animate__animated animate__fadeIn" style="animation-delay: 1.5s; display: none;"></div>
+
+<!-- JavaScript -->
+<script src="shortestPath.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const loader = document.getElementById("loading-screen");
+        gsap.to(loader, { opacity: 0, duration: 0.5, delay: 3, onComplete: () => loader.classList.add("hidden") });
+    });
+
+    function navigateWithLoader(url) {
+        const loader = document.getElementById("loading-screen");
+        loader.classList.remove("hidden");
+        gsap.to(loader, { opacity: 1, duration: 0.5, onComplete: () => {
+                setTimeout(() => window.location.href = url, 3000);
+            }});
+    }
+
+    function goToFloydWarshall() {
+        navigateWithLoader("runFloydWarshall.html");
+    }
+</script>
+</body>
+</html>
