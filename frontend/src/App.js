@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import UniversalHeader from './components/common/Header';
 import UniversalFooter from './components/common/Footer';
 import Homepage from './pages/Homepage';
+import Login from './components/auth/login/login';
+import Signup from './components/auth/signup/signup';
+
 import GraphVisualization from './pages/GraphVisualization';
 import TreeVisualization from './pages/TreeVisualization';
 import SortingAlgorithms from './pages/SortingAlgorithms';
@@ -16,6 +19,8 @@ const App = () => {
                 <main className="content">
                     <Routes>
                         <Route path="/" element={<Homepage />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<Signup />} />
                         <Route path="/graphs" element={<GraphVisualization />} />
                         <Route path="/trees" element={<TreeVisualization />} />
                         <Route path="/sorting" element={<SortingAlgorithms />} />

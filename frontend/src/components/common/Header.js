@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Header.css';
 
 function UniversalHeader() {
@@ -29,19 +30,22 @@ function UniversalHeader() {
                     <nav className={`pixel-nav ${menuOpen ? 'open' : ''}`}>
                         <ul className="pixel-menu">
                             <li className="pixel-menu-item">
-                                <a href="/home" className="pixel-link">HOME</a>
+                                <Link to="/" className="pixel-link">HOME</Link>
                             </li>
                             <li className="pixel-menu-item">
-                                <a href="/about" className="pixel-link">ABOUT</a>
+                                <Link to="/about" className="pixel-link">ABOUT</Link>
                             </li>
                             <li className="pixel-menu-item">
-                                <a href="/math" className="pixel-link">MATH</a>
+                                <Link to="/math" className="pixel-link">MATH</Link>
                             </li>
                             <li className="pixel-menu-item">
-                                <a href="/algorithms" className="pixel-link">ALGORITHMS</a>
+                                <Link to="/algorithms" className="pixel-link">ALGORITHMS</Link>
                             </li>
                             <li className="pixel-menu-item login-button">
-                                <a href="/login" className="pixel-button">LOGIN / SIGN UP</a>
+                                <Link to="/login" className="pixel-button">LOGIN</Link>
+                            </li>
+                            <li className="pixel-menu-item login-button">
+                                <Link to="/signup" className="pixel-button">SIGN UP</Link>
                             </li>
                         </ul>
                     </nav>
