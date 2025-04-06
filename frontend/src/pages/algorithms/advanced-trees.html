@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Advanced Trees Visualization</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../components/advanced-trees/advanced-trees.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+
+<body class="text-center font-['Silkscreen']">
+
+    <main class="py-8">
+        <h1 class="text-3xl text-white font-bold mb-4">ADVANCED TREES VISUALIZATION</h1>
+
+        <div class="mb-6">
+            <button onclick="selectTree('avl')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-1">AVL Tree</button>
+            <button onclick="selectTree('rbt')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 m-1">Red-Black Tree</button>
+            <button onclick="selectTree('trie')" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 m-1">Trie</button>
+        </div>
+
+        <div class="mb-6">
+            <input type="number" id="nodeValue" placeholder="Enter a number" class="border border-gray-300 p-2 rounded w-48 text-black">
+            <div class="mt-2">
+                <button onclick="insertNode()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 m-1">Insert</button>
+                <button onclick="searchNode()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 m-1">Search</button>
+                <button onclick="removeNode()" class="bg-red-700 text-white px-4 py-2 rounded hover:bg-red-800 m-1">Remove</button>
+            </div>
+        </div>
+
+        <div id="visualization-container" class="mb-6">
+            <canvas id="treeCanvas"></canvas>
+        </div>
+
+        <div id="trieWordsBox" style="display:none;" class="mx-auto bg-[#1a1a2e] text-white p-4 border-2 border-[#a4f7ff] rounded-lg w-60 shadow-lg font-mono">
+            <h3 class="text-[#a4f7ff] text-center text-lg mb-2">Keys in Trie</h3>
+            <table class="w-full">
+                <tbody id="trieWordsList"></tbody>
+            </table>
+        </div>
+
+        <div id="explanation" class="mt-8 text-white">
+            <h2 class="text-2xl font-bold mb-2">Tree Explanation</h2>
+            <p id="treeDescription">Select a tree type to see its visualization and explanation.</p>
+        </div>
+    </main>
+
+
+<script src="../../components/advanced-trees/advanced-trees.js"></script>
+</body>
+</html>

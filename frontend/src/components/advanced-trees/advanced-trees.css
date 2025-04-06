@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+body {
+    background-color: #0a0a23;
+    color: #d4a4ff;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+}
+
+.header-bg, .footer-bg {
+    background-color: rgba(67, 42, 221, 0.8);
+}
+
+.nav-link {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+nav {
+    margin: 20px;
+}
+
+button {
+    background: #1e1e3f;
+    border: 3px solid #d4a4ff;
+    color: #d4a4ff;
+    font-family: 'Press Start 2P', cursive;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background: #623a83;
+}
+
+#visualization-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    margin-top: 20px;
+    border: 4px solid #d4a4ff;
+    background: #1e1e3f;
+    padding: 10px;
+}
+
+canvas {
+    background: #0a0a23;
+    border: 2px solid #d4a4ff;
+    width: 100%;
+    max-width: 760px;
+    height: 100%;
+}
+
+#explanation {
+    margin-top: 20px;
+    padding: 20px;
+    border: 4px solid #d4a4ff;
+    background: #1e1e3f;
+    text-align: center;
+}
+#trieWordsBox {
+    position: absolute;
+    right: 20px;
+    top: 100px;
+}
