@@ -1,72 +1,183 @@
 @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
 
-body {
-    font-family: 'Silkscreen', serif;
+/* Global Reset */
+* {
     margin: 0;
     padding: 0;
-    background-color: black;
+    box-sizing: border-box;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Silkscreen', serif;
+    background-color: #12121f;
+    color: #dfe6e9;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #191932;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6c5ce7;
+    border: 2px solid #191932;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #fd79a8;
+}
+
+/* Global Typography */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+button {
+    font-family: 'Silkscreen', serif;
+    cursor: pointer;
+}
+
+/* Common Pixel Art Elements */
+.pixel-border {
+    border: 4px solid #191932;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+}
+
+.pixel-button {
+    background-color: #6c5ce7;
     color: white;
-    text-align: center;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-family: 'Silkscreen', serif;
+    font-size: 1rem;
+    box-shadow: 0 6px 0 #4834d4;
+    transform: translateY(-3px);
+    transition: all 0.2s ease;
 }
 
-.gif-container {
-
-    background: url("../src/assets/images/run.gif") no-repeat center center;
-
-}
-/* Header styles */
-.header-bg {
-    background-color: rgba(67, 42, 221, 0.8);
+.pixel-button:hover {
+    background-color: #a29bfe;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 0 #6c5ce7;
 }
 
-.nav-link:hover {
-    color: #75107d;
+.pixel-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0 #4834d4;
 }
 
-.content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 160px); /* Adjust based on header/footer height */
-    text-align: center;
-    padding: 2rem;
+/* Text Effects */
+.pixel-text-shadow {
+    text-shadow: 3px 3px 0 #191932;
 }
 
-.dropdown {
+.glitch-text {
     position: relative;
     display: inline-block;
 }
 
-.dropdown-content {
+.glitch-text::before, .glitch-text::after {
+    content: attr(data-text);
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.8);
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    z-index: 10;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    clip: rect(0, 0, 0, 0);
 }
 
-.dropdown-content a {
-    color: white;
-    padding: 10px;
-    text-decoration: none;
-    display: block;
+.glitch-text::before {
+    left: 2px;
+    text-shadow: -1px 0 #fd79a8;
+    animation: glitch-anim-1 2s infinite linear alternate-reverse;
 }
 
-.dropdown-content a:hover {
-    background-color: rgba(59, 130, 246, 0.5);
+.glitch-text::after {
+    left: -2px;
+    text-shadow: 1px 0 #6c5ce7;
+    animation: glitch-anim-2 3s infinite linear alternate-reverse;
 }
 
-/* Additional styles for the app structure */
-.app {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+@keyframes glitch-anim-1 {
+    0%, 5%, 10%, 15%, 20%, 25%, 30%, 35%, 40%, 45%, 50%, 55%, 60%, 65%, 70%, 75%, 80%, 85%, 90%, 95%, 100% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+    0.5%, 10.5%, 20.5%, 30.5%, 40.5%, 50.5%, 60.5%, 70.5%, 80.5%, 90.5% {
+        clip: rect(0, 9999px, 2px, 0);
+    }
 }
 
-main {
-    flex: 1;
+@keyframes glitch-anim-2 {
+    0%, 15%, 30%, 45%, 60%, 75%, 90% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+    7%, 22%, 37%, 52%, 67%, 82%, 97% {
+        clip: rect(0, 9999px, 3px, 0);
+    }
+}
+
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.hidden {
+    display: none;
+}
+
+.pixel-shadow {
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+}
+
+.py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.text-3xl {
+    font-size: 1.875rem;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.text-lg {
+    font-size: 1.125rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
 }

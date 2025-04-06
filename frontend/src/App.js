@@ -1,26 +1,28 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/common/Header';
-import Footer from './components/common/Footer';
+import UniversalHeader from './components/common/Header';
+import UniversalFooter from './components/common/Footer';
 import Homepage from './pages/Homepage';
 import GraphVisualization from './pages/GraphVisualization';
 import TreeVisualization from './pages/TreeVisualization';
 import SortingAlgorithms from './pages/SortingAlgorithms';
+import MathPage from './components/math/MathPage';
 
 const App = () => {
     return (
         <Router>
             <div className="app">
-                <Header />
+                <UniversalHeader />
                 <main className="content">
                     <Routes>
                         <Route path="/" element={<Homepage />} />
                         <Route path="/graphs" element={<GraphVisualization />} />
                         <Route path="/trees" element={<TreeVisualization />} />
                         <Route path="/sorting" element={<SortingAlgorithms />} />
+                        <Route path="/math" element={<MathPage />} />
                     </Routes>
                 </main>
-                <Footer />
+                <UniversalFooter />
             </div>
         </Router>
     );
