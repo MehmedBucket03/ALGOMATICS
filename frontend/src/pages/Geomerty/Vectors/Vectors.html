@@ -32,9 +32,22 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+        .explanation-container {
+            width: 100%;
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
         h2 {
             color: #333;
             margin-top: 0;
+        }
+        h3 {
+            color: #444;
+            margin-top: 20px;
         }
         .instructions {
             color: #666;
@@ -110,6 +123,24 @@
         <button id="toggleProjectionBtn">Toggle Projection Animation</button>
         <div id="info"></div>
     </div>
+</div>
+
+<!-- New Explanation Container -->
+<div class="explanation-container">
+    <h3>What is a Vector?</h3>
+    <p>
+        A vector is a mathematical object that has both magnitude (size) and direction. In geometry, vectors are often represented as arrows, where the length of the arrow indicates the magnitude, and the direction of the arrow shows the direction. For example, in 2D space, a vector can be described by its components along the x and y axes, such as (3, 4), which means it moves 3 units in the x-direction and 4 units in the y-direction. Vectors are used to represent quantities like displacement, velocity, and force.
+    </p>
+
+    <h3>What is a Dot Product?</h3>
+    <p>
+        The dot product is an operation between two vectors that results in a scalar (a single number). For two vectors A = (A_x, A_y) and B = (B_x, B_y) in 2D, the dot product is calculated as A · B = A_x * B_x + A_y * B_y. Geometrically, the dot product can also be expressed as A · B = |A| |B| cos(θ), where |A| and |B| are the magnitudes of the vectors, and θ is the angle between them. This operation measures how much one vector "goes in the direction" of another.
+    </p>
+
+    <h3>Why is the Dot Product Useful in Geometry?</h3>
+    <p>
+        The dot product is incredibly useful in geometry because it provides a way to measure the angle between two vectors (via cos(θ)), determine if vectors are perpendicular (if A · B = 0, the vectors are at 90°), and calculate projections (as shown in this visualizer). It’s also used in physics and computer graphics for tasks like calculating work (force · displacement), finding reflections, and determining lighting effects by measuring how much a surface faces a light source.
+    </p>
 </div>
 
 <script>
@@ -273,62 +304,83 @@
         drawArrow(origin.x, origin.y, toAX, toAY, "blue", "A");
         drawArrow(origin.x, origin.y, toBX, toBY, "red", "B");
 
-        // Use target vectors for projection calculations to avoid animation discrepancies
-        const dotProduct = targetVectorA.x * targetVectorB.x + targetVectorA.y * targetVectorB.y;
-        const magnitudeA = Math.hypot(targetVectorA.x, targetVectorA.y);
-        const magnitudeB = Math.hypot(targetVectorB.x, targetVectorB.y);
-        const cosTheta = dotProduct / (magnitudeA * magnitudeB);
+        const dotProduct = animatedVectorA.x * animatedVectorB.x + animatedVectorA.y * animatedVectorB.y;
+        const magnitudeA = Math.hypot(animatedVectorA.x, animatedVectorA.y);
+        const magnitudeB = Math.hypot(animatedVectorB.x, animatedVectorB.y);
 
-        if (animateProjection) {
-            projectionProgress += 0.05;
-            if (projectionProgress > 1) projectionProgress = 1;
+        let angle = 0;
+
+        if (magnitudeA !== 0 && magnitudeB !== 0) {
+            // Calculate the angle using the dot product formula
+            const cosTheta = dotProduct / (magnitudeA * magnitudeB);
+            // Ensure the value is within the valid range for acos (-1 to 1) to avoid errors due to floating-point precision
+            const clampedCosTheta = Math.max(-1, Math.min(1, cosTheta));
+            angle = Math.acos(clampedCosTheta); // Angle in radians
         }
 
-        // Calculate the unit vector of B using targetVectorB
-        const unitB = { x: targetVectorB.x / magnitudeB, y: targetVectorB.y / magnitudeB };
-        const scalarProjection = dotProduct / magnitudeB;
+        const angleDegrees = angle * (180 / Math.PI); // Convert radians to degrees
 
-        // Calculate the final projection point (not animated)
-        const finalProjectionPoint = {
-            x: unitB.x * scalarProjection,
-            y: unitB.y * scalarProjection
-        };
+        if (magnitudeB !== 0) {
+            const unitB = {
+                x: animatedVectorB.x / magnitudeB,
+                y: animatedVectorB.y / magnitudeB
+            };
 
-        // Calculate the animated projection point (for the solid green arrow)
-        const animatedProjectionPoint = {
-            x: finalProjectionPoint.x * projectionProgress,
-            y: finalProjectionPoint.y * projectionProgress
-        };
+            const scalarProjection = dotProduct / magnitudeB;
 
-        // Draw projection vector from origin (animated)
-        drawArrow(origin.x, origin.y, toCanvasX(animatedProjectionPoint.x), toCanvasY(animatedProjectionPoint.y), "green", "Proj A onto B");
+            if (animateProjection) {
+                projectionProgress += 0.05;
+                if (projectionProgress > 1) projectionProgress = 1;
+            }
 
-        // Draw perpendicular line from tip of A to the FINAL projection point
-        ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = "green";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(toAX, toAY); // tip of vector A
-        ctx.lineTo(toCanvasX(finalProjectionPoint.x), toCanvasY(finalProjectionPoint.y)); // final projection point on B
-        ctx.stroke();
-        ctx.setLineDash([]); // Reset dash for future drawings
+            const projectionVector = {
+                x: unitB.x * scalarProjection * projectionProgress,
+                y: unitB.y * scalarProjection * projectionProgress
+            };
 
+            // Draw projection arrow
+            drawArrow(
+                origin.x,
+                origin.y,
+                toCanvasX(projectionVector.x),
+                toCanvasY(projectionVector.y),
+                "green",
+                "Proj A onto B"
+            );
+
+            // Draw perpendicular line from tip of A to projection point
+            const tipAX = toCanvasX(animatedVectorA.x);
+            const tipAY = toCanvasY(animatedVectorA.y);
+            const projX = toCanvasX(projectionVector.x);
+            const projY = toCanvasY(projectionVector.y);
+
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = "green";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(tipAX, tipAY);
+            ctx.lineTo(projX, projY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Update info box with the angle
         info.innerHTML = `
-        <b>Vector A:</b> (${targetVectorA.x}, ${targetVectorA.y})<br>
-        <b>Vector B:</b> (${targetVectorB.x}, ${targetVectorB.y})<br>
-        <b>Dot Product:</b> ${dotProduct.toFixed(2)}<br>
-        <b>Magnitude A:</b> ${magnitudeA.toFixed(2)}<br>
-        <b>Magnitude B:</b> ${magnitudeB.toFixed(2)}<br>
-        <b>Angle between A and B:</b> ${(Math.acos(cosTheta) * 180 / Math.PI).toFixed(2)}°
+        <strong>Vector A:</strong> (${animatedVectorA.x.toFixed(2)}, ${animatedVectorA.y.toFixed(2)})<br>
+        <strong>Vector B:</strong> (${animatedVectorB.x.toFixed(2)}, ${animatedVectorB.y.toFixed(2)})<br>
+        <strong>Dot Product:</strong> ${dotProduct.toFixed(2)}<br>
+        <strong>Angle between A and B:</strong> ${angleDegrees.toFixed(2)}°<br>
     `;
-    }    function animate() {
+    }
+
+    function animate() {
         drawGrid();
 
         if (isDotProductMode) {
             drawDotProduct();
         } else {
             // Smoother animation for single vector mode
-            animatedVectorA.x += (targetVectorA.x - animatedVectorA.x) * 0.2; // Increased from 0.1 to 0.2
+            animatedVectorA.x += (targetVectorA.x - animatedVectorA.x) * 0.2;
             animatedVectorA.y += (targetVectorA.y - animatedVectorA.y) * 0.2;
 
             const toX = toCanvasX(animatedVectorA.x);
