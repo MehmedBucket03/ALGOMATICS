@@ -1,94 +1,115 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import backgroundGif from "../assets/images/run.gif";
 import { Link } from 'react-router-dom';
+import './Homepage.css';
 
 const Homepage = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [typedText, setTypedText] = useState('');
+    const fullText = "An interactive tool that visually demonstrates mathematical functions, equations, data structures, and algorithms.";
+    const typingSpeed = 50; // milliseconds per character
+    const dropdownRef = useRef(null);
+
+    // Typing effect
+    useEffect(() => {
+        let i = 0;
+        const typing = setInterval(() => {
+            if (i < fullText.length) {
+                setTypedText(fullText.substring(0, i + 1));
+                i++;
+            } else {
+                clearInterval(typing);
+            }
+        }, typingSpeed);
+
+        return () => clearInterval(typing);
+    }, []);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const closeDropdown = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('click', closeDropdown);
+        return () => document.removeEventListener('click', closeDropdown);
+    }, []);
 
     const toggleDropdown = (e) => {
         e.stopPropagation();
         setDropdownOpen(!dropdownOpen);
     };
 
-    useEffect(() => {
-        const closeDropdown = () => setDropdownOpen(false);
-        document.addEventListener('click', closeDropdown);
-
-        return () => {
-            document.removeEventListener('click', closeDropdown);
-        };
-    }, []);
-
     return (
-        <div style={{ position: 'relative', minHeight: '100vh' }}>
-            {/* Background GIF with reduced opacity */}
-            <div
-                className="gif-container"
-                style={{
-                    background: `url(${backgroundGif}) no-repeat center center`,
-                    backgroundSize: 'cover',
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    zIndex: -1,
-                    opacity: 0.5, // Reduced opacity (0.5 = 50% opacity)
-                    imageRendering: 'high-quality', // Improved image rendering
-                }}
-            ></div>
-
-            {/* Dark overlay for better contrast with content if needed */}
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0,0,0,0.2)', // Slight dark overlay
-                zIndex: -1,
-            }}></div>
+        <div className="homepage-container">
+            {/* Background GIF */}
+            <div className="pixel-background">
+                <div
+                    className="gif-container"
+                    style={{
+                        background: `url(${backgroundGif}) no-repeat center center`,
+                        backgroundSize: 'cover',
+                    }}
+                ></div>
+                <div className="pixel-overlay"></div>
+            </div>
 
             {/* Main Content */}
-            <div className="content" style={{
-                position: 'relative',
-                zIndex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center',
-                padding: '2rem',
-                minHeight: '100vh'
-            }}>
-                <h1 className="text-5xl font-bold">ALGOMATICS</h1>
-                <p className="text-lg mt-4">
-                    An interactive tool that visually demonstrates mathematical functions,
-                    equations, data structures, and algorithms.
-                </p>
+            <div className="pixel-content">
+                <div className="pixel-window">
+                    <div className="pixel-window-header">
+                        <div className="pixel-dots">
+                            <span className="pixel-dot red"></span>
+                            <span className="pixel-dot yellow"></span>
+                            <span className="pixel-dot green"></span>
+                        </div>
+                        <div className="pixel-title">WELCOME.EXE</div>
+                    </div>
 
-                {/* Explore Subjects Dropdown */}
-                <div className="dropdown mt-6">
-                    <button
-                        className="bg-blue-200 text-black px-6 py-3 rounded-full font-bold"
-                        onClick={toggleDropdown}
-                    >
-                        Explore Subjects
-                    </button>
-                    <div
-                        className="dropdown-content"
-                        style={{
-                            display: dropdownOpen ? 'block' : 'none',
-                            position: 'absolute',
-                            backgroundColor: '#f9f9f9',
-                            minWidth: '160px',
-                            boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.2)',
-                            zIndex: 1
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <Link to="/graphs" style={{color: 'black', padding: '12px 16px', textDecoration: 'none', display: 'block'}}>Math</Link>
-                        <Link to="/sorting" style={{color: 'black', padding: '12px 16px', textDecoration: 'none', display: 'block'}}>Algorithms</Link>
+                    <div className="pixel-window-body">
+                        <h1 className="pixel-heading">ALGOMATICS</h1>
+                        <div className="terminal-text">
+                            <span className="prompt">$&gt;&nbsp;</span>
+                            <span className="typing-text">{typedText}</span>
+                            <span className="blinking-cursor">▋</span>
+                        </div>
+
+                        <div className="pixel-buttons">
+                            <div className="dropdown-container" ref={dropdownRef}>
+                                <button
+                                    className="pixel-button"
+                                    onClick={toggleDropdown}
+                                >
+                                    EXPLORE SUBJECTS
+                                </button>
+
+                                {dropdownOpen && (
+                                    <div className="pixel-dropdown">
+                                        <Link to="/math" className="pixel-option">MATH</Link>
+                                        <Link to="/algorithms" className="pixel-option">ALGORITHMS</Link>
+                                        <Link to="/arrays" className="pixel-option">ARRAYS</Link>
+                                        <Link to="/graphs" className="pixel-option">GRAPHS</Link>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pixel-window-footer">
+                        <div className="pixel-status">SYSTEM READY</div>
+                        <div className="pixel-memory">MEM: 640K</div>
+                    </div>
+                </div>
+
+                <div className="pixel-decorations">
+                    <div className="pixel-character"></div>
+                    <div className="floating-pixels">
+                        <div className="floating-pixel p1"></div>
+                        <div className="floating-pixel p2"></div>
+                        <div className="floating-pixel p3"></div>
+                        <div className="floating-pixel p4"></div>
                     </div>
                 </div>
             </div>
