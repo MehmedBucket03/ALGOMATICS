@@ -1,59 +1,54 @@
-import React, { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import './Header.css';
 
-const Header = () => {
-    const location = useLocation();
+function UniversalHeader() {
+    const [menuOpen, setMenuOpen] = useState(false);
 
-    useEffect(() => {
-        // Add Silkscreen font if not already in your index.html
-        const link = document.createElement('link');
-        link.href = "https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap";
-        link.rel = "stylesheet";
-        document.head.appendChild(link);
-
-        return () => {
-            document.head.removeChild(link);
-        };
-    }, []);
+    const toggleMenu = () => {
+        setMenuOpen(!menuOpen);
+    };
 
     return (
-        <header className="py-4">
-            <nav className="header-bg text-white py-2 px-6 rounded-full mx-4 flex justify-between items-center">
-                <div className="flex space-x-4">
-                    <Link
-                        to="/"
-                        className={`text-white nav-link ${location.pathname === '/' ? 'text-yellow-300' : ''}`}
-                    >
-                        HOME
-                    </Link>
-                    <Link
-                        to="/about"
-                        className={`text-white nav-link ${location.pathname === '/about' ? 'text-yellow-300' : ''}`}
-                    >
-                        ABOUT
-                    </Link>
-                    <Link
-                        to="/graphs"
-                        className={`text-white nav-link ${location.pathname === '/graphs' ? 'text-yellow-300' : ''}`}
-                    >
-                        MATH
-                    </Link>
-                    <Link
-                        to="/sorting"
-                        className={`text-white nav-link ${location.pathname === '/sorting' ? 'text-yellow-300' : ''}`}
-                    >
-                        ALGORITHMS
-                    </Link>
+        <header className="universal-header">
+            <div className="pixel-container">
+                <div className="logo-container">
+                    <div className="pixel-logo">
+                        <span className="logo-text">ALGOMATICS</span>
+                    </div>
                 </div>
-                <Link
-                    to="/login"
-                    className="bg-blue-200 text-black px-4 py-2 rounded-full"
-                >
-                    LOGIN / SIGN UP
-                </Link>
-            </nav>
+
+                <div className="nav-container">
+                    <button className="menu-toggle" onClick={toggleMenu}>
+                        <div className="pixel-burger">
+                            <span className="burger-line"></span>
+                            <span className="burger-line"></span>
+                            <span className="burger-line"></span>
+                        </div>
+                    </button>
+
+                    <nav className={`pixel-nav ${menuOpen ? 'open' : ''}`}>
+                        <ul className="pixel-menu">
+                            <li className="pixel-menu-item">
+                                <a href="/home" className="pixel-link">HOME</a>
+                            </li>
+                            <li className="pixel-menu-item">
+                                <a href="/about" className="pixel-link">ABOUT</a>
+                            </li>
+                            <li className="pixel-menu-item">
+                                <a href="/math" className="pixel-link">MATH</a>
+                            </li>
+                            <li className="pixel-menu-item">
+                                <a href="/algorithms" className="pixel-link">ALGORITHMS</a>
+                            </li>
+                            <li className="pixel-menu-item login-button">
+                                <a href="/login" className="pixel-button">LOGIN / SIGN UP</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </header>
     );
-};
+}
 
-export default Header;
+export default UniversalHeader;
