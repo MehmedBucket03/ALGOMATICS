@@ -6,6 +6,9 @@ import Homepage from './pages/Homepage';
 import Login from './components/auth/login/login';
 import Signup from './components/auth/signup/signup';
 
+import AlgorithmsPage from './components/algorithm/algorithms';
+
+
 import GraphVisualization from './pages/GraphVisualization';
 import TreeVisualization from './pages/TreeVisualization';
 import SortingAlgorithms from './pages/SortingAlgorithms';
@@ -25,6 +28,7 @@ const App = () => {
                         <Route path="/trees" element={<TreeVisualization />} />
                         <Route path="/sorting" element={<SortingAlgorithms />} />
                         <Route path="/math" element={<MathPage />} />
+                        <Route path="/algorithms" element={<AlgorithmsPage />} />
                     </Routes>
                 </main>
                 <UniversalFooter />
