@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Linked List</title>
+    <link rel="stylesheet" href="themes.css">
+</head>
+<body>
+<h1>Linked List Visualization</h1>
+<div class="content-container">
+    <div class="visualization-box">
+    </div>
+<div class="operation-box">
+    <label for="operation">Operation</label>
+    <select id="operation">
+        <option value="insert" selected>Insert</option>
+        <option value="delete">Delete</option>
+    </select>
+<div class="inputs">
+    <label for="data">Enter Data:</label>
+    <input type="text" id="data" placeholder="">
+
+    <label for="index">Index:</label>
+    <input type="text" id="index" placeholder="0">
+</div>
+    <button class="execute" id="execute-btn">Execute</button>
+
+
+    <div class="breakdown-box">
+        <h2></h2>
+    </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
+<script src="animations.js"></script>
+
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Silkscreen', serif;
+    background-color: #12121f;
+    color: #dfe6e9;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #191932;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6c5ce7;
+    border: 2px solid #191932;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #fd79a8;
+}
+
+/* Global Typography */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+button {
+    font-family: 'Silkscreen', serif;
+    cursor: pointer;
+}
+
+/* Common Pixel Art Elements */
+.pixel-border {
+    border: 4px solid #191932;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+}
+
+.pixel-button {
+    background-color: #6c5ce7;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-family: 'Silkscreen', serif;
+    font-size: 1rem;
+    box-shadow: 0 6px 0 #4834d4;
+    transform: translateY(-3px);
+    transition: all 0.2s ease;
+}
+
+.pixel-button:hover {
+    background-color: #a29bfe;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 0 #6c5ce7;
+}
+
+.pixel-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0 #4834d4;
+}
+
+/* Text Effects */
+.pixel-text-shadow {
+    text-shadow: 3px 3px 0 #191932;
+}
+
+.glitch-text {
+    position: relative;
+    display: inline-block;
+}
+
+.glitch-text::before, .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    clip: rect(0, 0, 0, 0);
+}
+
+.glitch-text::before {
+    left: 2px;
+    text-shadow: -1px 0 #fd79a8;
+    animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+    left: -2px;
+    text-shadow: 1px 0 #6c5ce7;
+    animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+    0%, 5%, 10%, 15%, 20%, 25%, 30%, 35%, 40%, 45%, 50%, 55%, 60%, 65%, 70%, 75%, 80%, 85%, 90%, 95%, 100% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+    0.5%, 10.5%, 20.5%, 30.5%, 40.5%, 50.5%, 60.5%, 70.5%, 80.5%, 90.5% {
+        clip: rect(0, 9999px, 2px, 0);
+    }
+}
+
+@keyframes glitch-anim-2 {
+    0%, 15%, 30%, 45%, 60%, 75%, 90% {
+        clip: rect(0, 9999px, 0, 0);
+    }
+    7%, 22%, 37%, 52%, 67%, 82%, 97% {
+        clip: rect(0, 9999px, 3px, 0);
+    }
+}
+
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.hidden {
+    display: none;
+}
+
+.pixel-shadow {
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.3);
+}
+
+.py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.text-3xl {
+    font-size: 1.875rem;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.text-lg {
+    font-size: 1.125rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
