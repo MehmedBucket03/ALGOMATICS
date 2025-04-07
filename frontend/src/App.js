@@ -5,14 +5,19 @@ import UniversalFooter from './components/common/Footer';
 import Homepage from './pages/Homepage';
 import Login from './components/auth/login/login';
 import Signup from './components/auth/signup/signup';
+import About from './pages/about';
 
 import AlgorithmsPage from './components/algorithm/algorithms';
+import ArraysPage from './pages/arrays'; // Import the new ArraysPage component
 
 
 import GraphVisualization from './pages/GraphVisualization';
 import TreeVisualization from './pages/TreeVisualization';
 import SortingAlgorithms from './pages/SortingAlgorithms';
+
+
 import MathPage from './components/math/MathPage';
+import SystemEquations from './pages/mathTopics/System of Equations/SystemEquations';
 
 const App = () => {
     return (
@@ -24,11 +29,14 @@ const App = () => {
                         <Route path="/" element={<Homepage />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<Signup />} />
+                        <Route path="/about" element={<About />} /> {/* Add the route for About page */}
                         <Route path="/graphs" element={<GraphVisualization />} />
                         <Route path="/trees" element={<TreeVisualization />} />
                         <Route path="/sorting" element={<SortingAlgorithms />} />
+                        <Route path="/arrays" element={<ArraysPage />} /> {/* Add the route for Arrays page */}
                         <Route path="/math" element={<MathPage />} />
                         <Route path="/algorithms" element={<AlgorithmsPage />} />
+                        <Route path="/system-of-equations" element={<SystemEquations />} />
                     </Routes>
                 </main>
                 <UniversalFooter />

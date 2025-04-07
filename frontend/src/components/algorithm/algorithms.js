@@ -26,7 +26,8 @@ const algoTopics = [
         id: 'arrays',
         title: 'Arrays',
         color: '#e17055',
-        description: 'Contiguous memory blocks with constant-time access'
+        description: 'Contiguous memory blocks with constant-time access',
+        path: '/arrays' // Direct path to the Arrays page
     },
     {
         id: 'binary-search',
@@ -38,7 +39,8 @@ const algoTopics = [
         id: 'sorting',
         title: 'Sorting',
         color: '#6c5ce7',
-        description: 'Algorithms for organizing data in a specific order'
+        description: 'Algorithms for organizing data in a specific order',
+        path: '/sorting' // Direct path to the Sorting page
     },
     {
         id: 'recursion',
@@ -104,7 +106,7 @@ const AlgorithmsPage = () => {
                             <div className="pixel-grid">
                                 {algoTopics.map((topic) => (
                                     <Link
-                                        to={`/algorithms/${topic.id}`}
+                                        to={topic.path || `/algorithms/${topic.id}`}
                                         key={topic.id}
                                         className={`pixel-card ${hoveredCard === topic.id ? 'hovered' : ''}`}
                                         style={{ '--card-color': topic.color }}
