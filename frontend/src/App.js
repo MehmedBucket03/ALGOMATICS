@@ -9,6 +9,7 @@ import About from './pages/about';
 
 import AlgorithmsPage from './components/algorithm/algorithms';
 import ArraysPage from './pages/arrays'; // Import the new ArraysPage component
+import StackQueuePage from './pages/stackqueue';
 
 
 import GraphVisualization from './pages/GraphVisualization';
@@ -36,6 +37,7 @@ const App = () => {
                         <Route path="/arrays" element={<ArraysPage />} /> {/* Add the route for Arrays page */}
                         <Route path="/math" element={<MathPage />} />
                         <Route path="/algorithms" element={<AlgorithmsPage />} />
+                        <Route path="/algorithms/stack-queue" element={<StackQueuePage />} />
                         <Route path="/system-of-equations" element={<SystemEquations />} />
                     </Routes>
                 </main>

@@ -47,6 +47,13 @@ const algoTopics = [
         title: 'Recursion',
         color: '#fd79a8',
         description: 'Functions that call themselves to solve problems'
+    },
+    {
+        id: 'trees',
+        title: 'Tree Structures',
+        color: '#00cec9',
+        description: 'Hierarchical data structures with parent-child relationships',
+        path: '/trees' // Direct path to the Tree Visualization page
     }
 ];
 
