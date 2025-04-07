@@ -38,7 +38,6 @@ function updateAngle() {
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // Rotated line
     const rad = angle * Math.PI / 180;
     ctx.beginPath();
     ctx.moveTo(200, 200);
@@ -47,12 +46,19 @@ function updateAngle() {
 
     let arcColor = "#ff6f61";
     let type = "Right";
+
     if (angle < 90) {
         arcColor = "#00bcd4";
         type = "Acute";
-    } else if (angle > 90) {
+    } else if (angle === 90) {
+        arcColor = "#ff6f61";
+        type = "Right";
+    } else if (angle > 90 && angle < 180) {
         arcColor = "#ffc107";
         type = "Obtuse";
+    } else if (angle === 180) {
+        arcColor = "#ff69b4";
+        type = "Straight";
     }
 
     ctx.beginPath();
