@@ -1,0 +1,5 @@
+change style.
+
+add an option for use create a graph based on the number of nodes they chose.
+
+check the logic again to make sure it is correct.

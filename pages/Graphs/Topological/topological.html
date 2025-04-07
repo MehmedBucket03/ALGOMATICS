@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topological Sort Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        canvas {
+            background: white;
+            border: 2px solid black;
+        }
+
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 200px;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background: lightgray;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background: darkblue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: navy;
+        }
+
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        .legend {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid black;
+            background: white;
+            display: inline-block;
+        }
+
+        .topo-explanation {
+            margin: 20px auto;
+            padding: 15px;
+            border: 1px solid black;
+            background: white;
+            max-width: 600px;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .step-description {
+            font-size: 18px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: darkblue;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Topological Sort Visualization</h1>
+
+<div class="legend">
+    <h3>Legend</h3>
+    <p><span style="display: inline-block; width: 20px; height: 20px; background: white; border: 1px solid black;"></span> Unexplored Node</p>
+    <p><span style="display: inline-block; width: 20px; height: 20px; background: yellow;"></span> Exploring Node</p>
+    <p><span style="display: inline-block; width: 20px; height: 20px; background: blue;"></span> Sorted Node</p>
+    <p><span style="display: inline-block; width: 20px; height: 20px; background: orange;"></span> Current Node</p>
+    <p><span style="display: inline-block; width: 20px; height: 5px; background: black;"></span> Edge</p>
+    <p><span style="display: inline-block; width: 20px; height: 5px; background: red;"></span> Current Edge</p>
+</div>
+
+<div class="topo-explanation">
+    <h3>What is Topological Sort?</h3>
+    <p>
+        In a topological graph, nodes represent tasks or events,
+        and directed edges show dependencies (one task must be done before another).
+        A topological sort arranges these nodes in a linear order, ensuring that if
+        there's an edge from node A → B, A comes before B in the sequence. ✅
+    </p>
+</div>
+
+<div id="stepDescription" class="step-description"></div>
+
+<div class="container">
+    <canvas id="canvas" width="600" height="400"></canvas>
+    <div class="table-container">
+        <table id="stackTable">
+            <tr><th>Call Stack</th></tr>
+        </table>
+        <table id="sortedTable">
+            <tr><th>Topological Order</th></tr>
+        </table>
+    </div>
+</div>
+
+<div>
+    <button id="startTopo">Start Top Sort</button>
+    <button id="pauseTopo">Pause</button>
+    <button id="prevStep">Previous Step</button>
+    <button id="nextStep">Next Step</button>
+</div>
+
+<script>
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+
+    let isPaused = false;
+    let traversalSteps = [];
+    let currentStep = 0;
+    let animationFrameId = null;
+
+    // New graph: Software module dependencies
+    let graph = {
+        "1": ["2", "3"],    // Task 1 must precede Tasks 2 and 3
+        "2": ["4"],        // Task 2 must precede Task 4
+        "3": ["4", "5"],   // Task 3 must precede Tasks 4 and 5
+        "4": [],           // Task 4 has no dependencies
+        "5": ["6"],        // Task 5 must precede Task 6
+        "6": []            // Task 6 has no dependencies
+    };
+
+    let positions = {
+        "1": {x: 300, y: 50},   // Top level (root node)
+        "2": {x: 200, y: 150},  // Second level, left branch
+        "3": {x: 400, y: 150},  // Second level, right branch
+        "4": {x: 250, y: 250},  // Third level, under 2 and 3
+        "5": {x: 450, y: 250},  // Third level, under 3
+        "6": {x: 450, y: 350}   // Bottom level, under 5
+    };
+
+    function drawGraph(activeNode = null, exploringNodes = new Set(), sortedNodes = new Set(), lastEdge = null) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let node in graph) {
+            graph[node].forEach(neighbor => {
+                let color = lastEdge && lastEdge[0] === node && lastEdge[1] === neighbor ? "red" : "black";
+                drawArrow(node, neighbor, color);
+            });
+        }
+
+        for (let node in positions) {
+            ctx.beginPath();
+            ctx.arc(positions[node].x, positions[node].y, 25, 0, 2 * Math.PI);
+
+            if (activeNode === node) {
+                ctx.fillStyle = "orange";
+            } else if (sortedNodes.has(node)) {
+                ctx.fillStyle = "blue";
+            } else if (exploringNodes.has(node)) {
+                ctx.fillStyle = "yellow";
+            } else {
+                ctx.fillStyle = "white";
+            }
+
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = "black";
+            ctx.font = "12px Arial";
+            ctx.fillText(node, positions[node].x - 15, positions[node].y + 4);
+        }
+    }
+
+    function drawArrow(from, to, color) {
+        ctx.beginPath();
+        let fromX = positions[from].x;
+        let fromY = positions[from].y;
+        let toX = positions[to].x;
+        let toY = positions[to].y;
+
+        let angle = Math.atan2(toY - fromY, toX - fromX);
+        fromX += 25 * Math.cos(angle);
+        fromY += 25 * Math.sin(angle);
+        toX -= 25 * Math.cos(angle);
+        toY -= 25 * Math.sin(angle);
+
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        let headLength = 10;
+        let dx = toX - fromX;
+        let dy = toY - fromY;
+        let angleHead = Math.atan2(dy, dx);
+        ctx.beginPath();
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headLength * Math.cos(angleHead - Math.PI / 6), toY - headLength * Math.sin(angleHead - Math.PI / 6));
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headLength * Math.cos(angleHead + Math.PI / 6), toY - headLength * Math.sin(angleHead + Math.PI / 6));
+        ctx.stroke();
+    }
+
+    function updateTables(stack, sorted) {
+        document.getElementById("stackTable").innerHTML = `<tr><th>Call Stack</th></tr>` +
+            stack.map(n => `<tr><td>${n}</td></tr>`).reverse().join("");
+        document.getElementById("sortedTable").innerHTML = `<tr><th>Topological Order</th></tr>` +
+            sorted.map(n => `<tr><td>${n}</td></tr>`).join("");
+    }
+
+    function updateVisualization() {
+        if (currentStep >= 0 && currentStep < traversalSteps.length) {
+            let { exploring, sorted, stack, activeNode, lastEdge } = traversalSteps[currentStep];
+            drawGraph(activeNode, new Set(exploring), new Set(sorted), lastEdge);
+            updateTables(stack, sorted);
+
+            let stepDesc = document.getElementById("stepDescription");
+            if (activeNode) {
+                let nextNeighbor = graph[activeNode].find(n => !sorted.includes(n) && !exploring.includes(n));
+                if (nextNeighbor) {
+                    stepDesc.textContent = `Exploring from ${activeNode} to ${nextNeighbor}`;
+                } else {
+                    stepDesc.textContent = `Finished ${activeNode}, Adding to Order`;
+                }
+            } else if (stack.length > 0) {
+                stepDesc.textContent = `Backtracking to ${stack[stack.length - 1]}`;
+            } else {
+                stepDesc.textContent = "Topological Sort Completed!";
+            }
+        }
+    }
+
+    async function topologicalSortDFS() {
+        let sorted = [];
+        let exploring = new Set();
+        let stack = [];
+
+        async function dfs(node) {
+            if (exploring.has(node)) {
+                document.getElementById("stepDescription").textContent = "Error: Cycle Detected!";
+                throw new Error("Cycle detected in graph");
+            }
+            if (sorted.includes(node)) return;
+
+            exploring.add(node);
+            stack.push(node);
+            traversalSteps.push({ exploring: Array.from(exploring), sorted: [...sorted], stack: [...stack], activeNode: node, lastEdge: null });
+
+            for (let neighbor of graph[node]) {
+                if (!sorted.includes(neighbor)) {
+                    traversalSteps.push({ exploring: Array.from(exploring), sorted: [...sorted], stack: [...stack], activeNode: node, lastEdge: [node, neighbor] });
+                    await delay(500); // Small delay for smoother steps
+                    await dfs(neighbor);
+                }
+            }
+
+            exploring.delete(node);
+            sorted.push(node);
+            stack.pop();
+            traversalSteps.push({ exploring: Array.from(exploring), sorted: [...sorted], stack: [...stack], activeNode: null, lastEdge: null });
+        }
+
+        for (let node in graph) {
+            if (!sorted.includes(node)) {
+                await dfs(node);
+            }
+        }
+
+        traversalSteps.push({ exploring: [], sorted: [...sorted], stack: [], activeNode: null, lastEdge: null });
+    }
+
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function animate() {
+        if (!isPaused && currentStep < traversalSteps.length - 1) {
+            currentStep++;
+            updateVisualization();
+        }
+        if (currentStep < traversalSteps.length - 1) {
+            animationFrameId = setTimeout(animate, 1000);
+        } else {
+            toggleButtons(false);
+        }
+    }
+
+    function toggleButtons(running) {
+        document.getElementById("startTopo").disabled = running;
+        document.getElementById("pauseTopo").disabled = !running;
+        document.getElementById("prevStep").disabled = running;
+        document.getElementById("nextStep").disabled = running;
+    }
+
+    document.getElementById("startTopo").addEventListener("click", async () => {
+        if (animationFrameId) clearTimeout(animationFrameId);
+        traversalSteps = [];
+        currentStep = 0;
+        isPaused = false;
+        document.getElementById("pauseTopo").textContent = "Pause";
+        document.getElementById("pauseTopo").style.background = "darkblue";
+        toggleButtons(true);
+
+        await topologicalSortDFS();
+        updateVisualization();
+        animate();
+    });
+
+    document.getElementById("pauseTopo").addEventListener("click", () => {
+        isPaused = !isPaused;
+        document.getElementById("pauseTopo").textContent = isPaused ? "Resume" : "Pause";
+        document.getElementById("pauseTopo").style.background = isPaused ? "green" : "darkblue";
+        if (!isPaused) animate();
+    });
+
+    document.getElementById("prevStep").addEventListener("click", () => {
+        if (currentStep > 0) {
+            currentStep--;
+            updateVisualization();
+        }
+    });
+
+    document.getElementById("nextStep").addEventListener("click", () => {
+        if (currentStep < traversalSteps.length - 1) {
+            currentStep++;
+            updateVisualization();
+        }
+    });
+
+    drawGraph();
+    toggleButtons(false);
+</script>
+
+</body>
+</html>

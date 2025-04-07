@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circle Geometry with GSAP</title>
+    <link rel="stylesheet" href="circles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+</head>
+<body>
+<h1>Learn Circle Geometry</h1>
+<div class="container">
+    <svg width="500" height="500">
+        <defs>
+            <!-- Fine grid pattern (every 20 units) -->
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="lightgray" stroke-width="0.5"/>
+            </pattern>
+        </defs>
+        <!-- Background grid -->
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+        <!-- X-axis (horizontal) -->
+<!--        <line x1="0" y1="250" x2="500" y2="250" stroke="black" stroke-width="2" />-->
+<!--        &lt;!&ndash; Y-axis (vertical) &ndash;&gt;-->
+<!--        <line x1="250" y1="0" x2="250" y2="500" stroke="black" stroke-width="2" />-->
+        <line x1="0" y1="250" x2="500" y2="250" stroke="#aaa" stroke-width="1.5" />
+        <line x1="250" y1="0" x2="250" y2="500" stroke="#aaa" stroke-width="1.5" />
+
+        <!-- Optional: Bold grid every 100 units -->
+        <pattern id="gridBold" width="100" height="100" patternUnits="userSpaceOnUse">
+            <path d="M 100 0 L 0 0 0 100" fill="none" stroke="gray" stroke-width="1"/>
+        </pattern>
+        <rect width="100%" height="100%" fill="url(#gridBold)"/>
+
+        <!-- Circle and geometry elements -->
+        <circle id="circle" cx="250" cy="250" r="150" fill="none" stroke="black" stroke-width="2" />
+        <line id="chord" stroke="blue" stroke-width="2" />
+        <path id="arc" fill="none" stroke="pink" stroke-width="2" d=""/>
+        <path id="sector" fill="rgba(255, 0, 0, 0.3)" stroke="red" stroke-width="2" d=""/>
+        <line id="tangent" stroke="purple" stroke-width="3" />
+    </svg>
+
+    <div class="slider-container">
+        <label for="sizeSlider">Change Circle Size: </label>
+        <input type="range" id="sizeSlider" min="0.5" max="2" step="0.1" value="1">
+        <span id="sizeValue">1x</span>
+    </div>
+
+    <div class="controls">
+        <button onclick="showChord()">Chord</button>
+        <button onclick="showArc()">Arc</button>
+        <button onclick="showSector()">Sector</button>
+        <button onclick="showTangent()">Tangent</button>
+    </div>
+
+    <div class="sector-controls controls-group" style="display: none;">
+        <label for="sectorAngle">Sector Angle (degrees): </label>
+        <input type="range" id="sectorAngle" min="10" max="360" step="1" value="10">
+        <span id="sectorAngleValue">10°</span><br>
+        <label for="startAngle">Start Angle (degrees): </label>
+        <input type="range" id="startAngle" min="0" max="360" step="1" value="84">
+        <span id="startAngleValue">84°</span><br>
+    </div>
+    <div class="tangent-controls controls-group" style="display: none;">
+        <label for="tangentAngle">Tangent Angle (degrees): </label>
+        <input type="range" id="tangentAngle" min="0" max="360" step="1" value="180">
+        <span id="tangentAngleValue">180°</span><br>
+        <label for="tangentLength">Tangent Length (units): </label>
+        <input type="range" id="tangentLength" min="20" max="200" step="1" value="187">
+        <span id="tangentLengthValue">187</span><br>
+    </div>
+    <div class="arc-controls controls-group" style="display: none;">
+        <label for="arcAngle">Arc Angle (degrees): </label>
+        <input type="range" id="arcAngle" min="10" max="360" step="1" value="90">
+        <span id="arcAngleValue">90°</span><br>
+        <label for="arcStartAngle">Arc Start Angle (degrees): </label>
+        <input type="range" id="arcStartAngle" min="0" max="360" step="1" value="45">
+        <span id="arcStartAngleValue">45°</span><br>
+    </div>
+    <div class="chord-controls controls-group" style="display: none;">
+        <label for="chordAngle">Chord Angle (degrees): </label>
+        <input type="range" id="chordAngle" min="10" max="180" step="1" value="90">
+        <span id="chordAngleValue">90°</span><br>
+        <label for="chordStartAngle">Chord Start Angle (degrees): </label>
+        <input type="range" id="chordStartAngle" min="0" max="360" step="1" value="45">
+        <span id="chordStartAngleValue">45°</span><br>
+    </div>
+    <div id="explanation" class="explanation"></div>
+
+    <div class="formulas-container">
+        <div id="formulas" class="formulas"></div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="circles.js"></script>
+</body>
+</html>

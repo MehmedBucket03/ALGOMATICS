@@ -1,0 +1,6 @@
+make animations smoother
+
+add an option where the graph can be created depending on the number of
+nodes the user enters.
+
+over all looks correct. but fix up the design to make it user-friendly.

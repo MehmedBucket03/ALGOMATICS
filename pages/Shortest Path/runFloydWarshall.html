@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floyd-Warshall Visualization</title>
+    <!-- Animate.css CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="shortestPath.css">
+    <link rel="stylesheet" href="shortestPath.css">
+</head>
+<body>
+<!-- Loading Screen -->
+<div id="loading-screen">
+    <div class="tetrominos">
+        <div class="tetromino box1"></div>
+        <div class="tetromino box2"></div>
+        <div class="tetromino box3"></div>
+        <div class="tetromino box4"></div>
+    </div>
+</div>
+
+<h2 class="pixel-text animate__animated animate__fadeIn glitch">Floyd-Warshall Algorithm Visualization</h2>
+<canvas id="graphCanvas" width="600" height="400" class="animate__animated animate__fadeIn" style="animation-delay: 0.5s;"></canvas>
+
+<div id="matrix-container" class="section animate__animated animate__fadeIn" style="animation-delay: 1s;">
+    <div>
+        <h3>Distance Matrix</h3>
+        <table id="matrix"></table>
+    </div>
+</div>
+
+<div class="section animate__animated animate__fadeIn" style="animation-delay: 1.5s;">
+    <button onclick="runFloydWarshall()">Run Floyd-Warshall</button>
+    <button onclick="goToShortestPath()">Go to Shortest Path Visualization</button>
+</div>
+
+<p id="explanation" class="section animate__animated animate__fadeIn" style="animation-delay: 2s;">Click the button to start.</p>
+
+<script src="runFloydWarshall.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const loader = document.getElementById("loading-screen");
+        setTimeout(() => {
+            loader.classList.add("hidden");
+        }, 3000);
+    });
+
+    function navigateWithLoader(url) {
+        const loader = document.getElementById("loading-screen");
+        loader.classList.remove("hidden");
+        setTimeout(() => {
+            window.location.href = url;
+        }, 3000);
+    }
+
+    function goToShortestPath() {
+        navigateWithLoader("shortestPath.html");
+    }
+</script>
+</body>
+</html>

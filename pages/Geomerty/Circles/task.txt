@@ -1,0 +1,9 @@
+make 4 separate animations that work with formulas of
+Chord
+Arc
+Sector
+Tangent
+
+animations should be dynamic
+it should appear on the circle depending on the
+formula and the numbers plugged in
