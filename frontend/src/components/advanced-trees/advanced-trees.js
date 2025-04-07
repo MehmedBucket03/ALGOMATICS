@@ -914,16 +914,23 @@ function selectTree(type) {
     };
 
     document.getElementById("treeDescription").innerText = descriptions[type];
-    // Show the word box only in Trie mode
     document.getElementById("trieWordsBox").style.display = (type === "trie") ? "block" : "none";
 
+    const inputField = document.getElementById("nodeValue");
+
+    if (type === "trie") {
+        inputField.type = "text";
+        inputField.placeholder = "Enter a word";
+    } else {
+        inputField.type = "number";
+        inputField.placeholder = "Enter a number";
+    }
 
     if (type === "bst") bst.draw();
     else if (type === "avl") avl.draw();
     else if (type === "rbt") rbt.draw();
     else if (type === "trie") trie.draw();
 }
-
 
 function insertNode() {
     const value = document.getElementById("nodeValue").value;
