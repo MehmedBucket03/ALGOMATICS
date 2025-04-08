@@ -2,63 +2,63 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './MathPage.css';
 
-// Math topics data
+// Math topics data - updated with correct routing
 const mathTopics = [
     {
         id: 'linear-equations',
-        title: 'Linear Equations and Inequalities',
-        img: 'img/linear.png',
+        title: 'LINEAR EQUATIONS AND INEQUALITIES',
         color: '#6c5ce7',
-        description: 'Solve for x and graph straight lines'
+        description: 'SOLVE FOR X AND GRAPH STRAIGHT LINES',
+        implemented: true  // Mark as implemented
     },
     {
         id: 'sequences-series',
-        title: 'Sequences and Series',
-        img: 'img/sequences.png',
+        title: 'SEQUENCES AND SERIES',
         color: '#fd79a8',
-        description: 'Find patterns and calculate sums'
+        description: 'FIND PATTERNS AND CALCULATE SUMS',
+        implemented: true  // Mark as implemented
     },
     {
         id: 'logarithms-exponential',
-        title: 'Logarithms & Exponential Equations',
-        img: 'img/logarithm.png',
+        title: 'LOGARITHMS & EXPONENTIAL EQUATIONS',
         color: '#00b894',
-        description: 'Solve complex growth and decay problems'
+        description: 'SOLVE COMPLEX GROWTH AND DECAY PROBLEMS',
+        implemented: false  // Not implemented yet
     },
     {
-        id: 'quadratic-equations',
-        title: 'Quadratic Equations',
-        img: 'img/quad.png',
+        id: 'quadratic',  // Already implemented with QuadraticSolver
+        title: 'QUADRATIC EQUATIONS',
         color: '#e17055',
-        description: 'Master the art of parabolas'
+        description: 'MASTER THE ART OF PARABOLAS',
+        implemented: true
     },
     {
         id: 'system-of-equations',
-        title: 'System of Equations',
-        img: 'img/system.png',
+        title: 'SYSTEM OF EQUATIONS',
         color: '#0984e3',
-        description: 'Find where multiple equations intersect'
+        description: 'FIND WHERE MULTIPLE EQUATIONS INTERSECT',
+        implemented: false
     },
     {
         id: 'polynomial-operations',
-        title: 'Polynomial Operations',
-        img: 'img/poly.png',
+        title: 'POLYNOMIAL OPERATIONS',
         color: '#6c5ce7',
-        description: 'Add, subtract, multiply, and divide polynomials'
+        description: 'ADD, SUBTRACT, MULTIPLY, AND DIVIDE POLYNOMIALS',
+        implemented: false
     },
     {
         id: 'rational-expressions',
-        title: 'Rational Expressions & Equations',
-        img: 'img/rational.png',
+        title: 'RATIONAL EXPRESSIONS & EQUATIONS',
         color: '#fd79a8',
-        description: 'Work with fractions containing variables'
+        description: 'WORK WITH FRACTIONS CONTAINING VARIABLES',
+        implemented: false
     },
     {
         id: 'functions',
-        title: 'Functions',
-        img: 'img/function.png',
+        title: 'FUNCTIONS',
         color: '#00b894',
-        description: 'Understand the building blocks of algebra'
+        description: 'UNDERSTAND THE BUILDING BLOCKS OF ALGEBRA',
+        implemented: false
     }
 ];
 
@@ -82,15 +82,21 @@ const MathPage = () => {
 
     return (
         <div className="math-page-container">
-            {/* Background Video */}
-            <div className="video-container">
-                <video autoPlay loop muted className="video-bg">
-                    <source src="/assets/algomaticsbg2.mp4" type="video/mp4" />
-                </video>
-                <div className="pixel-grid-overlay"></div>
+            {/* Background */}
+            <div className="pixel-background">
+                <div className="gif-container"></div>
+                <div className="pixel-overlay"></div>
             </div>
 
             <div className="math-content">
+                <div className="nav-bar">
+                    <Link to="/" className="home-link">
+                        <div className="pixel-home-btn">
+                            <span className="home-icon">◄</span> HOME
+                        </div>
+                    </Link>
+                </div>
+
                 <main className="py-8 pixel-main">
                     {isLoading ? (
                         <div className="loading-screen">
@@ -113,7 +119,7 @@ const MathPage = () => {
                                     <div className="terminal-title">MATH.EXE</div>
                                 </div>
                                 <div className="terminal-body">
-                                    <h1 className="text-3xl font-bold pixel-heading">MATH</h1>
+                                    <h1 className="pixel-heading">MATH</h1>
                                     <p className="pixel-description">
                                         Explore math concepts through interactive lessons, real-time graphing,
                                         and step-by-step explanations.
@@ -124,23 +130,55 @@ const MathPage = () => {
                             <div className="pixel-grid">
                                 {mathTopics.map((topic) => (
                                     <Link
-                                        to={`/${topic.id}`}
+                                        to={topic.implemented ? `/${topic.id}` : "#"}
                                         key={topic.id}
-                                        className={`pixel-card ${hoveredCard === topic.id ? 'hovered' : ''}`}
-                                        style={{ '--card-color': topic.color }}
+                                        className={`pixel-card ${!topic.implemented ? 'disabled-card' : ''} ${hoveredCard === topic.id ? 'hovered' : ''}`}
                                         onMouseEnter={() => handleCardHover(topic.id)}
                                         onMouseLeave={() => handleCardHover(null)}
+                                        onClick={(e) => {
+                                            if (!topic.implemented) {
+                                                e.preventDefault();
+                                                alert("This topic is coming soon!");
+                                            }
+                                        }}
                                     >
-                                        <div className="card-content">
-                                            <h2 className="card-title">{topic.title}</h2>
-                                            <div className="card-image-container">
-                                                <img src={topic.img} alt={topic.title} className="card-image" />
+                                        <div
+                                            className="card-title-bar"
+                                            style={{ backgroundColor: topic.color }}
+                                        >
+                                            <div className="card-title">{topic.title}</div>
+                                        </div>
+
+                                        <div className="pixel-pattern-container">
+                                            <div className="pixel-pattern" data-topic={topic.id}>
+                                                {/* Generate 64 individual pixels */}
+                                                {[...Array(64)].map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="pixel"
+                                                        style={{
+                                                            opacity: Math.random() > 0.5 ? 0.9 : 0.4,
+                                                            backgroundColor: topic.color
+                                                        }}
+                                                    ></div>
+                                                ))}
                                             </div>
+                                        </div>
+
+                                        <div
+                                            className="card-description-bar"
+                                            style={{ borderTopColor: topic.color }}
+                                        >
                                             <div className="card-description">{topic.description}</div>
                                         </div>
-                                        <div className="card-shine"></div>
+
                                         {hoveredCard === topic.id && (
-                                            <div className="card-cta">SELECT</div>
+                                            <div
+                                                className="card-cta"
+                                                style={{ backgroundColor: topic.color }}
+                                            >
+                                                {topic.implemented ? 'SELECT' : 'COMING SOON'}
+                                            </div>
                                         )}
                                     </Link>
                                 ))}
@@ -148,6 +186,14 @@ const MathPage = () => {
                         </>
                     )}
                 </main>
+            </div>
+
+            {/* Add floating pixels for decoration */}
+            <div className="floating-pixels">
+                <div className="floating-pixel p1"></div>
+                <div className="floating-pixel p2"></div>
+                <div className="floating-pixel p3"></div>
+                <div className="floating-pixel p4"></div>
             </div>
         </div>
     );
