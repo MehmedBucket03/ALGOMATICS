@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../../../firebase/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import './Login.css';
+import './login.css';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -66,9 +66,61 @@ function Login() {
             });
     };
 
-    // Rest of your component remains the same...
-    return React.createElement("div", { className: "auth-container" },
-        // ... Your existing component structure
+    return (
+        <div className="login-container">
+            {/* Background video/gif */}
+            <div className="gif-container">
+                <video autoPlay muted loop className="background-video">
+                    <source src="/assets/background.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div className="content">
+                <div className="login-box">
+                    <h2>LOGIN</h2>
+
+                    {error && <div className="error-message">{error}</div>}
+                    {success && <div className="success-message">{success}</div>}
+
+                    <div>
+                        <label htmlFor="email">EMAIL</label>
+                        <input
+                            type="email"
+                            id="email"
+                            className="input-box"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Enter your email"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="password">PASSWORD</label>
+                        <input
+                            type="password"
+                            id="password"
+                            className="input-box"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter your password"
+                        />
+                    </div>
+
+                    <div className="button" onClick={handleLogin}>
+                        LOGIN
+                    </div>
+
+                    <Link to="/register" className="switch-button">
+                        CREATE NEW ACCOUNT
+                    </Link>
+
+                    <Link to="/" className="switch-button">
+                        BACK TO HOME
+                    </Link>
+                </div>
+            </div>
+        </div>
     );
 }
 

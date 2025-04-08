@@ -19,6 +19,9 @@ import SortingAlgorithms from './pages/SortingAlgorithms';
 
 import MathPage from './components/math/MathPage';
 import SystemEquations from './pages/mathTopics/System of Equations/SystemEquations';
+import QuadraticSolver from './pages/quadraticsolver';
+import LinearEquations from './pages/mathTopics/Linear Equations/linear';
+
 
 const App = () => {
     return (
@@ -39,6 +42,9 @@ const App = () => {
                         <Route path="/algorithms" element={<AlgorithmsPage />} />
                         <Route path="/algorithms/stack-queue" element={<StackQueuePage />} />
                         <Route path="/system-of-equations" element={<SystemEquations />} />
+                        <Route path="/quadratic" element={<QuadraticSolver />} />
+                        <Route path="/linear-equations" element={<LinearEquations />} />
+
                     </Routes>
                 </main>
                 <UniversalFooter />

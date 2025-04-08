@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../../firebase/firebase';
-import './Signup.css';
+import './signup.css';
 
 function Signup() {
     const [name, setName] = useState('');
@@ -98,74 +98,82 @@ function Signup() {
             });
     };
 
-    // Using JSX syntax
     return (
-        <div className="auth-container">
-            <div className="auth-content">
-                <div className="pixel-auth-box">
-                    <h1 className="pixel-title">SIGN UP</h1>
+        <div className="signup-container">
+            {/* Background video/gif */}
+            <div className="gif-container">
+                <video autoPlay muted loop className="background-video">
+                    <source src="/assets/background.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
 
-                    <div className="pixel-form-group">
-                        <label htmlFor="name" className="pixel-label">NAME</label>
+            <div className="content">
+                <div className="auth-box">
+                    <h2>CREATE ACCOUNT</h2>
+
+                    {error && <div className="error-message">{error}</div>}
+                    {success && <div className="success-message">{success}</div>}
+
+                    <div>
+                        <label htmlFor="name">NAME</label>
                         <input
                             type="text"
                             id="name"
-                            placeholder="Enter your name"
-                            className="pixel-input"
+                            className="input-box"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            required
+                            placeholder="Enter your name"
                         />
                     </div>
 
-                    <div className="pixel-form-group">
-                        <label htmlFor="email" className="pixel-label">EMAIL</label>
+                    <div>
+                        <label htmlFor="email">EMAIL</label>
                         <input
                             type="email"
                             id="email"
-                            placeholder="Enter your email"
-                            className="pixel-input"
+                            className="input-box"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            required
+                            placeholder="Enter your email"
                         />
                     </div>
 
-                    <div className="pixel-form-group">
-                        <label htmlFor="password" className="pixel-label">PASSWORD</label>
+                    <div>
+                        <label htmlFor="password">PASSWORD</label>
                         <input
                             type="password"
                             id="password"
-                            placeholder="Enter your password"
-                            className="pixel-input"
+                            className="input-box"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            required
+                            placeholder="Create a password"
                         />
                     </div>
 
-                    <div className="pixel-form-group">
-                        <label htmlFor="confirm-password" className="pixel-label">CONFIRM PASSWORD</label>
+                    <div>
+                        <label htmlFor="confirm-password">CONFIRM PASSWORD</label>
                         <input
                             type="password"
                             id="confirm-password"
-                            placeholder="Confirm your password"
-                            className="pixel-input"
+                            className="input-box"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
+                            placeholder="Confirm your password"
                         />
                     </div>
 
-                    <div className="pixel-button" onClick={handleSignup}>SIGN UP</div>
+                    <div className="button" onClick={handleSignup}>
+                        SIGN UP
+                    </div>
 
-                    {error && <p className="pixel-error">{error}</p>}
-                    {success && <p className="pixel-success">{success}</p>}
+                    <Link to="/login" className="switch-button">
+                        ALREADY HAVE AN ACCOUNT
+                    </Link>
 
-                    <div className="pixel-divider"></div>
-
-                    <p className="pixel-text">ALREADY HAVE AN ACCOUNT?</p>
-                    <Link to="/login" className="pixel-link-button">LOGIN</Link>
+                    <Link to="/" className="switch-button">
+                        BACK TO HOME
+                    </Link>
                 </div>
             </div>
         </div>
