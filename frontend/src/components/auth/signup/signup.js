@@ -12,77 +12,82 @@ function Signup() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    const handleSignup = () => {
+    const handleSignup = async () => {
         console.log("Signup button clicked");
 
         // Clear previous messages
         setError('');
         setSuccess('');
+        setIsSubmitting(true);
 
-        // Basic validation
-        if (!name || !email || !password || !confirmPassword) {
-            setError("Please fill in all fields");
-            return;
-        }
+        try {
+            // Basic validation
+            if (!name || !email || !password || !confirmPassword) {
+                throw new Error("Please fill in all fields");
+            }
 
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError("Please enter a valid email address");
-            return;
-        }
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                throw new Error("Please enter a valid email address");
+            }
 
-        // Check if passwords match
-        if (password !== confirmPassword) {
-            setError("Passwords do not match");
-            return;
-        }
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                throw new Error("Passwords do not match");
+            }
 
-        // Password strength validation
-        if (password.length < 6) {
-            setError("Password should be at least 6 characters");
-            return;
-        }
+            // Password strength validation
+            if (password.length < 6) {
+                throw new Error("Password should be at least 6 characters");
+            }
 
-        // Create user with Firebase
-        console.log("Attempting to create user with Firebase...");
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                // Successful signup
-                const user = userCredential.user;
-                console.log("User created successfully:", user.email);
+            // Create user with Firebase
+            console.log("Attempting to create user with Firebase...");
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-                // Add user profile information
-                return updateProfile(user, {
-                    displayName: name
-                }).then(() => {
-                    // Store additional user data in Firestore
-                    return setDoc(doc(db, 'users', user.uid), {
-                        name: name,
-                        email: user.email,
-                        createdAt: new Date()
-                    });
+            // Successful signup
+            const user = userCredential.user;
+            console.log("User created successfully:", user.email);
+
+            // Add user profile information
+            await updateProfile(user, {
+                displayName: name
+            });
+
+            console.log("Profile updated successfully");
+
+            // Try to store additional user data in Firestore with better error handling
+            try {
+                await setDoc(doc(db, 'users', user.uid), {
+                    name: name,
+                    email: user.email,
+                    createdAt: new Date()
                 });
-            })
-            .then(() => {
-                // Show success message
-                setSuccess("Account created successfully! Redirecting...");
+                console.log("User document created in Firestore");
+            } catch (firestoreError) {
+                // If Firestore write fails, log it but don't prevent login
+                console.error("Firestore document creation failed:", firestoreError);
+                console.log("Proceeding with login despite Firestore error");
+            }
 
-                // Redirect to dashboard page after a brief delay
-                setTimeout(() => {
-                    navigate('/');
-                }, 1500);
-            })
-            .catch((error) => {
-                // Handle signup errors
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.error("Signup error:", errorCode, errorMessage);
+            // Show success message
+            setSuccess("Account created successfully! Redirecting...");
 
-                // Show appropriate error message
-                switch(errorCode) {
+            // Redirect to dashboard page after a brief delay
+            setTimeout(() => {
+                navigate('/');
+            }, 1500);
+
+        } catch (error) {
+            console.error("Signup error:", error);
+
+            // Firebase auth errors
+            if (error.code) {
+                switch(error.code) {
                     case 'auth/email-already-in-use':
                         setError("This email is already in use");
                         break;
@@ -93,9 +98,15 @@ function Signup() {
                         setError("Password is too weak. Use at least 6 characters");
                         break;
                     default:
-                        setError("Signup failed: " + errorMessage);
+                        setError(`Signup failed: ${error.message || error.code}`);
                 }
-            });
+            } else {
+                // Custom validation errors or other errors
+                setError(error.message || "An unknown error occurred");
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -124,6 +135,7 @@ function Signup() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Enter your name"
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -136,6 +148,7 @@ function Signup() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -148,6 +161,7 @@ function Signup() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Create a password"
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -160,11 +174,15 @@ function Signup() {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Confirm your password"
+                            disabled={isSubmitting}
                         />
                     </div>
 
-                    <div className="button" onClick={handleSignup}>
-                        SIGN UP
+                    <div
+                        className={`button ${isSubmitting ? 'disabled' : ''}`}
+                        onClick={!isSubmitting ? handleSignup : undefined}
+                    >
+                        {isSubmitting ? 'PROCESSING...' : 'SIGN UP'}
                     </div>
 
                     <Link to="/login" className="switch-button">
