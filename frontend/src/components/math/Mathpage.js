@@ -37,7 +37,7 @@ const mathTopics = [
         title: 'SYSTEM OF EQUATIONS',
         color: '#0984e3',
         description: 'FIND WHERE MULTIPLE EQUATIONS INTERSECT',
-        implemented: false
+        implemented: true
     },
     {
         id: 'polynomial-operations',

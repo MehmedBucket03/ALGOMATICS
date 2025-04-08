@@ -16,6 +16,7 @@ import GraphVisualization from './pages/GraphVisualization';
 import TreeVisualization from './pages/TreeVisualization';
 import SortingAlgorithms from './pages/SortingAlgorithms';
 import Hashtables from './pages/hashtables';
+import LinkedList from './pages/linkedlist';
 
 import MathPage from './components/math/MathPage';
 import SystemEquations from './pages/mathTopics/System of Equations/SystemEquations';
@@ -49,6 +50,7 @@ const App = () => {
                         <Route path="/sequences-series" element={<SequenceSeries />} />
                         <Route path="/logarithms-exponential" element={<Logarithms />} />
                         <Route path="/algorithms/hash-table" element={<Hashtables />} />
+                        <Route path="/algorithms/linked-list" element={<LinkedList />} />
                     </Routes>
                 </main>
                 <UniversalFooter />
