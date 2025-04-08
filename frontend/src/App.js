@@ -15,13 +15,14 @@ import StackQueuePage from './pages/stackqueue';
 import GraphVisualization from './pages/GraphVisualization';
 import TreeVisualization from './pages/TreeVisualization';
 import SortingAlgorithms from './pages/SortingAlgorithms';
-
+import Hashtables from './pages/hashtables';
 
 import MathPage from './components/math/MathPage';
 import SystemEquations from './pages/mathTopics/System of Equations/SystemEquations';
 import QuadraticSolver from './pages/quadraticsolver';
 import LinearEquations from './pages/mathTopics/Linear Equations/linear';
 import SequenceSeries from './pages/mathTopics/Sequence Series/sequenceseries';
+import Logarithms from './pages/mathTopics/Logarithms/logarithms';
 
 
 const App = () => {
@@ -46,7 +47,8 @@ const App = () => {
                         <Route path="/quadratic" element={<QuadraticSolver />} />
                         <Route path="/linear-equations" element={<LinearEquations />} />
                         <Route path="/sequences-series" element={<SequenceSeries />} />
-
+                        <Route path="/logarithms-exponential" element={<Logarithms />} />
+                        <Route path="/algorithms/hash-table" element={<Hashtables />} />
                     </Routes>
                 </main>
                 <UniversalFooter />

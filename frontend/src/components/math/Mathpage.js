@@ -23,7 +23,7 @@ const mathTopics = [
         title: 'LOGARITHMS & EXPONENTIAL EQUATIONS',
         color: '#00b894',
         description: 'SOLVE COMPLEX GROWTH AND DECAY PROBLEMS',
-        implemented: false  // Not implemented yet
+        implemented: true  // Not implemented yet
     },
     {
         id: 'quadratic',  // Already implemented with QuadraticSolver

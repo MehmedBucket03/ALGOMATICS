@@ -6,53 +6,61 @@ import './algorithms.css';
 const algoTopics = [
     {
         id: 'stack-queue',
-        title: 'Stack & Queue',
+        title: 'STACK & QUEUE',
         color: '#6c5ce7',
-        description: 'Last-in First-out and First-in First-out data structures'
+        description: 'LAST-IN FIRST-OUT AND FIRST-IN FIRST-OUT DATA STRUCTURES',
+        implemented: true
     },
     {
         id: 'linked-list',
-        title: 'Linked List',
+        title: 'LINKED LIST',
         color: '#fd79a8',
-        description: 'Sequence of linked elements with dynamic memory allocation'
+        description: 'SEQUENCE OF LINKED ELEMENTS WITH DYNAMIC MEMORY ALLOCATION',
+        implemented: true
     },
     {
         id: 'hash-table',
-        title: 'Hash Table',
+        title: 'HASH TABLE',
         color: '#00b894',
-        description: 'Efficient key-value lookups with O(1) time complexity'
+        description: 'EFFICIENT KEY-VALUE LOOKUPS WITH O(1) TIME COMPLEXITY',
+        implemented: true
     },
     {
         id: 'arrays',
-        title: 'Arrays',
+        title: 'ARRAYS',
         color: '#e17055',
-        description: 'Contiguous memory blocks with constant-time access',
+        description: 'CONTIGUOUS MEMORY BLOCKS WITH CONSTANT-TIME ACCESS',
+        implemented: true,
         path: '/arrays' // Direct path to the Arrays page
     },
     {
         id: 'binary-search',
-        title: 'Binary & Linear Search',
+        title: 'BINARY & LINEAR SEARCH',
         color: '#0984e3',
-        description: 'Efficient algorithms for finding elements in collections'
+        description: 'EFFICIENT ALGORITHMS FOR FINDING ELEMENTS IN COLLECTIONS',
+        implemented: true
     },
     {
         id: 'sorting',
-        title: 'Sorting',
+        title: 'SORTING',
         color: '#6c5ce7',
-        description: 'Algorithms for organizing data in a specific order',
+        description: 'ALGORITHMS FOR ORGANIZING DATA IN A SPECIFIC ORDER',
+        implemented: true,
         path: '/sorting' // Direct path to the Sorting page
     },
     {
         id: 'recursion',
-        title: 'Recursion',
+        title: 'RECURSION',
         color: '#fd79a8',
-        description: 'Functions that call themselves to solve problems'
+        description: 'FUNCTIONS THAT CALL THEMSELVES TO SOLVE PROBLEMS',
+        implemented: false
     },
     {
         id: 'trees',
-        title: 'Tree Structures',
+        title: 'TREE STRUCTURES',
         color: '#00cec9',
-        description: 'Hierarchical data structures with parent-child relationships',
+        description: 'HIERARCHICAL DATA STRUCTURES WITH PARENT-CHILD RELATIONSHIPS',
+        implemented: true,
         path: '/trees' // Direct path to the Tree Visualization page
     }
 ];
@@ -77,10 +85,21 @@ const AlgorithmsPage = () => {
 
     return (
         <div className="algorithms-page-container">
-            {/* Pixel grid background */}
-            <div className="pixel-grid-overlay"></div>
+            {/* Background */}
+            <div className="pixel-background">
+                <div className="gif-container"></div>
+                <div className="pixel-overlay"></div>
+            </div>
 
             <div className="algorithms-content">
+                <div className="nav-bar">
+                    <Link to="/" className="home-link">
+                        <div className="pixel-home-btn">
+                            <span className="home-icon">◄</span> HOME
+                        </div>
+                    </Link>
+                </div>
+
                 <main className="py-8 pixel-main">
                     {isLoading ? (
                         <div className="loading-screen">
@@ -103,7 +122,7 @@ const AlgorithmsPage = () => {
                                     <div className="terminal-title">ALGORITHMS.EXE</div>
                                 </div>
                                 <div className="terminal-body">
-                                    <h1 className="text-3xl font-bold pixel-heading">DATA STRUCTURES & ALGORITHMS</h1>
+                                    <h1 className="pixel-heading">DATA STRUCTURES & ALGORITHMS</h1>
                                     <p className="pixel-description">
                                         Discover algorithmic concepts through dynamic visualizations and detailed breakdowns.
                                     </p>
@@ -113,21 +132,55 @@ const AlgorithmsPage = () => {
                             <div className="pixel-grid">
                                 {algoTopics.map((topic) => (
                                     <Link
-                                        to={topic.path || `/algorithms/${topic.id}`}
+                                        to={topic.implemented ? (topic.path || `/algorithms/${topic.id}`) : "#"}
                                         key={topic.id}
-                                        className={`pixel-card ${hoveredCard === topic.id ? 'hovered' : ''}`}
-                                        style={{ '--card-color': topic.color }}
+                                        className={`pixel-card ${!topic.implemented ? 'disabled-card' : ''} ${hoveredCard === topic.id ? 'hovered' : ''}`}
                                         onMouseEnter={() => handleCardHover(topic.id)}
                                         onMouseLeave={() => handleCardHover(null)}
+                                        onClick={(e) => {
+                                            if (!topic.implemented) {
+                                                e.preventDefault();
+                                                alert("This algorithm is coming soon!");
+                                            }
+                                        }}
                                     >
-                                        <div className="card-content">
-                                            <h2 className="card-title">{topic.title}</h2>
-                                            <div className="card-icon">{topic.title.charAt(0)}</div>
+                                        <div
+                                            className="card-title-bar"
+                                            style={{ backgroundColor: topic.color }}
+                                        >
+                                            <div className="card-title">{topic.title}</div>
+                                        </div>
+
+                                        <div className="pixel-pattern-container">
+                                            <div className="pixel-pattern" data-topic={topic.id}>
+                                                {/* Generate 64 individual pixels */}
+                                                {[...Array(64)].map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="pixel"
+                                                        style={{
+                                                            opacity: Math.random() > 0.5 ? 0.9 : 0.4,
+                                                            backgroundColor: topic.color
+                                                        }}
+                                                    ></div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            className="card-description-bar"
+                                            style={{ borderTopColor: topic.color }}
+                                        >
                                             <div className="card-description">{topic.description}</div>
                                         </div>
-                                        <div className="card-shine"></div>
+
                                         {hoveredCard === topic.id && (
-                                            <div className="card-cta">SELECT</div>
+                                            <div
+                                                className="card-cta"
+                                                style={{ backgroundColor: topic.color }}
+                                            >
+                                                {topic.implemented ? 'SELECT' : 'COMING SOON'}
+                                            </div>
                                         )}
                                     </Link>
                                 ))}
@@ -135,6 +188,14 @@ const AlgorithmsPage = () => {
                         </>
                     )}
                 </main>
+            </div>
+
+            {/* Add floating pixels for decoration */}
+            <div className="floating-pixels">
+                <div className="floating-pixel p1"></div>
+                <div className="floating-pixel p2"></div>
+                <div className="floating-pixel p3"></div>
+                <div className="floating-pixel p4"></div>
             </div>
         </div>
     );
