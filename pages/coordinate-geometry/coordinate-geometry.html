@@ -7,50 +7,50 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="coordinate.css">
 </head>
 
 <body class="text-center font-['Silkscreen'] text-white" style="background-color: #0a0a23;">
+<main class="py-8 px-4">
+  <h1 class="text-4xl font-bold mb-8">Coordinate Geometry</h1>
 
-
-  <main class="py-8 px-4">
-    <h1 class="text-3xl font-bold mb-6">Coordinate Geometry</h1>
-
-    <div class="mb-6">
-      <h2 class="text-xl mb-4">Select Calculation</h2>
-      <button id="midpoint-btn" class="bg-pink-500 text-white px-4 py-2 m-2 rounded hover:bg-pink-600">Midpoint</button>
-      <button id="slope-btn" class="bg-blue-500 text-white px-4 py-2 m-2 rounded hover:bg-blue-600">Slope</button>
-      <button id="equation-btn" class="bg-purple-600 text-white px-4 py-2 m-2 rounded hover:bg-purple-700">Equation of Line</button>
+  <section class="mb-10">
+    <h2 class="text-2xl mb-4">Select Calculation</h2>
+    <div class="space-x-4">
+      <button id="midpoint-btn" class="bg-pink-500 text-white px-6 py-3 rounded hover:bg-pink-600">Midpoint</button>
+      <button id="slope-btn" class="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600">Slope</button>
+      <button id="equation-btn" class="bg-purple-600 text-white px-6 py-3 rounded hover:bg-purple-700">Equation of Line</button>
     </div>
+  </section>
 
-    <div class="input-container mb-6">
-      <label class="block mb-2">Point A (x₁, y₁):
-        <input type="number" id="x1" class="text-black p-1 rounded w-20 mx-1"> ,
-        <input type="number" id="y1" class="text-black p-1 rounded w-20 mx-1">
-      </label>
-      <label class="block mb-2">Point B (x₂, y₂):
-        <input type="number" id="x2" class="text-black p-1 rounded w-20 mx-1"> ,
-        <input type="number" id="y2" class="text-black p-1 rounded w-20 mx-1">
-      </label>
-      <button id="graph-btn" class="bg-green-500 text-white px-4 py-2 mt-2 rounded hover:bg-green-600">Graph</button>
-    </div>
+  <section class="input-container mb-10">
+    <h3 class="text-xl mb-4">Enter Points</h3>
+    <label class="block mb-2 text-lg">Point A (x₁, y₁):
+      <input type="number" id="x1" class="text-black p-2 rounded w-24 mx-1"> ,
+      <input type="number" id="y1" class="text-black p-2 rounded w-24 mx-1">
+    </label>
+    <label class="block mb-2 text-lg">Point B (x₂, y₂):
+      <input type="number" id="x2" class="text-black p-2 rounded w-24 mx-1"> ,
+      <input type="number" id="y2" class="text-black p-2 rounded w-24 mx-1">
+    </label>
+    <button id="graph-btn" class="bg-green-500 text-white px-6 py-3 mt-4 rounded hover:bg-green-600">Graph</button>
+  </section>
 
-    <div class="graph-container mb-10">
-      <h2 class="text-xl mb-2">Graph Visualization</h2>
-      <div id="desmos-calculator" class="graph mx-auto" style="height: 600px; width: 100%; max-width: 800px;"></div>
-    </div>
+  <section class="graph-container mb-12">
+    <h2 class="text-2xl mb-4">Graph Visualization</h2>
+    <div id="desmos-calculator" class="mx-auto rounded border-4 border-[#d4a4ff]" style="height: 700px; width: 100%; max-width: 1000px;"></div>
+  </section>
 
-    <div class="breakdown">
-      <h2 class="text-xl mb-2">Calculation Breakdown</h2>
-      <p id="midpoint-text" class="mb-2"></p>
-      <p id="slope-text" class="mb-2"></p>
-      <p id="equation-text" class="mb-2"></p>
-    </div>
-  </main>
+  <section id="breakdown-container" class="breakdown text-left max-w-3xl mx-auto bg-[#1c1c3b] p-6 rounded-lg border-4 border-[#d4a4ff]" style="display: none;">
+    <h2 class="text-2xl mb-4 text-center">Calculation Breakdown</h2>
 
+    <div id="midpoint-text" class="mb-6 text-lg leading-relaxed"></div>
+    <div id="slope-text" class="mb-6 text-lg leading-relaxed"></div>
+    <div id="equation-text" class="mb-6 text-lg leading-relaxed"></div>
+  </section>
+</main>
 
 <script src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
-  <script src="coordinate.js"></script>
+<script src="coordinate.js"></script>
 </body>
 </html>

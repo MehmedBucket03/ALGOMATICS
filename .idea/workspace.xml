@@ -4,16 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="fix up angles">
-      <change beforePath="$PROJECT_DIR$/.idea/ALGOMATICS.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ALGOMATICS.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
+    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="updates to animations">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/advanced-trees/advanced-trees.css" beforeDir="false" afterPath="$PROJECT_DIR$/pages/advanced-trees/advanced-trees.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/advanced-trees/advanced-trees.js" beforeDir="false" afterPath="$PROJECT_DIR$/pages/advanced-trees/advanced-trees.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/angles-triangles/angles-triangles.css" beforeDir="false" afterPath="$PROJECT_DIR$/pages/angles-triangles/angles-triangles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/angles-triangles/angles-triangles.js" beforeDir="false" afterPath="$PROJECT_DIR$/pages/angles-triangles/angles-triangles.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/algorithms/advanced-trees.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/advanced-trees/advanced-trees.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/algorithms/angles-triangles.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/angles-triangles/angles-triangles.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/coordinate-geometry/coordinate-geometry.html" beforeDir="false" afterPath="$PROJECT_DIR$/pages/coordinate-geometry/coordinate-geometry.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/coordinate-geometry/coordinate.js" beforeDir="false" afterPath="$PROJECT_DIR$/pages/coordinate-geometry/coordinate.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,10 +45,14 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "JavaScript Debug.InterActiveQuadratic.html.executor": "Run",
+    "JavaScript Debug.QuadraticEquation.html.executor": "Run",
+    "JavaScript Debug.ShortestPath.html.executor": "Run",
     "JavaScript Debug.advanced-trees.html.executor": "Run",
     "JavaScript Debug.angles-triangles.html.executor": "Run",
     "JavaScript Debug.arrays.html.executor": "Run",
     "JavaScript Debug.circles.html.executor": "Run",
+    "JavaScript Debug.coordinate-geometry.html.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "com.codeium.enabled": "true",
@@ -69,8 +67,9 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\angles-triangles" />
+      <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\coordinate-geometry" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages" />
+      <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\angles-triangles" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\advanced-trees" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\algorithms" />
     </key>
@@ -92,6 +91,15 @@
       <updated>1743203766728</updated>
       <workItem from="1743203768045" duration="17240000" />
     </task>
+    <task id="LOCAL-00001" summary="updates to animations">
+      <option name="closed" value="true" />
+      <created>1744069532154</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1744069532154</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -99,6 +107,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix up angles" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix up angles" />
+    <MESSAGE value="updates to animations" />
+    <option name="LAST_COMMIT_MESSAGE" value="updates to animations" />
   </component>
 </project>
