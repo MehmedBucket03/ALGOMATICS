@@ -21,6 +21,7 @@ import MathPage from './components/math/MathPage';
 import SystemEquations from './pages/mathTopics/System of Equations/SystemEquations';
 import QuadraticSolver from './pages/quadraticsolver';
 import LinearEquations from './pages/mathTopics/Linear Equations/linear';
+import SequenceSeries from './pages/mathTopics/Sequence Series/sequenceseries';
 
 
 const App = () => {
@@ -44,6 +45,7 @@ const App = () => {
                         <Route path="/system-of-equations" element={<SystemEquations />} />
                         <Route path="/quadratic" element={<QuadraticSolver />} />
                         <Route path="/linear-equations" element={<LinearEquations />} />
+                        <Route path="/sequences-series" element={<SequenceSeries />} />
 
                     </Routes>
                 </main>
