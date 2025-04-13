@@ -53,7 +53,7 @@ const algoTopics = [
         title: 'RECURSION',
         color: '#fd79a8',
         description: 'FUNCTIONS THAT CALL THEMSELVES TO SOLVE PROBLEMS',
-        implemented: false
+        implemented: true
     },
     {
         id: 'trees',

@@ -24,6 +24,7 @@ import QuadraticSolver from './pages/quadraticsolver';
 import LinearEquations from './pages/mathTopics/Linear Equations/linear';
 import SequenceSeries from './pages/mathTopics/Sequence Series/sequenceseries';
 import Logarithms from './pages/mathTopics/Logarithms/logarithms';
+import Recursion from './pages/recursion';
 
 
 const App = () => {
@@ -50,7 +51,8 @@ const App = () => {
                         <Route path="/sequences-series" element={<SequenceSeries />} />
                         <Route path="/logarithms-exponential" element={<Logarithms />} />
                         <Route path="/algorithms/hash-table" element={<Hashtables />} />
-                        <Route path="/algorithms/linked-list" element={<LinkedList />} />
+                        <Route path="/algorithms/linked-listcd" element={<LinkedList />} />
+                        <Route path="/algorithms/recursion" element={<Recursion />} />
                     </Routes>
                 </main>
                 <UniversalFooter />
