@@ -587,15 +587,80 @@ class RBT {
     }
 
     _insertRecursive(node, value, x, y, offset) {
-        if (!node) return new RBTNode(value, x, y);
+        if (!node) return new RBTNode(value, x, y, 'red'); // Always insert red
 
+        // Regular BST logic
         if (value < node.value) {
             node.left = this._insertRecursive(node.left, value, x - offset, y + 60, offset / 1.5);
         } else {
             node.right = this._insertRecursive(node.right, value, x + offset, y + 60, offset / 1.5);
         }
 
+        // ✅ Fix Red-Black Tree violations (but not too early!)
+
+        // Case 1: Right child is red, left is black → Rotate left
+        if (this._isRed(node.right) && !this._isRed(node.left)) {
+            node = this._rotateLeft(node);
+        }
+
+        // Case 2: Left child is red and its left child is red → Rotate right
+        if (this._isRed(node.left) && this._isRed(node.left.left)) {
+            node = this._rotateRight(node);
+        }
+
+        // ✅ Case 3: Both children are red → flip only when child just inserted causes red-red
+        if (this._isRed(node.left) && this._isRed(node.right)) {
+            if (this._justInsertedCausedRedRed(node)) {
+                this._flipColors(node);
+            }
+        }
+
         return node;
+    }
+    _justInsertedCausedRedRed(node) {
+        // Look one level deeper to detect red-red situation
+        return (this._isRed(node.left) && (
+                this._isRed(node.left.left) || this._isRed(node.left.right)
+            )) ||
+            (this._isRed(node.right) && (
+                this._isRed(node.right.left) || this._isRed(node.right.right)
+            ));
+    }
+
+    _isRed(node) {
+        return node && node.color === 'red';
+    }
+
+    _rotateLeft(h) {
+        let x = h.right;
+        h.right = x.left;
+        x.left = h;
+
+        gsap.to(h, { x: h.x - 30, duration: 0.3 });
+        gsap.to(x, { x: x.x + 30, duration: 0.3 });
+
+        x.color = h.color;
+        h.color = 'red';
+        return x;
+    }
+
+    _rotateRight(h) {
+        let x = h.left;
+        h.left = x.right;
+        x.right = h;
+
+        gsap.to(h, { x: h.x + 30, duration: 0.3 });
+        gsap.to(x, { x: x.x - 30, duration: 0.3 });
+
+        x.color = h.color;
+        h.color = 'red';
+        return x;
+    }
+
+    _flipColors(h) {
+        h.color = 'red';
+        if (h.left) h.left.color = 'black';
+        if (h.right) h.right.color = 'black';
     }
 
     draw() {
