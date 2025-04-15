@@ -7,6 +7,7 @@ import {
     EmailAuthProvider,
 } from 'firebase/auth';
 import './Profile.css';
+//changes
 
 const Settings = () => {
     const [oldPassword, setOldPassword] = useState('');

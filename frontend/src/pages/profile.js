@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import './Profile.css';
 import { signOut } from 'firebase/auth';
-
+//changes
 
 
 const topicTitles = {

@@ -28,7 +28,7 @@ import SequenceSeries from './pages/mathTopics/Sequence Series/sequenceseries';
 import Logarithms from './pages/mathTopics/Logarithms/logarithms';
 import Recursion from './pages/recursion';
 
-
+//changes
 const App = () => {
     return (
         <Router>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './linkedlist.css';
 import { auth, db } from '../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-
+//changes
 const LinkedList = () => {
     // State for linked list operations
     const [nodes, setNodes] = useState([]);
