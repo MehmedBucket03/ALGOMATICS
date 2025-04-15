@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+
 .login-container {
     position: relative;
     min-height: 100vh;
@@ -47,6 +49,14 @@
     box-shadow: 0 0 10px #00ff00;
 }
 
+.login-box h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #00ff00;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
 .input-box {
     width: 100%;
     padding: 0.75rem;
@@ -68,6 +78,7 @@
     font-weight: bold;
     margin-top: 1rem;
     transition: all 0.3s;
+    user-select: none;
 }
 
 .button:hover {
@@ -97,10 +108,12 @@
     background-color: rgba(255, 0, 0, 0.2);
     border-left: 3px solid red;
     padding: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .success-message {
     background-color: rgba(0, 255, 0, 0.2);
     border-left: 3px solid #00ff00;
     padding: 0.5rem;
+    margin-bottom: 1rem;
 }

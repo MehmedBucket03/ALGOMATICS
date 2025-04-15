@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../../firebase/firebase';
-import './Signup.css';
+import './signup.css';
 
 function Signup() {
     const [name, setName] = useState('');
@@ -12,77 +12,82 @@ function Signup() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    const handleSignup = () => {
+    const handleSignup = async () => {
         console.log("Signup button clicked");
 
         // Clear previous messages
         setError('');
         setSuccess('');
+        setIsSubmitting(true);
 
-        // Basic validation
-        if (!name || !email || !password || !confirmPassword) {
-            setError("Please fill in all fields");
-            return;
-        }
+        try {
+            // Basic validation
+            if (!name || !email || !password || !confirmPassword) {
+                throw new Error("Please fill in all fields");
+            }
 
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError("Please enter a valid email address");
-            return;
-        }
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                throw new Error("Please enter a valid email address");
+            }
 
-        // Check if passwords match
-        if (password !== confirmPassword) {
-            setError("Passwords do not match");
-            return;
-        }
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                throw new Error("Passwords do not match");
+            }
 
-        // Password strength validation
-        if (password.length < 6) {
-            setError("Password should be at least 6 characters");
-            return;
-        }
+            // Password strength validation
+            if (password.length < 6) {
+                throw new Error("Password should be at least 6 characters");
+            }
 
-        // Create user with Firebase
-        console.log("Attempting to create user with Firebase...");
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                // Successful signup
-                const user = userCredential.user;
-                console.log("User created successfully:", user.email);
+            // Create user with Firebase
+            console.log("Attempting to create user with Firebase...");
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-                // Add user profile information
-                return updateProfile(user, {
-                    displayName: name
-                }).then(() => {
-                    // Store additional user data in Firestore
-                    return setDoc(doc(db, 'users', user.uid), {
-                        name: name,
-                        email: user.email,
-                        createdAt: new Date()
-                    });
+            // Successful signup
+            const user = userCredential.user;
+            console.log("User created successfully:", user.email);
+
+            // Add user profile information
+            await updateProfile(user, {
+                displayName: name
+            });
+
+            console.log("Profile updated successfully");
+
+            // Try to store additional user data in Firestore with better error handling
+            try {
+                await setDoc(doc(db, 'users', user.uid), {
+                    name: name,
+                    email: user.email,
+                    createdAt: new Date()
                 });
-            })
-            .then(() => {
-                // Show success message
-                setSuccess("Account created successfully! Redirecting...");
+                console.log("User document created in Firestore");
+            } catch (firestoreError) {
+                // If Firestore write fails, log it but don't prevent login
+                console.error("Firestore document creation failed:", firestoreError);
+                console.log("Proceeding with login despite Firestore error");
+            }
 
-                // Redirect to dashboard page after a brief delay
-                setTimeout(() => {
-                    navigate('/');
-                }, 1500);
-            })
-            .catch((error) => {
-                // Handle signup errors
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.error("Signup error:", errorCode, errorMessage);
+            // Show success message
+            setSuccess("Account created successfully! Redirecting...");
 
-                // Show appropriate error message
-                switch(errorCode) {
+            // Redirect to dashboard page after a brief delay
+            setTimeout(() => {
+                navigate('/');
+            }, 1500);
+
+        } catch (error) {
+            console.error("Signup error:", error);
+
+            // Firebase auth errors
+            if (error.code) {
+                switch(error.code) {
                     case 'auth/email-already-in-use':
                         setError("This email is already in use");
                         break;
@@ -93,79 +98,100 @@ function Signup() {
                         setError("Password is too weak. Use at least 6 characters");
                         break;
                     default:
-                        setError("Signup failed: " + errorMessage);
+                        setError(`Signup failed: ${error.message || error.code}`);
                 }
-            });
+            } else {
+                // Custom validation errors or other errors
+                setError(error.message || "An unknown error occurred");
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    // Using JSX syntax
     return (
-        <div className="auth-container">
-            <div className="auth-content">
-                <div className="pixel-auth-box">
-                    <h1 className="pixel-title">SIGN UP</h1>
+        <div className="signup-container">
+            {/* Background video/gif */}
+            <div className="gif-container">
+                <video autoPlay muted loop className="background-video">
+                    <source src="/assets/background.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
 
-                    <div className="pixel-form-group">
-                        <label htmlFor="name" className="pixel-label">NAME</label>
+            <div className="content">
+                <div className="auth-box">
+                    <h2>CREATE ACCOUNT</h2>
+
+                    {error && <div className="error-message">{error}</div>}
+                    {success && <div className="success-message">{success}</div>}
+
+                    <div>
+                        <label htmlFor="name">NAME</label>
                         <input
                             type="text"
                             id="name"
-                            placeholder="Enter your name"
-                            className="pixel-input"
+                            className="input-box"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            required
+                            placeholder="Enter your name"
+                            disabled={isSubmitting}
                         />
                     </div>
 
-                    <div className="pixel-form-group">
-                        <label htmlFor="email" className="pixel-label">EMAIL</label>
+                    <div>
+                        <label htmlFor="email">EMAIL</label>
                         <input
                             type="email"
                             id="email"
-                            placeholder="Enter your email"
-                            className="pixel-input"
+                            className="input-box"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            required
+                            placeholder="Enter your email"
+                            disabled={isSubmitting}
                         />
                     </div>
 
-                    <div className="pixel-form-group">
-                        <label htmlFor="password" className="pixel-label">PASSWORD</label>
+                    <div>
+                        <label htmlFor="password">PASSWORD</label>
                         <input
                             type="password"
                             id="password"
-                            placeholder="Enter your password"
-                            className="pixel-input"
+                            className="input-box"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            required
+                            placeholder="Create a password"
+                            disabled={isSubmitting}
                         />
                     </div>
 
-                    <div className="pixel-form-group">
-                        <label htmlFor="confirm-password" className="pixel-label">CONFIRM PASSWORD</label>
+                    <div>
+                        <label htmlFor="confirm-password">CONFIRM PASSWORD</label>
                         <input
                             type="password"
                             id="confirm-password"
-                            placeholder="Confirm your password"
-                            className="pixel-input"
+                            className="input-box"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
+                            placeholder="Confirm your password"
+                            disabled={isSubmitting}
                         />
                     </div>
 
-                    <div className="pixel-button" onClick={handleSignup}>SIGN UP</div>
+                    <div
+                        className={`button ${isSubmitting ? 'disabled' : ''}`}
+                        onClick={!isSubmitting ? handleSignup : undefined}
+                    >
+                        {isSubmitting ? 'PROCESSING...' : 'SIGN UP'}
+                    </div>
 
-                    {error && <p className="pixel-error">{error}</p>}
-                    {success && <p className="pixel-success">{success}</p>}
+                    <Link to="/login" className="switch-button">
+                        ALREADY HAVE AN ACCOUNT
+                    </Link>
 
-                    <div className="pixel-divider"></div>
-
-                    <p className="pixel-text">ALREADY HAVE AN ACCOUNT?</p>
-                    <Link to="/login" className="pixel-link-button">LOGIN</Link>
+                    <Link to="/" className="switch-button">
+                        BACK TO HOME
+                    </Link>
                 </div>
             </div>
         </div>
