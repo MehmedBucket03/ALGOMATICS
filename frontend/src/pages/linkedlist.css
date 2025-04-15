@@ -1,4 +1,4 @@
-/* LinkedList.css */
+/* LinkedList.css  changes made*/
 @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
 
 /* Base Styles */
@@ -67,8 +67,6 @@
     box-shadow: 0 10px 0 #4834d4, 0 0 20px rgba(108, 92, 231, 0.5);
     overflow: hidden;
     margin-bottom: 1rem;
-    position: relative; /* Added for proper stacking context */
-    z-index: 1; /* Base z-index */
 }
 
 .pixel-window-header {
@@ -78,8 +76,6 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 4px solid #191932;
-    position: relative; /* Added for proper stacking */
-    z-index: 2; /* Higher than window body */
 }
 
 .pixel-dots {
@@ -128,22 +124,18 @@
 
 .pixel-window-body {
     padding: 0.75rem;
-    position: relative; /* Added for proper stacking */
-    z-index: 1; /* Lower than header */
 }
 
 /* Form Styles */
 .pixel-form-group {
-    margin-bottom: 1rem; /* Increased for more spacing */
-    position: relative; /* Added for proper stacking */
+    margin-bottom: 0.5rem;
 }
 
 .pixel-form-group-row {
     display: flex;
     gap: 0.4rem;
     align-items: flex-end;
-    margin-bottom: 1rem; /* Increased for more spacing */
-    position: relative; /* Added for proper stacking */
+    margin-bottom: 0.5rem;
 }
 
 .pixel-form-group-row .pixel-form-group {
@@ -164,21 +156,16 @@
 
 .pixel-input {
     width: 100%;
-    min-width: 200px; /* Added minimum width */
     background-color: #12121f;
     border: 2px solid #6c5ce7;
     border-radius: 4px;
-    padding: 0.75rem; /* Increased padding */
+    padding: 0.5rem;
     color: #dfe6e9;
     font-family: 'Silkscreen', monospace;
-    font-size: 14px; /* Added explicit font size */
-    height: 40px; /* Added fixed height */
-    box-sizing: border-box; /* Make sure padding is included in height */
 }
 
 .pixel-input-small {
     width: 60px;
-    min-width: 60px; /* Ensure small inputs don't expand */
     text-align: center;
 }
 
@@ -192,8 +179,8 @@
     background-color: #6c5ce7;
     color: white;
     border: none;
-    padding: 0.75rem 1rem; /* Increased padding */
-    min-width: 120px; /* Minimum width for buttons */
+    padding: 0.5rem;
+    width: 100%;
     font-family: 'Silkscreen', monospace;
     font-size: 0.8rem;
     border-radius: 4px;
@@ -202,17 +189,11 @@
     transform: translateY(-1px);
     transition: all 0.2s ease;
     letter-spacing: 1px;
-    position: relative; /* Added for proper stacking */
-    z-index: 10; /* Ensure buttons are above other elements */
-    display: inline-block; /* Prevent full width stretching */
-    text-align: center;
-    margin: 0.5rem 0.25rem; /* Added margin for spacing */
 }
 
 .pixel-button:hover {
     background-color: #a29bfe;
     box-shadow: 0 4px 0 #6c5ce7;
-    transform: translateY(-3px); /* Enhanced hover effect */
 }
 
 .pixel-button:active {
@@ -231,32 +212,10 @@
     box-shadow: 0 4px 0 #ff7675;
 }
 
-/* Operations container to properly organize buttons */
-.operations-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    position: relative;
-    z-index: 5;
-    margin-bottom: 1.5rem; /* Add space after operations */
-}
-
-/* Button row for horizontal layout */
-.button-row {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap; /* Allow wrapping on small screens */
-    justify-content: flex-start;
-    position: relative;
-    z-index: 10;
-}
-
 /* Tabs */
 .pixel-tabs {
     display: flex;
     gap: 0.5rem;
-    position: relative; /* Added for proper stacking */
-    z-index: 5; /* Ensure above other elements */
 }
 
 .pixel-tab {
@@ -268,8 +227,6 @@
     font-size: 0.8rem;
     cursor: pointer;
     border-radius: 4px 4px 0 0;
-    position: relative; /* Added for proper stacking */
-    z-index: 6; /* Higher than surrounding elements */
 }
 
 .pixel-tab:hover {
@@ -284,10 +241,8 @@
 .pixel-button-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem; /* Increased gap */
-    margin-bottom: 1rem; /* Increased margin */
-    position: relative; /* Added for proper stacking */
-    z-index: 5; /* Ensure above other elements */
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
 }
 
 .pixel-tab-btn {
@@ -300,8 +255,6 @@
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    position: relative; /* Added for proper stacking */
-    z-index: 6; /* Higher than surrounding elements */
 }
 
 .pixel-tab-btn:hover {
@@ -318,10 +271,8 @@
 .pixel-list-container {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    padding: 20px;
-    position: relative; /* Create stacking context */
-    z-index: 5; /* Lower than buttons but higher than background */
+    gap: 1rem;
+    padding: 1rem 0;
 }
 
 .pixel-node {
@@ -332,7 +283,6 @@
     border-radius: 4px;
     padding: 0.75rem;
     transition: all 0.3s ease;
-    position: relative; /* Added for proper stacking */
 }
 
 .pixel-node-highlight {
@@ -420,8 +370,6 @@
     padding: 0.75rem;
     margin-top: 1rem;
     border-radius: 4px;
-    position: relative; /* Added for proper stacking */
-    z-index: 5; /* Ensure it's visible */
 }
 
 /* Content Sections */
@@ -443,7 +391,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     margin-top: 1.5rem;
-    position: relative; /* Added for proper stacking */
 }
 
 .pixel-operation-card {
@@ -451,7 +398,6 @@
     border: 2px solid #6c5ce7;
     border-radius: 4px;
     padding: 0.75rem;
-    position: relative; /* Added for proper stacking */
 }
 
 .pixel-operation-title {
@@ -464,7 +410,6 @@
 /* Explanation */
 .pixel-explanation {
     min-height: 300px;
-    position: relative; /* Added for proper stacking */
 }
 
 .pixel-explanation-content p {
@@ -525,7 +470,6 @@
 /* Animation Steps */
 .pixel-steps-view {
     min-height: 300px;
-    position: relative; /* Added for proper stacking */
 }
 
 .pixel-steps-empty {
@@ -572,7 +516,6 @@
     border-radius: 4px;
     overflow-x: auto;
     font-family: monospace;
-    position: relative; /* Added for proper stacking */
 }
 
 .pixel-code pre {
@@ -591,8 +534,6 @@
     padding: 1rem;
     color: #6c5ce7;
     font-size: 0.8rem;
-    position: relative; /* Added for proper stacking */
-    z-index: 1;
 }
 
 /* Responsive Design */
@@ -620,18 +561,6 @@
 
     .pixel-form-group-row .pixel-button {
         width: 100%;
-    }
-
-    /* Make buttons more visible on mobile */
-    .pixel-button {
-        margin: 0.5rem 0;
-        z-index: 15;
-    }
-
-    /* Improved touch targets for mobile */
-    .pixel-input {
-        height: 44px;
-        font-size: 16px;
     }
 }
 
@@ -662,4 +591,15 @@
 
 .pixel-slide-in {
     animation: slideIn 0.3s ease forwards;
+}
+
+.pixel-input {
+    background-color: #1b1328;
+    border: 2px solid #955eff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Press Start 2P', monospace;
+    width: 100%;
+    margin-top: 0.5rem;
 }

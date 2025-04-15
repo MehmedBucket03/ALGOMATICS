@@ -1,0 +1,79 @@
+/* frontend/src/pages/profile.css changes */
+
+.profile-wrapper {
+    padding: 2rem;
+}
+
+.pixel-section {
+    margin-top: 2rem;
+}
+
+.profile-topic-scroll {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scroll-behavior: smooth;
+}
+
+.profile-topic-card {
+    background-color: #1b1328;
+    border: 2px solid #955eff;
+    min-width: 220px;
+    padding: 1rem;
+    border-radius: 12px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.profile-topic-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.pixel-input-preview {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    color: #cfcfcf;
+}
+
+.profile-topic-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-topic-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #955eff88;
+}
+
+.profile-topic-scroll {
+    padding-top: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    scrollbar-color: #955eff #1b1328;
+    scrollbar-width: thin;
+}
+
+.mt-6 {
+    margin-top: 1.5rem;
+}
+
+.pixel-input-field {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.9rem;
+    background-color: #1b1328;
+    color: #fff;
+    border: 2px solid #955eff;
+    border-radius: 6px;
+    box-shadow: 0 4px #5e38a8;
+    transition: 0.3s ease;
+}
+
+.pixel-input-field:focus {
+    outline: none;
+    border-color: #c084fc;
+    box-shadow: 0 0 8px #a855f7;
+}

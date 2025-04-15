@@ -8,7 +8,7 @@ import Signup from './components/auth/signup/signup';
 import About from './pages/about';
 
 import AlgorithmsPage from './components/algorithm/algorithms';
-import ArraysPage from './pages/arrays'; // Import the new ArraysPage component
+import ArraysPage from './pages/arrays'; // Import new ArraysPage component
 import StackQueuePage from './pages/stackqueue';
 import Sudoku from './pages/sudoku';
 

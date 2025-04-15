@@ -6,15 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="SUdoku solver integrated">
       <changelist_data name="Ranveer225" email="singr12@farmingdale.edu" date="1745856793000" automatic="true" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pages/backtracking/sudoku.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pages/backtracking/sudoku.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pages/backtracking/sudoku.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/algorithm/algorithms.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/algorithm/algorithms.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +24,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -58,31 +50,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JavaScript Debug.InterActiveQuadratic.html.executor": "Run",
-    "JavaScript Debug.QuadraticEquation.html.executor": "Run",
-    "JavaScript Debug.ShortestPath.html.executor": "Run",
-    "JavaScript Debug.advanced-trees.html.executor": "Run",
-    "JavaScript Debug.angles-triangles.html.executor": "Run",
-    "JavaScript Debug.arrays.html.executor": "Run",
-    "JavaScript Debug.circles.html.executor": "Run",
-    "JavaScript Debug.coordinate-geometry.html.executor": "Run",
-    "JavaScript Debug.sudoku.html.executor": "Run",
-    "Node.js.advanced-trees.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "com.codeium.enabled": "true",
-    "git-widget-placeholder": "main-main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2025.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.InterActiveQuadratic.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.QuadraticEquation.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.ShortestPath.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.advanced-trees.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.angles-triangles.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.arrays.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.circles.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.coordinate-geometry.html.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.sudoku.html.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.advanced-trees.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;com.codeium.enabled&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main-main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2025.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\coordinate-geometry" />
@@ -144,6 +136,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix up angles" />

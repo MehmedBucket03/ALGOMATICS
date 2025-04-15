@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './linkedlist.css';
+import { auth, db } from '../firebase/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+//changes
 
 const LinkedList = () => {
     // State for linked list operations
@@ -14,10 +17,63 @@ const LinkedList = () => {
     const [currentStep, setCurrentStep] = useState(0);
     const [errorMessage, setErrorMessage] = useState('');
 
-    // Initialize with example linked list
+    const saveProgressToFirestore = async (nodes, newValue) => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const topicId = 'linked-list';
+        const inputString = nodes.map(node => node.value).join(', ');
+
+        const docRef = doc(db, 'users', user.uid);
+        await setDoc(docRef, {
+            lastTopicVisited: topicId,
+            [`topics.${topicId}`]: {
+                input: inputString,
+                timestamp: new Date().toISOString()
+            }
+        }, { merge: true });
+    };
+
+
     useEffect(() => {
-        resetList();
+        const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+            if (!currentUser) return;
+
+            const docRef = doc(db, 'users', currentUser.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+
+                // Check if the linked-list topic exists in 'topics'
+                if (data.topics && data.topics['linked-list']) {
+                    const savedValues = data.topics['linked-list'].input;
+                    const values = savedValues.split(',').map(v => parseInt(v.trim()));
+
+                    const rebuiltNodes = values.map((val, i) => ({
+                        value: val,
+                        next: i === values.length - 1 ? null : i + 1
+                    }));
+
+                    setNodes(rebuiltNodes);
+                } else {
+                    resetList();
+                }
+            } else {
+                resetList();
+            }
+        });
+
+        return () => unsubscribe();
     }, []);
+
+    useEffect(() => {
+        if (auth.currentUser && nodes.length > 0) {
+            console.log("Auto-saving to Firestore");
+            saveProgressToFirestore(nodes, '');
+        }
+    }, [nodes]);
+
 
     // Reset list to default example
     const resetList = () => {
@@ -69,7 +125,6 @@ const LinkedList = () => {
                         const newNodeList = [...prevNodes];
                         const newNodeIndex = newNodeList.length;
 
-                        // If list is not empty, update the last node's next pointer
                         if (newNodeList.length > 0) {
                             const lastIndex = newNodeList.length - 1;
                             newNodeList[lastIndex] = {
@@ -78,14 +133,13 @@ const LinkedList = () => {
                             };
                         }
 
-                        // Add the new node
-                        newNodeList.push({
-                            value: value,
-                            next: null
-                        });
+                        newNodeList.push({ value, next: null });
 
+                        saveProgressToFirestore(newNodeList, '');
                         return newNodeList;
                     });
+
+
                     setNewValue('');
                     setCurrentStep(3);
                     setTimeout(() => {
@@ -201,6 +255,7 @@ const LinkedList = () => {
                                     }
                                 }
                             }
+                            saveProgressToFirestore(newNodeList, '');
 
                             return newNodeList;
                         });
@@ -304,7 +359,7 @@ const LinkedList = () => {
                                         };
                                     }
                                 }
-
+                                saveProgressToFirestore(newNodeList, '');
                                 return newNodeList;
                             }
                         });
@@ -516,11 +571,9 @@ const LinkedList = () => {
                                     />
                                 </div>
 
-                                <div className="operations-container">
-                                    <div className="button-row">
-                                        <button onClick={handleAppend} className="pixel-button">APPEND</button>
-                                        <button onClick={handleSearch} className="pixel-button">SEARCH</button>
-                                    </div>
+                                <div className="pixel-button-grid">
+                                    <button onClick={handleAppend} className="pixel-button">APPEND</button>
+                                    <button onClick={handleSearch} className="pixel-button">SEARCH</button>
                                 </div>
 
                                 <div className="pixel-form-group-row">
