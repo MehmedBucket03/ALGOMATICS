@@ -16,8 +16,10 @@ const algoTopics = [
         title: 'LINKED LIST',
         color: '#fd79a8',
         description: 'SEQUENCE OF LINKED ELEMENTS WITH DYNAMIC MEMORY ALLOCATION',
-        implemented: true
+        implemented: true,
+        path: '/linkedlist'
     },
+
     {
         id: 'hash-table',
         title: 'HASH TABLE',

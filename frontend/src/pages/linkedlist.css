@@ -592,3 +592,14 @@
 .pixel-slide-in {
     animation: slideIn 0.3s ease forwards;
 }
+
+.pixel-input {
+    background-color: #1b1328;
+    border: 2px solid #955eff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Press Start 2P', monospace;
+    width: 100%;
+    margin-top: 0.5rem;
+}
