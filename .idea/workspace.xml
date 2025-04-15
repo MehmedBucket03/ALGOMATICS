@@ -4,17 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="814dff09-683e-4d27-ae20-3c494d8a467c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/algorithm/algorithms.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/algorithm/algorithms.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/linkedlist.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/linkedlist.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/linkedlist.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/linkedlist.js" afterDir="false" />
     </list>
+=======
+    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="" />
+>>>>>>> frontend-ui
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+<<<<<<< HEAD
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -32,6 +37,22 @@
     &quot;assignee&quot;: &quot;MehmedBucket03&quot;
   }
 }</component>
+=======
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="structure" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "MehmedBucket03"
+  }
+}]]></component>
+>>>>>>> frontend-ui
   <component name="GithubProjectSettings">
     <option name="branchProtectionPatterns">
       <list>
@@ -40,6 +61,7 @@
       </list>
     </option>
   </component>
+<<<<<<< HEAD
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/MehmedBucket03/ALGOMATICS.git&quot;,
@@ -54,16 +76,38 @@
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
   </component>
+=======
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/MehmedBucket03/ALGOMATICS.git",
+    "accountId": "30c67493-4712-4d00-beec-58b31dddb517"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="2uxwvm4ets0drhmN6ckgLFzmVyR" />
+>>>>>>> frontend-ui
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+<<<<<<< HEAD
     "RunOnceActivity.git.unshallow": "true",
     "com.codeium.enabled": "true",
     "git-widget-placeholder": "backup-develop",
     "list.type.of.created.stylesheet": "CSS",
+=======
+    "JavaScript Debug.arrays.html.executor": "Run",
+    "JavaScript Debug.circles.html.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.codeium.enabled": "true",
+    "git-widget-placeholder": "develop",
+>>>>>>> frontend-ui
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -82,6 +126,7 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
+<<<<<<< HEAD
       <changelist id="814dff09-683e-4d27-ae20-3c494d8a467c" name="Changes" comment="" />
       <created>1744498995122</created>
       <option name="number" value="Default" />
@@ -89,12 +134,21 @@
       <updated>1744498995122</updated>
       <workItem from="1744499000598" duration="1022000" />
       <workItem from="1744637456905" duration="14390000" />
+=======
+      <changelist id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="" />
+      <created>1743203766728</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743203766728</updated>
+      <workItem from="1743203768045" duration="17240000" />
+>>>>>>> frontend-ui
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+<<<<<<< HEAD
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
@@ -106,4 +160,6 @@
       </map>
     </option>
   </component>
+=======
+>>>>>>> frontend-ui
 </project>

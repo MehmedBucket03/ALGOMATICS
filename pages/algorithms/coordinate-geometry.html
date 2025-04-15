@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coordinate Geometry</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../components/coordinate-geometry/coordinate.css">
+</head>
+
+<body class="text-center font-['Silkscreen'] text-white" style="background-color: #0a0a23;">
+
+
+  <main class="py-8 px-4">
+    <h1 class="text-3xl font-bold mb-6">Coordinate Geometry</h1>
+
+    <div class="mb-6">
+      <h2 class="text-xl mb-4">Select Calculation</h2>
+      <button id="midpoint-btn" class="bg-pink-500 text-white px-4 py-2 m-2 rounded hover:bg-pink-600">Midpoint</button>
+      <button id="slope-btn" class="bg-blue-500 text-white px-4 py-2 m-2 rounded hover:bg-blue-600">Slope</button>
+      <button id="equation-btn" class="bg-purple-600 text-white px-4 py-2 m-2 rounded hover:bg-purple-700">Equation of Line</button>
+    </div>
+
+    <div class="input-container mb-6">
+      <label class="block mb-2">Point A (x₁, y₁):
+        <input type="number" id="x1" class="text-black p-1 rounded w-20 mx-1"> ,
+        <input type="number" id="y1" class="text-black p-1 rounded w-20 mx-1">
+      </label>
+      <label class="block mb-2">Point B (x₂, y₂):
+        <input type="number" id="x2" class="text-black p-1 rounded w-20 mx-1"> ,
+        <input type="number" id="y2" class="text-black p-1 rounded w-20 mx-1">
+      </label>
+      <button id="graph-btn" class="bg-green-500 text-white px-4 py-2 mt-2 rounded hover:bg-green-600">Graph</button>
+    </div>
+
+    <div class="graph-container mb-10">
+      <h2 class="text-xl mb-2">Graph Visualization</h2>
+      <div id="desmos-calculator" class="graph mx-auto" style="height: 600px; width: 100%; max-width: 800px;"></div>
+    </div>
+
+    <div class="breakdown">
+      <h2 class="text-xl mb-2">Calculation Breakdown</h2>
+      <p id="midpoint-text" class="mb-2"></p>
+      <p id="slope-text" class="mb-2"></p>
+      <p id="equation-text" class="mb-2"></p>
+    </div>
+  </main>
+
+
+<script src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+<script src="../../components/coordinate-geometry/coordinate.js"></script>
+</body>
+</html>
