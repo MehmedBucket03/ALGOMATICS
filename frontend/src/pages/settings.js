@@ -23,7 +23,7 @@ const Settings = () => {
             await reauthenticateWithCredential(user, credential);
             return true;
         } catch (error) {
-            setStatusMsg("Reauthentication failed: " + error.message);
+            setStatusMsg("Reauthentication failed:  " + error.message);
             return false;
         }
     };

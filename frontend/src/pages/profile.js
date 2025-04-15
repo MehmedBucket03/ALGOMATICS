@@ -37,7 +37,7 @@ const Profile = () => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     setTopics(data.topics || {});
-                    console.log("Fetched topics from Firebase:", data.topics);
+                    console.log("Fetched topics from Firebase db:", data.topics);
                 }
             }
         });

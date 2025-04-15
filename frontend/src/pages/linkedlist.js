@@ -3,6 +3,7 @@ import './linkedlist.css';
 import { auth, db } from '../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 //changes
+
 const LinkedList = () => {
     // State for linked list operations
     const [nodes, setNodes] = useState([]);
@@ -68,7 +69,7 @@ const LinkedList = () => {
 
     useEffect(() => {
         if (auth.currentUser && nodes.length > 0) {
-            console.log("👾 Auto-saving to Firestore");
+            console.log("Auto-saving to Firestore");
             saveProgressToFirestore(nodes, '');
         }
     }, [nodes]);

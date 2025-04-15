@@ -10,7 +10,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 
 import AlgorithmsPage from './components/algorithm/algorithms';
-import ArraysPage from './pages/arrays'; // Import the new ArraysPage component
+import ArraysPage from './pages/arrays'; // Import new ArraysPage component
 import StackQueuePage from './pages/stackqueue';
 
 
@@ -28,7 +28,6 @@ import SequenceSeries from './pages/mathTopics/Sequence Series/sequenceseries';
 import Logarithms from './pages/mathTopics/Logarithms/logarithms';
 import Recursion from './pages/recursion';
 
-//changes
 const App = () => {
     return (
         <Router>
