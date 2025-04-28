@@ -69,7 +69,8 @@ const algoTopics = [
         title: 'SUDOKU SOLVER',
         color: '#29da19',
         description: 'SOLVE RANDOMLY GENERATED SUDOKU PROBLEMS',
-        implemented: true
+        implemented: true,
+        path: '/sudoku'
     }
 ];
 

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sudoku Solver Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="sudoku.css">
+</head>
+<body>
+<h1>Sudoku Solver</h1>
+<div id="explanation-box">Welcome! Press Start to begin solving.</div>
+<div id="sudoku-grid"></div>
+<div id="education-section">
+    <h2>What is Backtracking?</h2>
+    <p>Backtracking is a way to solve problems by trying different options. If a choice leads to a mistake, you undo it and try another. It's like exploring a maze — if you hit a dead end, you turn around and try a new path!</p>
+
+    <h2>Using Backtracking to Solve Sudoku</h2>
+    <p>When solving Sudoku, the computer tries to fill a number. If it realizes later that no numbers work, it erases (backtracks) and tries the next option. This helps find the correct solution step-by-step!</p>
+</div>
+<div id="buttons">
+    <button id="start-btn">Start</button>
+    <button id="reset-btn">Reset</button>
+    <button id="step-btn">Next Step</button>
+</div>
+<div id="speed-control">
+    <label for="speed-slider">Speed:</label>
+    <input type="range" id="speed-slider" min="10" max="200" value="50">
+</div>
+
+<script src="sudoku.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</body>
+</html>

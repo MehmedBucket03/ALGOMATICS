@@ -10,7 +10,7 @@ import About from './pages/about';
 import AlgorithmsPage from './components/algorithm/algorithms';
 import ArraysPage from './pages/arrays'; // Import the new ArraysPage component
 import StackQueuePage from './pages/stackqueue';
-
+import Sudoku from './pages/sudoku';
 
 import GraphVisualization from './pages/GraphVisualization';
 import TreeVisualization from './pages/TreeVisualization';
@@ -59,6 +59,7 @@ const App = () => {
                         <Route path="/polynomial-operations" element={<Polynomials />} />
                         <Route path="/graph-theory" element={<GraphTheory />} />
                         <Route path="/circle-stuff" element={<Circles />} />
+                        <Route path="/sudoku" element={<Sudoku />} />
                     </Routes>
                 </main>
                 <UniversalFooter />
