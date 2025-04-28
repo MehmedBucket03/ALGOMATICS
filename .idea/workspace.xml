@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="fixes for red-black tree">
+      <change afterPath="$PROJECT_DIR$/pages/backtracking/sudoku.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pages/backtracking/sudoku.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pages/backtracking/sudoku.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/advanced-trees/advanced-trees.js" beforeDir="false" afterPath="$PROJECT_DIR$/pages/advanced-trees/advanced-trees.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,29 +45,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JavaScript Debug.InterActiveQuadratic.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.QuadraticEquation.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.ShortestPath.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.advanced-trees.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.angles-triangles.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.arrays.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.circles.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.coordinate-geometry.html.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.advanced-trees.js.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;com.codeium.enabled&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;frontend-ui&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.InterActiveQuadratic.html.executor": "Run",
+    "JavaScript Debug.QuadraticEquation.html.executor": "Run",
+    "JavaScript Debug.ShortestPath.html.executor": "Run",
+    "JavaScript Debug.advanced-trees.html.executor": "Run",
+    "JavaScript Debug.angles-triangles.html.executor": "Run",
+    "JavaScript Debug.arrays.html.executor": "Run",
+    "JavaScript Debug.circles.html.executor": "Run",
+    "JavaScript Debug.coordinate-geometry.html.executor": "Run",
+    "JavaScript Debug.sudoku.html.executor": "Run",
+    "Node.js.advanced-trees.js.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.codeium.enabled": "true",
+    "git-widget-placeholder": "frontend-ui",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\coordinate-geometry" />
@@ -95,7 +97,9 @@
       <workItem from="1744070814487" duration="1008000" />
       <workItem from="1744072096043" duration="2401000" />
       <workItem from="1744585935294" duration="3000" />
-      <workItem from="1744665232567" duration="1080000" />
+      <workItem from="1744665232567" duration="1401000" />
+      <workItem from="1744838590504" duration="257000" />
+      <workItem from="1745708718797" duration="3298000" />
     </task>
     <task id="LOCAL-00001" summary="updates to animations">
       <option name="closed" value="true" />
@@ -113,7 +117,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744070787727</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fixes for red-black tree">
+      <option name="closed" value="true" />
+      <created>1744666624012</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1744666624012</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -123,6 +135,7 @@
     <MESSAGE value="fix up angles" />
     <MESSAGE value="updates to animations" />
     <MESSAGE value="fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixes" />
+    <MESSAGE value="fixes for red-black tree" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixes for red-black tree" />
   </component>
 </project>
