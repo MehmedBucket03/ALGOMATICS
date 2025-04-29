@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { auth } from '../../firebase/firebase'; // Update this path as needed
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -34,6 +34,7 @@ function UniversalHeader() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
     // Listen to auth state changes
     useEffect(() => {
@@ -44,6 +45,25 @@ function UniversalHeader() {
         // Clean up subscription
         return () => unsubscribe();
     }, []);
+
+    // Handle clicks outside dropdown to close it
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        // Add event listener when dropdown is open
+        if (dropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        // Cleanup event listener
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [dropdownOpen]);
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -57,6 +77,7 @@ function UniversalHeader() {
         signOut(auth).then(() => {
             // Sign-out successful
             console.log("User signed out successfully");
+            setDropdownOpen(false); // Close dropdown after signing out
         }).catch((error) => {
             // An error happened
             console.error("Sign out error:", error);
@@ -97,23 +118,51 @@ function UniversalHeader() {
                             </li>
 
                             {user ? (
-                                <li className="pixel-menu-item user-profile">
-                                    <div className="user-dropdown" onClick={toggleDropdown}>
+                                <li className="pixel-menu-item user-profile" ref={dropdownRef}>
+                                    <div
+                                        className={`user-dropdown ${dropdownOpen ? 'active' : ''}`}
+                                        onClick={toggleDropdown}
+                                    >
+                                        <div className="user-avatar">
+                                            {user.photoURL ? (
+                                                <img src={user.photoURL} alt="User Avatar" className="avatar-image" />
+                                            ) : (
+                                                <div className="avatar-placeholder">
+                                                    {getFirstName(user).charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                        </div>
                                         <span className="user-name">
                                             {getFirstName(user)}
                                         </span>
-                                        <span className="dropdown-arrow">▼</span>
+                                        <span className={`dropdown-arrow ${dropdownOpen ? 'open' : ''}`}>▼</span>
                                     </div>
+
                                     {dropdownOpen && (
                                         <ul className="dropdown-menu">
+                                            <li className="dropdown-header">
+                                                <div className="user-info">
+                                                    <span className="full-name">{user.displayName || user.email}</span>
+                                                    <span className="user-email">{user.email}</span>
+                                                </div>
+                                            </li>
+                                            <li className="dropdown-divider"></li>
                                             <li className="dropdown-item">
-                                                <Link to="/profile" className="dropdown-link">PROFILE</Link>
+                                                <Link to="/profile" className="dropdown-link">
+                                                    <i className="dropdown-icon profile-icon"></i>
+                                                    PROFILE
+                                                </Link>
                                             </li>
                                             <li className="dropdown-item">
-                                                <Link to="/settings" className="dropdown-link">SETTINGS</Link>
+                                                <Link to="/settings" className="dropdown-link">
+                                                    <i className="dropdown-icon settings-icon"></i>
+                                                    SETTINGS
+                                                </Link>
                                             </li>
+                                            <li className="dropdown-divider"></li>
                                             <li className="dropdown-item">
                                                 <button className="dropdown-button" onClick={handleSignOut}>
+                                                    <i className="dropdown-icon signout-icon"></i>
                                                     SIGN OUT
                                                 </button>
                                             </li>
