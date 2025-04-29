@@ -19,6 +19,7 @@ import Hashtables from './pages/hashtables';
 import LinkedList from './pages/linkedlist';
 import GraphTheory from "./pages/nodeGraphs";
 
+
 import MathPage from './components/math/MathPage';
 import SystemEquations from './pages/mathTopics/System of Equations/SystemEquations';
 import QuadraticSolver from './pages/quadraticsolver';
@@ -27,6 +28,7 @@ import SequenceSeries from './pages/mathTopics/Sequence Series/sequenceseries';
 import Logarithms from './pages/mathTopics/Logarithms/logarithms';
 import Recursion from './pages/recursion';
 import Polynomials from './pages/mathTopics/Polynomials/polynomials';
+import Circles from './pages/mathTopics/Circles/circles';
 
 const App = () => {
     return (
@@ -56,6 +58,7 @@ const App = () => {
                         <Route path="/algorithms/recursion" element={<Recursion />} />
                         <Route path="/polynomial-operations" element={<Polynomials />} />
                         <Route path="/graph-theory" element={<GraphTheory />} />
+                        <Route path="/circle-stuff" element={<Circles />} />
                     </Routes>
                 </main>
                 <UniversalFooter />

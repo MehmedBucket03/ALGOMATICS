@@ -47,11 +47,11 @@ const mathTopics = [
         implemented: true
     },
     {
-        id: 'rational-expressions',
-        title: 'RATIONAL EXPRESSIONS & EQUATIONS',
+        id: 'circle-stuff',
+        title: 'Circle Geometry',
         color: '#fd79a8',
-        description: 'WORK WITH FRACTIONS CONTAINING VARIABLES',
-        implemented: false
+        description: 'Circles and their properties',
+        implemented: true
     },
     {
         id: 'functions',
