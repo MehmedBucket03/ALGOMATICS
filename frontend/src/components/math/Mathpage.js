@@ -44,7 +44,7 @@ const mathTopics = [
         title: 'POLYNOMIAL OPERATIONS',
         color: '#6c5ce7',
         description: 'ADD, SUBTRACT, MULTIPLY, AND DIVIDE POLYNOMIALS',
-        implemented: false
+        implemented: true
     },
     {
         id: 'rational-expressions',

@@ -7,21 +7,9 @@ const Recursion = () => {
     const [showCode, setShowCode] = useState(false);
     const [animationCount, setAnimationCount] = useState(5);
     const [runningAnimation, setRunningAnimation] = useState(false);
+    const [recursionSteps, setRecursionSteps] = useState([]);
     const animationRef = useRef(null);
-
-    // Example recursion steps for visualization
-    const recursionSteps = [
-        { level: 0, message: "factorial(5)" },
-        { level: 1, message: "5 * factorial(4)" },
-        { level: 2, message: "5 * 4 * factorial(3)" },
-        { level: 3, message: "5 * 4 * 3 * factorial(2)" },
-        { level: 4, message: "5 * 4 * 3 * 2 * factorial(1)" },
-        { level: 5, message: "5 * 4 * 3 * 2 * 1" },
-        { level: 4, message: "5 * 4 * 3 * 2" },
-        { level: 3, message: "5 * 4 * 6" },
-        { level: 2, message: "5 * 24" },
-        { level: 1, message: "120" },
-    ];
+    const [selectedExample, setSelectedExample] = useState(0);
 
     // Examples of recursive functions
     const codeExamples = [
@@ -74,8 +62,12 @@ const Recursion = () => {
         }
     ];
 
-    const [selectedExample, setSelectedExample] = useState(0);
+    // Generate recursion steps based on animation count
+    useEffect(() => {
+        generateRecursionSteps(animationCount);
+    }, [animationCount]);
 
+    // Clean up any running animations on unmount
     useEffect(() => {
         return () => {
             if (animationRef.current) {
@@ -84,8 +76,55 @@ const Recursion = () => {
         };
     }, []);
 
+    // Generate the recursion steps for factorial animation
+    const generateRecursionSteps = (count) => {
+        const steps = [];
+
+        // Going down (recursive calls)
+        for (let i = 0; i <= count; i++) {
+            if (i === count) {
+                steps.push({
+                    level: i,
+                    message: i <= 1 ? "1" : `${i} * factorial(${i-1})`
+                });
+            } else {
+                steps.push({
+                    level: i,
+                    message: `factorial(${count - i})`
+                });
+            }
+        }
+
+        // Base case reached
+        steps.push({ level: count, message: "1" });
+
+        // Coming back up (returning values)
+        for (let i = count - 1; i >= 0; i--) {
+            let result = 1;
+            for (let j = count - i; j > 0; j--) {
+                result *= j;
+            }
+
+            if (i === 0) {
+                steps.push({ level: i, message: `${result}` });
+            } else if (i === count - 1) {
+                steps.push({ level: i, message: `${count - i + 1} * 1 = ${result}` });
+            } else {
+                steps.push({
+                    level: i,
+                    message: `${count - i + 1} * ${result / (count - i + 1)} = ${result}`
+                });
+            }
+        }
+
+        setRecursionSteps(steps);
+    };
+
     const runAnimation = () => {
         if (runningAnimation) return;
+
+        // Make sure steps are generated for current animation count
+        generateRecursionSteps(animationCount);
 
         setRunningAnimation(true);
         setCurrentStep(0);

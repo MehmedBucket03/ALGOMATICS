@@ -25,7 +25,7 @@ import LinearEquations from './pages/mathTopics/Linear Equations/linear';
 import SequenceSeries from './pages/mathTopics/Sequence Series/sequenceseries';
 import Logarithms from './pages/mathTopics/Logarithms/logarithms';
 import Recursion from './pages/recursion';
-
+import Polynomials from './pages/mathTopics/Polynomials/polynomials';
 
 const App = () => {
     return (
@@ -53,6 +53,7 @@ const App = () => {
                         <Route path="/algorithms/hash-table" element={<Hashtables />} />
                         <Route path="/algorithms/linked-list" element={<LinkedList />} />
                         <Route path="/algorithms/recursion" element={<Recursion />} />
+                        <Route path="/polynomial-operations" element={<Polynomials />} />
                     </Routes>
                 </main>
                 <UniversalFooter />
