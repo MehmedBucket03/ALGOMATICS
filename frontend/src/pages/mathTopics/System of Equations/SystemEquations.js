@@ -1,22 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './SystemEquations.css';
 
-const SystemEquations = () => {
+const InteractiveGraph = () => {
     const [equation1, setEquation1] = useState('2x + y = 5');
     const [equation2, setEquation2] = useState('y = x - 1');
     const [intersection, setIntersection] = useState(null);
-    const [activeTab, setActiveTab] = useState('graph');
-    const [selectedMethod, setSelectedMethod] = useState(null);
-    const [showSteps, setShowSteps] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragPoint, setDragPoint] = useState(null);
+    const [zoomLevel, setZoomLevel] = useState(1);
+    const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+
+    const svgRef = useRef(null);
+    const dragStartRef = useRef(null);
 
     // SVG viewport settings
     const svgWidth = 400;
     const svgHeight = 400;
     const padding = 40;
-    const xMin = -10;
-    const xMax = 10;
-    const yMin = -10;
-    const yMax = 10;
+    const xMin = -10 / zoomLevel - panOffset.x;
+    const xMax = 10 / zoomLevel - panOffset.x;
+    const yMin = -10 / zoomLevel - panOffset.y;
+    const yMax = 10 / zoomLevel - panOffset.y;
 
     // Convert math coordinates to SVG coordinates
     const toSvgX = (x) => ((x - xMin) / (xMax - xMin)) * (svgWidth - 2 * padding) + padding;
@@ -128,10 +132,11 @@ const SystemEquations = () => {
                     />
                     <text
                         x={x}
-                        y={toSvgY(0) + 20}
+                        y={toSvgY(0) + 15}
                         textAnchor="middle"
                         fill="#a29bfe"
-                        fontSize="12"
+                        fontSize="6"
+                        className="tick-text"
                     >
                         {i}
                     </text>
@@ -153,11 +158,12 @@ const SystemEquations = () => {
                         strokeWidth="1"
                     />
                     <text
-                        x={toSvgX(0) - 20}
-                        y={y + 5}
+                        x={toSvgX(0) - 15}
+                        y={y + 3}
                         textAnchor="middle"
                         fill="#a29bfe"
-                        fontSize="12"
+                        fontSize="6"
+                        className="tick-text"
                     >
                         {i}
                     </text>
@@ -166,64 +172,6 @@ const SystemEquations = () => {
         }
 
         return [...xTicks, ...yTicks];
-    };
-
-    // Update graph when equations change
-    const handleGraphEquations = () => {
-        const intersectionPoint = findIntersection(equation1, equation2);
-        setIntersection(intersectionPoint);
-    };
-
-    // Initialize with default equations
-    useEffect(() => {
-        handleGraphEquations();
-    }, []);
-
-    // Get solution steps
-    const getSolutionSteps = (method) => {
-        if (!intersection) return [];
-
-        if (method === 'substitution') {
-            try {
-                // Parse equations
-                const eq1 = equation1.replace(/\s+/g, '');
-                const eq2 = equation2.replace(/\s+/g, '');
-
-                // For simplicity, assume one equation is already solved for y
-                let solvedEq, otherEq;
-                if (eq1.startsWith('y=')) {
-                    solvedEq = equation1;
-                    otherEq = equation2;
-                } else if (eq2.startsWith('y=')) {
-                    solvedEq = equation2;
-                    otherEq = equation1;
-                } else {
-                    // Solve the first equation for y
-                    solvedEq = "y = " + equation1 + " (solved for y)";
-                    otherEq = equation2;
-                }
-
-                return [
-                    `Step 1: Identify the equation solved for y: ${solvedEq}`,
-                    `Step 2: Substitute this expression into the other equation: ${otherEq}`,
-                    `Step 3: Solve for x: x = ${intersection.x}`,
-                    `Step 4: Substitute x back to find y: y = ${intersection.y}`,
-                    `Step 5: Solution: (${intersection.x}, ${intersection.y})`
-                ];
-            } catch (e) {
-                return ['Could not generate steps automatically.'];
-            }
-        } else if (method === 'elimination') {
-            return [
-                'Step 1: Align coefficients of one variable by multiplying equations',
-                'Step 2: Add or subtract equations to eliminate a variable',
-                'Step 3: Solve for the remaining variable',
-                'Step 4: Substitute back to find the other variable',
-                `Step 5: Solution: (${intersection?.x}, ${intersection?.y})`
-            ];
-        }
-
-        return [];
     };
 
     // Render grid lines
@@ -263,304 +211,297 @@ const SystemEquations = () => {
         return lines;
     };
 
+    // Initialize with default equations
+    useEffect(() => {
+        handleGraphEquations();
+    }, []);
+
+    // Update graph when zoom or pan changes
+    useEffect(() => {
+        handleGraphEquations();
+    }, [zoomLevel, panOffset]);
+
+    // Handle mouse wheel for zooming
+    const handleWheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY;
+        setZoomLevel(prev => Math.max(0.5, Math.min(5, prev - delta * 0.001)));
+    };
+
+    // Handle mouse down for dragging
+    const handleMouseDown = (e) => {
+        if (e.target.tagName === 'circle' && intersection && intersection.type === 'point') {
+            // If clicking on intersection point
+            setIsDragging(true);
+            setDragPoint('intersection');
+            return;
+        }
+
+        // Otherwise start panning
+        setIsDragging(true);
+        setDragPoint('canvas');
+        dragStartRef.current = {
+            x: e.clientX,
+            y: e.clientY,
+            panOffset: { ...panOffset }
+        };
+    };
+
+    // Handle mouse move for dragging
+    const handleMouseMove = (e) => {
+        if (!isDragging) return;
+
+        if (dragPoint === 'intersection' && intersection && intersection.type === 'point') {
+            // Get SVG coordinates
+            const svgRect = svgRef.current.getBoundingClientRect();
+            const x = ((e.clientX - svgRect.left - padding) / (svgWidth - 2 * padding)) * (xMax - xMin) + xMin;
+            const y = -((e.clientY - svgRect.top - padding) / (svgHeight - 2 * padding)) * (yMax - yMin) + yMax;
+
+            // Update equations based on new point
+            const line1 = parseEquation(equation1);
+            const line2 = parseEquation(equation2);
+
+            if (line1 && line2) {
+                // For simplicity, just update the y-intercept of both lines to pass through the new point
+                const newB1 = y - line1.m * x;
+                const newB2 = y - line2.m * x;
+
+                // Update equations
+                if (equation1.match(/y=/)) {
+                    setEquation1(`y = ${line1.m}x + ${newB1.toFixed(2)}`);
+                }
+                if (equation2.match(/y=/)) {
+                    setEquation2(`y = ${line2.m}x + ${newB2.toFixed(2)}`);
+                }
+
+                handleGraphEquations();
+            }
+        } else if (dragPoint === 'canvas' && dragStartRef.current) {
+            // Calculate pan distance in pixels
+            const dx = e.clientX - dragStartRef.current.x;
+            const dy = e.clientY - dragStartRef.current.y;
+
+            // Convert to coordinate system units
+            const scaleX = (xMax - xMin) / (svgWidth - 2 * padding);
+            const scaleY = (yMax - yMin) / (svgHeight - 2 * padding);
+
+            // Update pan offset
+            setPanOffset({
+                x: dragStartRef.current.panOffset.x - dx * scaleX,
+                y: dragStartRef.current.panOffset.y + dy * scaleY
+            });
+        }
+    };
+
+    // Handle mouse up to stop dragging
+    const handleMouseUp = () => {
+        setIsDragging(false);
+        setDragPoint(null);
+        dragStartRef.current = null;
+    };
+
+    // Reset view
+    const resetView = () => {
+        setZoomLevel(1);
+        setPanOffset({ x: 0, y: 0 });
+    };
+
+    // Update graph when equations change
+    const handleGraphEquations = () => {
+        const intersectionPoint = findIntersection(equation1, equation2);
+        setIntersection(intersectionPoint);
+    };
+
     return (
-        <div className="math-container">
-            <div className="pixel-content">
-                {/* Header */}
-                <div className="pixel-window pixel-header">
-                    <div className="pixel-window-header">
-                        <div className="pixel-dots">
-                            <div className="pixel-dot red"></div>
-                            <div className="pixel-dot yellow"></div>
-                            <div className="pixel-dot green"></div>
-                        </div>
-                        <div className="pixel-title">SYSTEM-OF-EQUATIONS.EXE</div>
-                        <div className="pixel-version">v1.0.1</div>
-                    </div>
-                    <div className="pixel-window-body">
-                        <h1 className="pixel-main-title">LINEAR SYSTEMS CALCULATOR</h1>
-                        <p className="pixel-description">
-                            <span className="pixel-prompt">&gt;</span> Visualize and solve systems of linear equations with this interactive tool
-                        </p>
-                    </div>
+        <div className="retro-container">
+            <h1 className="retro-title">SYSTEM OF EQUATIONS</h1>
+
+            <div className="retro-input-container">
+                <div className="retro-input-group">
+                    <label className="retro-label">EQUATION 1:</label>
+                    <input
+                        type="text"
+                        value={equation1}
+                        onChange={(e) => setEquation1(e.target.value)}
+                        className="retro-input"
+                    />
                 </div>
 
-                <div className="pixel-content-grid">
-                    {/* Input Section */}
-                    <div className="pixel-sidebar">
-                        <div className="pixel-window pixel-input-box">
-                            <div className="pixel-window-header">
-                                <div className="pixel-title">
-                                    <span role="img" aria-label="keyboard" className="pixel-icon">⌨️</span> INPUT EQUATIONS
-                                </div>
-                            </div>
-                            <div className="pixel-window-body">
-                                <div className="pixel-form-group">
-                                    <label className="pixel-label">Equation 1:</label>
-                                    <input
-                                        type="text"
-                                        value={equation1}
-                                        onChange={(e) => setEquation1(e.target.value)}
-                                        className="pixel-input"
-                                    />
-                                </div>
-                                <div className="pixel-form-group">
-                                    <label className="pixel-label">Equation 2:</label>
-                                    <input
-                                        type="text"
-                                        value={equation2}
-                                        onChange={(e) => setEquation2(e.target.value)}
-                                        className="pixel-input"
-                                    />
-                                </div>
-                                <button
-                                    onClick={handleGraphEquations}
-                                    className="pixel-button"
-                                >
-                                    CALCULATE ↻
-                                </button>
-                            </div>
-                        </div>
+                <div className="retro-input-group">
+                    <label className="retro-label">EQUATION 2:</label>
+                    <input
+                        type="text"
+                        value={equation2}
+                        onChange={(e) => setEquation2(e.target.value)}
+                        className="retro-input"
+                    />
+                </div>
+            </div>
 
-                        {/* Methods Section */}
-                        <div className="pixel-window pixel-methods-box">
-                            <div className="pixel-window-header">
-                                <div className="pixel-title">
-                                    <span role="img" aria-label="info" className="pixel-icon">ℹ️</span> SOLUTION METHODS
-                                </div>
-                            </div>
-                            <div className="pixel-window-body">
-                                <div className="pixel-button-grid">
-                                    <button
-                                        onClick={() => {
-                                            setSelectedMethod('substitution');
-                                            setShowSteps(true);
-                                            setActiveTab('steps');
-                                        }}
-                                        className={`pixel-tab-btn ${selectedMethod === 'substitution' ? 'active' : ''}`}
-                                    >
-                                        SUBSTITUTION
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setSelectedMethod('elimination');
-                                            setShowSteps(true);
-                                            setActiveTab('steps');
-                                        }}
-                                        className={`pixel-tab-btn ${selectedMethod === 'elimination' ? 'active' : ''}`}
-                                    >
-                                        ELIMINATION
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+            <div className="retro-buttons">
+                <button
+                    onClick={handleGraphEquations}
+                    className="retro-button"
+                >
+                    CALCULATE
+                </button>
 
-                        {/* Solution Display */}
-                        {intersection && (
-                            <div className="pixel-window pixel-solution-box">
-                                <div className="pixel-window-header">
-                                    <div className="pixel-title">
-                                        <span role="img" aria-label="magnifying glass" className="pixel-icon">🔍</span> SOLUTION
-                                    </div>
-                                </div>
-                                <div className="pixel-window-body">
-                                    {intersection.type === 'point' ? (
-                                        <div className="pixel-solution-content">
-                                            <p className="pixel-solution-label">Intersection Point:</p>
-                                            <div className="pixel-solution-display">
-                                                ({ intersection.x }, { intersection.y })
-                                            </div>
-                                        </div>
-                                    ) : intersection.type === 'infinite' ? (
-                                        <div className="pixel-solution-content">
-                                            <p className="pixel-solution-label pixel-infinite">Infinite Solutions!</p>
-                                            <div className="pixel-solution-display pixel-infinite">
-                                                The lines are identical
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="pixel-solution-content">
-                                            <p className="pixel-solution-label pixel-no-solution">No Solution!</p>
-                                            <div className="pixel-solution-display pixel-no-solution">
-                                                The lines are parallel
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Main Display Area */}
-                    <div className="pixel-main-area">
-                        <div className="pixel-window pixel-display-box">
-                            <div className="pixel-window-header">
-                                <div className="pixel-tabs">
-                                    <button
-                                        onClick={() => setActiveTab('graph')}
-                                        className={`pixel-tab ${activeTab === 'graph' ? 'active' : ''}`}
-                                    >
-                                        GRAPH
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('steps')}
-                                        className={`pixel-tab ${activeTab === 'steps' ? 'active' : ''}`}
-                                    >
-                                        STEPS
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="pixel-window-body">
-                                {activeTab === 'graph' ? (
-                                    <div className="pixel-graph-container">
-                                        <svg width={svgWidth} height={svgHeight} className="pixel-graph">
-                                            {/* Grid lines */}
-                                            {renderGridLines()}
-
-                                            {/* Axes */}
-                                            <line
-                                                x1={padding}
-                                                y1={toSvgY(0)}
-                                                x2={svgWidth - padding}
-                                                y2={toSvgY(0)}
-                                                stroke="#4834d4"
-                                                strokeWidth="2"
-                                            />
-                                            <line
-                                                x1={toSvgX(0)}
-                                                y1={padding}
-                                                x2={toSvgX(0)}
-                                                y2={svgHeight - padding}
-                                                stroke="#4834d4"
-                                                strokeWidth="2"
-                                            />
-
-                                            {/* Ticks */}
-                                            {generateTicks()}
-
-                                            {/* Equation lines */}
-                                            <path
-                                                d={generateLinePath(equation1)}
-                                                stroke="#fd79a8"
-                                                strokeWidth="3"
-                                                fill="none"
-                                            />
-                                            <path
-                                                d={generateLinePath(equation2)}
-                                                stroke="#55efc4"
-                                                strokeWidth="3"
-                                                fill="none"
-                                            />
-
-                                            {/* Intersection point */}
-                                            {intersection && intersection.type === 'point' && (
-                                                <circle
-                                                    cx={intersection.svgX}
-                                                    cy={intersection.svgY}
-                                                    r="6"
-                                                    fill="#6c5ce7"
-                                                    stroke="white"
-                                                    strokeWidth="2"
-                                                />
-                                            )}
-
-                                            {/* Axis labels */}
-                                            <text
-                                                x={svgWidth - padding + 15}
-                                                y={toSvgY(0) + 15}
-                                                fill="#fd79a8"
-                                                fontSize="14"
-                                            >
-                                                X
-                                            </text>
-                                            <text
-                                                x={toSvgX(0) - 15}
-                                                y={padding - 15}
-                                                fill="#fd79a8"
-                                                fontSize="14"
-                                            >
-                                                Y
-                                            </text>
-                                        </svg>
-
-                                        {/* Legend */}
-                                        <div className="pixel-graph-legend">
-                                            <div className="pixel-legend-item">
-                                                <div className="pixel-legend-color equation1"></div>
-                                                <span>Equation 1</span>
-                                            </div>
-                                            <div className="pixel-legend-item">
-                                                <div className="pixel-legend-color equation2"></div>
-                                                <span>Equation 2</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="pixel-steps-container">
-                                        {selectedMethod ? (
-                                            <div className="pixel-steps-content">
-                                                <h3 className="pixel-steps-title">
-                                                    {selectedMethod === 'substitution' ? 'Substitution Method' : 'Elimination Method'}
-                                                </h3>
-                                                <div className="pixel-steps-list">
-                                                    {getSolutionSteps(selectedMethod).map((step, index) => (
-                                                        <div key={index} className="pixel-step">
-                                                            <div className="pixel-step-marker">❯</div>
-                                                            <div className={`pixel-step-text ${index === getSolutionSteps(selectedMethod).length - 1 ? 'pixel-step-final' : ''}`}>
-                                                                {step}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="pixel-steps-empty">
-                                                <div className="pixel-empty-icon" role="img" aria-label="info">ℹ️</div>
-                                                <p>Select a solution method from the left panel to see the steps</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Tips Box */}
-                        <div className="pixel-window pixel-tips-box">
-                            <div className="pixel-window-header">
-                                <div className="pixel-title">
-                                    <span role="img" aria-label="lightbulb" className="pixel-icon">💡</span> TIPS & FORMATS
-                                </div>
-                            </div>
-                            <div className="pixel-window-body">
-                                <div className="pixel-tips-grid">
-                                    <div className="pixel-tip-card">
-                                        <h3 className="pixel-tip-title">Equation Formats</h3>
-                                        <ul className="pixel-tip-list">
-                                            <li><span className="pixel-bullet">•</span> y = mx + b (Slope-intercept)</li>
-                                            <li><span className="pixel-bullet">•</span> ax + by = c (Standard)</li>
-                                        </ul>
-                                    </div>
-                                    <div className="pixel-tip-card">
-                                        <h3 className="pixel-tip-title">Examples</h3>
-                                        <ul className="pixel-tip-list">
-                                            <li><span className="pixel-bullet">•</span> y = 2x + 3</li>
-                                            <li><span className="pixel-bullet">•</span> 3x + 4y = 12</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div className="retro-button-group">
+                    <button
+                        onClick={() => setZoomLevel(prev => Math.min(5, prev + 0.2))}
+                        className="retro-button"
+                    >
+                        ZOOM IN
+                    </button>
+                    <button
+                        onClick={() => setZoomLevel(prev => Math.max(0.5, prev - 0.2))}
+                        className="retro-button"
+                    >
+                        ZOOM OUT
+                    </button>
                 </div>
 
-                {/* Footer */}
-                <div className="pixel-footer">
-                    <p>PixelMath Systems v1.0.1 • Made with &lt;/&gt; and 💜</p>
+                <button
+                    onClick={resetView}
+                    className="retro-button"
+                >
+                    RESET VIEW
+                </button>
+            </div>
+
+            <div className="retro-solution">
+                <h2 className="retro-subtitle">SOLUTION:</h2>
+                {intersection && intersection.type === 'point' && (
+                    <div className="retro-result">({intersection.x}, {intersection.y})</div>
+                )}
+                {intersection && intersection.type === 'infinite' && (
+                    <div className="retro-result infinite">INFINITE SOLUTIONS</div>
+                )}
+                {intersection && intersection.type === 'none' && (
+                    <div className="retro-result no-solution">NO SOLUTION</div>
+                )}
+            </div>
+
+            <div className="retro-interactions">
+                <h2 className="retro-subtitle">INTERACTIONS:</h2>
+                <ul className="retro-list">
+                    <li>· DRAG THE INTERSECTION POINT TO MODIFY EQUATIONS</li>
+                    <li>· DRAG ON GRAPH TO PAN THE VIEW</li>
+                    <li>· USE MOUSE WHEEL TO ZOOM IN/OUT</li>
+                    <li>· USE BUTTONS TO CONTROL ZOOM LEVEL</li>
+                </ul>
+            </div>
+
+            <div className="retro-graph-container">
+                <svg
+                    ref={svgRef}
+                    width={svgWidth}
+                    height={svgHeight}
+                    className="retro-graph"
+                    onWheel={handleWheel}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                >
+                    {/* Grid lines */}
+                    {renderGridLines()}
+
+                    {/* Axes */}
+                    <line
+                        x1={padding}
+                        y1={toSvgY(0)}
+                        x2={svgWidth - padding}
+                        y2={toSvgY(0)}
+                        stroke="#4834d4"
+                        strokeWidth="2"
+                    />
+                    <line
+                        x1={toSvgX(0)}
+                        y1={padding}
+                        x2={toSvgX(0)}
+                        y2={svgHeight - padding}
+                        stroke="#4834d4"
+                        strokeWidth="2"
+                    />
+
+                    {/* Ticks */}
+                    {generateTicks()}
+
+                    {/* Equation lines */}
+                    <path
+                        d={generateLinePath(equation1)}
+                        stroke="#fd79a8"
+                        strokeWidth="3"
+                        fill="none"
+                    />
+                    <path
+                        d={generateLinePath(equation2)}
+                        stroke="#55efc4"
+                        strokeWidth="3"
+                        fill="none"
+                    />
+
+                    {/* Intersection point */}
+                    {intersection && intersection.type === 'point' && (
+                        <circle
+                            cx={intersection.svgX}
+                            cy={intersection.svgY}
+                            r="8"
+                            fill="#6c5ce7"
+                            stroke="white"
+                            strokeWidth="2"
+                            className="retro-point"
+                        />
+                    )}
+
+                    {/* Axis labels */}
+                    <text
+                        x={svgWidth - padding + 10}
+                        y={toSvgY(0) + 10}
+                        fill="#fd79a8"
+                        fontSize="8"
+                    >
+                        X
+                    </text>
+                    <text
+                        x={toSvgX(0) - 10}
+                        y={padding - 10}
+                        fill="#fd79a8"
+                        fontSize="8"
+                    >
+                        Y
+                    </text>
+
+                    {/* Zoom level indicator */}
+                    <text
+                        x={padding + 8}
+                        y={padding + 16}
+                        fill="#a29bfe"
+                        fontSize="6"
+                        className="retro-zoom-text"
+                    >
+                        ZOOM: {zoomLevel.toFixed(1)}x
+                    </text>
+                </svg>
+            </div>
+
+            <div className="retro-legend">
+                <div className="retro-legend-item">
+                    <div className="retro-legend-color line1"></div>
+                    <span>Equation 1</span>
+                </div>
+                <div className="retro-legend-item">
+                    <div className="retro-legend-color line2"></div>
+                    <span>Equation 2</span>
+                </div>
+                <div className="retro-legend-item">
+                    <div className="retro-legend-color point"></div>
+                    <span>Intersection</span>
                 </div>
             </div>
         </div>
     );
 };
 
-export default SystemEquations;
+export default InteractiveGraph;

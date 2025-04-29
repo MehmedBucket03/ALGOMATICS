@@ -516,9 +516,11 @@ const LinkedList = () => {
                                     />
                                 </div>
 
-                                <div className="pixel-button-grid">
-                                    <button onClick={handleAppend} className="pixel-button">APPEND</button>
-                                    <button onClick={handleSearch} className="pixel-button">SEARCH</button>
+                                <div className="operations-container">
+                                    <div className="button-row">
+                                        <button onClick={handleAppend} className="pixel-button">APPEND</button>
+                                        <button onClick={handleSearch} className="pixel-button">SEARCH</button>
+                                    </div>
                                 </div>
 
                                 <div className="pixel-form-group-row">

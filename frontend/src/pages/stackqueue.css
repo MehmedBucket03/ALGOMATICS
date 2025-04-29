@@ -361,19 +361,23 @@
 }
 
 .pixel-input {
-    flex: 1;
-    background-color: #12121f;
-    border: 2px solid var(--stack-queue-color);
-    padding: 0.75rem;
-    color: var(--text-light);
-    font-family: 'Silkscreen', monospace;
-    font-size: 1rem;
-    outline: none;
+    width: 100%;          /* Take full width of container */
+    min-width: 240px;     /* Minimum width */
+    padding: 8px 12px;    /* More padding for better usability */
+    font-size: 14px;      /* Comfortable font size */
+    border: 2px solid #a29bfe;  /* Matches the pixel theme */
+    background-color: #2c2c54;  /* Dark background to match theme */
+    color: #dfe6e9;       /* Light text color */
+    border-radius: 4px;   /* Slightly rounded corners */
+    margin-bottom: 10px;  /* Space below the input */
+    height: 36px;         /* Fixed height for consistency */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .pixel-input:focus {
-    border-color: var(--tertiary);
-    box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.3);
+    outline: none;
+    border-color: #fd79a8; /* Pink highlight on focus */
+    box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.3); /* Subtle glow */
 }
 
 .control-buttons {

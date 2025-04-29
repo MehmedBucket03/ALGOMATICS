@@ -16,6 +16,76 @@ const Logarithms = () => {
     const [showSolution, setShowSolution] = useState(false);
     const canvasRef = useRef(null);
 
+    // Practice problem state
+    const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
+    const [practiceProblems, setPracticeProblems] = useState([
+        {
+            problem: "2^x = 32",
+            steps: [
+                {
+                    step: "Take the logarithm (base 2) of both sides:",
+                    equation: "log₂(2^x) = log₂(32)"
+                },
+                {
+                    step: "Use the property log₂(2^x) = x:",
+                    equation: "x = log₂(32)"
+                },
+                {
+                    step: "Calculate log₂(32):",
+                    equation: "x = 5",
+                    note: "(Because 2^5 = 32)"
+                }
+            ]
+        },
+        {
+            problem: "log₃(x) = 4",
+            steps: [
+                {
+                    step: "Convert to exponential form:",
+                    equation: "x = 3^4"
+                },
+                {
+                    step: "Calculate:",
+                    equation: "x = 81"
+                }
+            ]
+        },
+        {
+            problem: "5^(x+1) = 125",
+            steps: [
+                {
+                    step: "Use the property 5^3 = 125:",
+                    equation: "5^(x+1) = 5^3"
+                },
+                {
+                    step: "Equate the exponents:",
+                    equation: "x + 1 = 3"
+                },
+                {
+                    step: "Solve for x:",
+                    equation: "x = 2"
+                }
+            ]
+        },
+        {
+            problem: "log₁₀(100x) = 3",
+            steps: [
+                {
+                    step: "Convert to exponential form:",
+                    equation: "100x = 10^3"
+                },
+                {
+                    step: "Simplify:",
+                    equation: "100x = 1000"
+                },
+                {
+                    step: "Solve for x:",
+                    equation: "x = 10"
+                }
+            ]
+        }
+    ]);
+
     // Introduction text for typing effect
     const introText = "Logarithms and exponential equations are powerful mathematical tools that model growth, decay, and various natural phenomena.";
     const typingSpeed = 30; // milliseconds per character
@@ -204,6 +274,22 @@ const Logarithms = () => {
         return Math.pow(expBase, expResult).toFixed(4);
     };
 
+    // Handle next problem
+    const handleNextProblem = () => {
+        setShowSolution(false);
+        setCurrentProblemIndex((prevIndex) =>
+            (prevIndex + 1) % practiceProblems.length
+        );
+    };
+
+    // Handle previous problem
+    const handlePrevProblem = () => {
+        setShowSolution(false);
+        setCurrentProblemIndex((prevIndex) =>
+            (prevIndex - 1 + practiceProblems.length) % practiceProblems.length
+        );
+    };
+
     // Interactive logarithm demo with base and value sliders
     const logDemo = () => {
         const result = Math.log(sliderValue) / Math.log(sliderBase);
@@ -291,11 +377,31 @@ const Logarithms = () => {
 
     // Example practice problem
     const practiceExercise = () => {
+        const currentProblem = practiceProblems[currentProblemIndex];
+
         return (
             <div className="pixel-practice">
                 <div className="pixel-practice-problem">
                     <h3>Solve the exponential equation:</h3>
-                    <div className="pixel-equation">2<sup>x</sup> = 32</div>
+                    <div className="pixel-equation">{currentProblem.problem}</div>
+                </div>
+
+                <div className="pixel-navigation-buttons">
+                    <button
+                        className="pixel-button pixel-small-button"
+                        onClick={handlePrevProblem}
+                    >
+                        Previous
+                    </button>
+                    <span className="pixel-problem-counter">
+                        Problem {currentProblemIndex + 1} of {practiceProblems.length}
+                    </span>
+                    <button
+                        className="pixel-button pixel-small-button"
+                        onClick={handleNextProblem}
+                    >
+                        Next
+                    </button>
                 </div>
 
                 {!showSolution ? (
@@ -307,30 +413,16 @@ const Logarithms = () => {
                     </button>
                 ) : (
                     <div className="pixel-solution">
-                        <div className="pixel-step">
-                            <div className="pixel-step-number">Step 1:</div>
-                            <div className="pixel-step-text">
-                                Take the logarithm (base 2) of both sides:
-                                <div className="pixel-equation">log<sub>2</sub>(2<sup>x</sup>) = log<sub>2</sub>(32)</div>
-                            </div>
-                        </div>
-                        <div className="pixel-step">
-                            <div className="pixel-step-number">Step 2:</div>
-                            <div className="pixel-step-text">
-                                Use the property log<sub>b</sub>(b<sup>x</sup>) = x:
-                                <div className="pixel-equation">x = log<sub>2</sub>(32)</div>
-                            </div>
-                        </div>
-                        <div className="pixel-step">
-                            <div className="pixel-step-number">Step 3:</div>
-                            <div className="pixel-step-text">
-                                Calculate log<sub>2</sub>(32):
-                                <div className="pixel-equation">x = 5</div>
-                                <div className="pixel-note">
-                                    (Because 2<sup>5</sup> = 32)
+                        {currentProblem.steps.map((step, index) => (
+                            <div className="pixel-step" key={index}>
+                                <div className="pixel-step-number">Step {index + 1}:</div>
+                                <div className="pixel-step-text">
+                                    {step.step}
+                                    <div className="pixel-equation" dangerouslySetInnerHTML={{__html: step.equation.replace(/₂/g, '<sub>2</sub>').replace(/₃/g, '<sub>3</sub>').replace(/₁₀/g, '<sub>10</sub>')}} />
+                                    {step.note && <div className="pixel-note">{step.note}</div>}
                                 </div>
                             </div>
-                        </div>
+                        ))}
                         <button
                             className="pixel-button pixel-small-button"
                             onClick={() => setShowSolution(false)}

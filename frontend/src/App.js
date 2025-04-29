@@ -51,7 +51,7 @@ const App = () => {
                         <Route path="/sequences-series" element={<SequenceSeries />} />
                         <Route path="/logarithms-exponential" element={<Logarithms />} />
                         <Route path="/algorithms/hash-table" element={<Hashtables />} />
-                        <Route path="/algorithms/linked-listcd" element={<LinkedList />} />
+                        <Route path="/algorithms/linked-list" element={<LinkedList />} />
                         <Route path="/algorithms/recursion" element={<Recursion />} />
                     </Routes>
                 </main>

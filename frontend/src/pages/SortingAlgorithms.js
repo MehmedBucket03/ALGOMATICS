@@ -186,20 +186,48 @@ function partition(arr, left, right) {
         const arrCopy = [...array];
         const len = arrCopy.length;
 
-        sortingIntervalRef.current = setInterval(() => {
-            if (isPaused) return;
+        // Reset state variables
+        setIsSorting(true);
+        // Remove reference to setPaused if it doesn't exist
+        // Instead use the existing isPaused variable
 
+        // Clear any existing interval to prevent multiple intervals
+        if (sortingIntervalRef.current) {
+            clearInterval(sortingIntervalRef.current);
+        }
+
+        // Function to update UI
+        const updateUI = () => {
             const elements = document.querySelectorAll('.array-element');
+
+            // Safety check for DOM elements
+            if (!elements || elements.length !== len) return;
 
             // Remove previous comparison highlighting
             elements.forEach(el => el.classList.remove('comparing'));
 
+            // Add appropriate highlighting
+            if (j < len - i - 1) {
+                elements[j]?.classList.add('comparing');
+                elements[j + 1]?.classList.add('comparing');
+            }
+
+            // Mark sorted elements
+            for (let k = len - 1; k >= len - i; k--) {
+                elements[k]?.classList.add('sorted');
+            }
+        };
+
+        // Function for one step of the sorting algorithm
+        const sortStep = () => {
+            if (isPaused) return;
+
             if (i < len) {
                 if (j < len - i - 1) {
-                    // Highlight comparing elements
-                    elements[j].classList.add('comparing');
-                    elements[j + 1].classList.add('comparing');
+                    // Update UI
+                    updateUI();
 
+                    // Compare and swap if needed
                     if (arrCopy[j] > arrCopy[j + 1]) {
                         // Swap if needed
                         [arrCopy[j], arrCopy[j + 1]] = [arrCopy[j + 1], arrCopy[j]];
@@ -208,10 +236,12 @@ function partition(arr, left, right) {
 
                     j++;
                 } else {
-                    // Mark current largest element as sorted
-                    elements[len - i - 1].classList.add('sorted');
+                    // End of pass
                     j = 0;
                     i++;
+
+                    // Update UI for completed pass
+                    updateUI();
                 }
             } else {
                 // Sorting complete
@@ -220,9 +250,21 @@ function partition(arr, left, right) {
                 setIsSorting(false);
 
                 // Mark all as sorted
+                const elements = document.querySelectorAll('.array-element');
                 elements.forEach(el => el.classList.add('sorted'));
             }
-        }, 100);
+        };
+
+        // Start the interval
+        sortingIntervalRef.current = setInterval(sortStep, 100);
+
+        // Return a cleanup function
+        return () => {
+            if (sortingIntervalRef.current) {
+                clearInterval(sortingIntervalRef.current);
+                sortingIntervalRef.current = null;
+            }
+        };
     };
 
     // Insertion Sort Animation
