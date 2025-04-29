@@ -34,11 +34,12 @@ const algoTopics = [
         path: '/arrays' // Direct path to the Arrays page
     },
     {
-        id: 'binary-search',
-        title: 'BINARY & LINEAR SEARCH',
+        id: 'graph-theory',
+        title: 'NODE GRAPHS and SHORTEST PATHS',
         color: '#0984e3',
-        description: 'EFFICIENT ALGORITHMS FOR FINDING ELEMENTS IN COLLECTIONS',
-        implemented: true
+        description: 'EFFICIENT ALGORITHMS FOR CREATING AND TRAVERSING GRAPHS',
+        implemented: true,
+        path: '/graph-theory'
     },
     {
         id: 'sorting',
@@ -62,6 +63,13 @@ const algoTopics = [
         description: 'HIERARCHICAL DATA STRUCTURES WITH PARENT-CHILD RELATIONSHIPS',
         implemented: true,
         path: '/trees' // Direct path to the Tree Visualization page
+    },
+    {
+        id: 'sudoku',
+        title: 'SUDOKU SOLVER',
+        color: '#29da19',
+        description: 'SOLVE RANDOMLY GENERATED SUDOKU PROBLEMS',
+        implemented: true
     }
 ];
 

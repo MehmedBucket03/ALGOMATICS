@@ -17,6 +17,7 @@ import TreeVisualization from './pages/TreeVisualization';
 import SortingAlgorithms from './pages/SortingAlgorithms';
 import Hashtables from './pages/hashtables';
 import LinkedList from './pages/linkedlist';
+import GraphTheory from "./pages/nodeGraphs";
 
 import MathPage from './components/math/MathPage';
 import SystemEquations from './pages/mathTopics/System of Equations/SystemEquations';
@@ -54,6 +55,7 @@ const App = () => {
                         <Route path="/algorithms/linked-list" element={<LinkedList />} />
                         <Route path="/algorithms/recursion" element={<Recursion />} />
                         <Route path="/polynomial-operations" element={<Polynomials />} />
+                        <Route path="/graph-theory" element={<GraphTheory />} />
                     </Routes>
                 </main>
                 <UniversalFooter />
