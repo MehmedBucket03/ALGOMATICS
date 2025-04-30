@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "firebase": "^11.6.0",
+    "react-router-dom": "^7.5.0",
+    "recharts": "^2.15.2"
+  },
+  "name": "algomatics",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MehmedBucket03/ALGOMATICS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MehmedBucket03/ALGOMATICS/issues"
+  },
+  "homepage": "https://github.com/MehmedBucket03/ALGOMATICS#readme",
+  "description": ""
+}
