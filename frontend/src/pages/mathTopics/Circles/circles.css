@@ -1,6 +1,4 @@
-/* Additional styles for Circles Component */
 
-/* Formula styling */
 .formula {
     font-family: 'Courier New', monospace;
     background-color: #222;
@@ -10,6 +8,7 @@
     display: inline-block;
     margin: 5px 0;
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    cursor: pointer;
 }
 
 /* Topic navigation */
@@ -92,6 +91,19 @@
     font-style: italic;
 }
 
+/* Animation for topic content */
+.topic-content {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.topic-content.fade-in {
+    opacity: 1;
+}
+
+.topic-content.fade-out {
+    opacity: 0;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .content-columns {
@@ -99,17 +111,17 @@
     }
 
     .topic-buttons .pixel-button {
-        font-size: 10px;
-        padding: 5px;
+        font-size: 11px;
+        padding: 8px;
     }
 
     .formulas-grid, .theorems-grid {
         grid-template-columns: 1fr !important;
     }
 
-    canvas {
+    .visual-column canvas {
         width: 100%;
-        height: auto;
+        height: 100%;
     }
 }
 

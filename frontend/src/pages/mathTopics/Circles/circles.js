@@ -1,24 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import './circles.css'; // Reusing the same CSS
+import * as THREE from 'three';
+import './circles.css';
 
 const CirclesComponent = () => {
     const [currentTopic, setCurrentTopic] = useState('intro');
     const [showCode, setShowCode] = useState(false);
     const [selectedExample, setSelectedExample] = useState(0);
-    const [animating, setAnimating] = useState(false);
     const [userQuestion, setUserQuestion] = useState('');
     const [questions, setQuestions] = useState([]);
+    const [isTransitioning, setIsTransitioning] = useState(false);
 
-    // Refs for all canvas elements
+    // Refs for canvas elements and Three.js scenes
     const introCanvasRef = useRef(null);
+    const introSceneRef = useRef(null);
+    const introContainerRef = useRef(null);
     const chordsCanvasRef = useRef(null);
+    const chordsSceneRef = useRef(null);
+    const chordsContainerRef = useRef(null);
     const arcsCanvasRef = useRef(null);
+    const arcsSceneRef = useRef(null);
+    const arcsContainerRef = useRef(null);
     const sectorsCanvasRef = useRef(null);
+    const sectorsSceneRef = useRef(null);
+    const sectorsContainerRef = useRef(null);
     const tangentsCanvasRef = useRef(null);
-
-    // Animation reference for cleanup
-    const animationRef = useRef(null);
+    const tangentsSceneRef = useRef(null);
+    const tangentsContainerRef = useRef(null);
 
     // Code examples
     const codeExamples = [
@@ -33,12 +41,11 @@ const CirclesComponent = () => {
 // Usage
 const canvas = document.getElementById('circleCanvas');
 const ctx = canvas.getContext('2d');
-drawCircle(ctx, 100, 100, 50); // Circle at (100,100) with radius 50`
+drawCircle(ctx, 100, 100, 50);`
         },
         {
             name: "Calculate Chord Length",
             code: `function chordLength(radius, centralAngle) {
-  // Central angle in radians
   return 2 * radius * Math.sin(centralAngle / 2);
 }
 
@@ -51,7 +58,6 @@ console.log("Chord length:", length);`
         {
             name: "Calculate Arc Length",
             code: `function arcLength(radius, centralAngle) {
-  // Central angle in radians
   return radius * centralAngle;
 }
 
@@ -64,7 +70,6 @@ console.log("Arc length:", length);`
         {
             name: "Calculate Sector Area",
             code: `function sectorArea(radius, centralAngle) {
-  // Central angle in radians
   return (radius * radius * centralAngle) / 2;
 }
 
@@ -77,437 +82,321 @@ console.log("Sector area:", area);`
         {
             name: "Draw Tangent",
             code: `function drawTangent(ctx, circleX, circleY, radius, pointX, pointY) {
-  // Distance from circle center to point
   const dx = pointX - circleX;
   const dy = pointY - circleY;
   const distance = Math.sqrt(dx * dx + dy * dy);
-  
-  // Exit if point is inside the circle
   if (distance < radius) return;
-  
-  // Calculate perpendicular line (tangent)
   const normalX = dx / distance;
   const normalY = dy / distance;
-  
-  // Tangent points
   const tangentX = circleX + normalX * radius;
   const tangentY = circleY + normalY * radius;
-  
-  // Draw tangent line (perpendicular to radius)
   ctx.beginPath();
   ctx.moveTo(tangentX, tangentY);
-  ctx.lineTo(
-    tangentX + normalY * radius * 2,
-    tangentY - normalX * radius * 2
-  );
+  ctx.lineTo(tangentX + normalY * radius * 2, tangentY - normalX * radius * 2);
   ctx.stroke();
 }
 
 // Usage
 const canvas = document.getElementById('tangentCanvas');
 const ctx = canvas.getContext('2d');
-drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
+drawTangent(ctx, 100, 100, 50, 170, 100);`
         }
     ];
 
-    // Initialize and handle animations
-    useEffect(() => {
-        // First render all canvas elements
-        drawIntroCanvas();
-        drawChordsCanvas();
-        drawArcsCanvas();
-        drawSectorsCanvas();
-        drawTangentsCanvas();
+    // Function to set scene size based on container
+    const setSceneSize = (container) => {
+        if (!container) return { width: 0, height: 0 };
+        return { width: container.clientWidth, height: container.clientWidth };
+    };
 
-        // Cleanup function to cancel any animations
-        return () => {
-            if (animationRef.current) {
-                cancelAnimationFrame(animationRef.current);
-                animationRef.current = null;
-            }
-        };
-    }, []);
-
-    // Draw Introduction Canvas
-    const drawIntroCanvas = () => {
+    // Initialize Three.js scene for Introduction
+    const initIntroScene = () => {
         const canvas = introCanvasRef.current;
-        if (!canvas) return;
+        const container = introContainerRef.current;
+        if (!canvas || !container) return;
 
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const { width, height } = setSceneSize(container);
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setClearColor(0x111111);
 
-        // Set styles
-        ctx.strokeStyle = '#00FF00';
-        ctx.fillStyle = '#00FF00';
-        ctx.lineWidth = 2;
+        const geometry = new THREE.CircleGeometry(0.5, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+        const circle = new THREE.Mesh(geometry, material);
+        circle.position.set(0, 0, 0);
+        scene.add(circle);
 
-        // Draw main circle
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 30;
+        const centerPoint = new THREE.Mesh(
+            new THREE.SphereGeometry(0.02, 16, 16),
+            new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+        );
+        scene.add(centerPoint);
 
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.stroke();
+        camera.position.z = 1.5;
 
-        // Draw center point
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
-        ctx.fill();
+        const animate = () => {
+            requestAnimationFrame(animate);
+            circle.rotation.z += 0.01;
+            renderer.render(scene, camera);
+        };
+        animate();
 
-        // Draw radius line
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(centerX + radius, centerY);
-        ctx.stroke();
-
-        // Label parts
-        ctx.font = '16px VT323';
-        ctx.fillStyle = '#00FF00';
-        ctx.fillText('Center', centerX - 20, centerY - 10);
-        ctx.fillText('Radius', centerX + radius / 2 - 20, centerY - 10);
-        ctx.fillText('Circle', centerX + radius + 10, centerY);
+        introSceneRef.current = { scene, camera, renderer, circle, animate };
     };
 
-    // Draw Chords Canvas
-    const drawChordsCanvas = () => {
+    // Initialize Three.js scene for Chords
+    const initChordsScene = () => {
         const canvas = chordsCanvasRef.current;
-        if (!canvas) return;
+        const container = chordsContainerRef.current;
+        if (!canvas || !container) return;
 
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const { width, height } = setSceneSize(container);
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setClearColor(0x111111);
 
-        // Set styles
-        ctx.strokeStyle = '#00FF00';
-        ctx.fillStyle = '#00FF00';
-        ctx.lineWidth = 2;
+        const geometry = new THREE.CircleGeometry(0.5, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+        const circle = new THREE.Mesh(geometry, material);
+        scene.add(circle);
 
-        // Draw main circle
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 30;
+        const chordPoints = [
+            new THREE.Vector3(0.5 * Math.cos(Math.PI / 6), 0.5 * Math.sin(Math.PI / 6), 0),
+            new THREE.Vector3(0.5 * Math.cos(5 * Math.PI / 6), 0.5 * Math.sin(5 * Math.PI / 6), 0)
+        ];
+        const chordGeometry = new THREE.BufferGeometry().setFromPoints(chordPoints);
+        const chordMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+        const chord = new THREE.Line(chordGeometry, chordMaterial);
+        scene.add(chord);
 
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.stroke();
+        camera.position.z = 1.5;
 
-        // Draw center point
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
-        ctx.fill();
+        const animate = () => {
+            requestAnimationFrame(animate);
+            circle.rotation.z += 0.01;
+            renderer.render(scene, camera);
+        };
+        animate();
 
-        // Draw a chord
-        const angle1 = Math.PI / 6; // 30 degrees
-        const angle2 = Math.PI / 6 * 5; // 150 degrees
-
-        const chordX1 = centerX + radius * Math.cos(angle1);
-        const chordY1 = centerY + radius * Math.sin(angle1);
-        const chordX2 = centerX + radius * Math.cos(angle2);
-        const chordY2 = centerY + radius * Math.sin(angle2);
-
-        ctx.beginPath();
-        ctx.moveTo(chordX1, chordY1);
-        ctx.lineTo(chordX2, chordY2);
-        ctx.stroke();
-
-        // Draw radius lines to show the central angle
-        ctx.setLineDash([5, 3]);
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(chordX1, chordY1);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(chordX2, chordY2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Label parts
-        ctx.font = '16px VT323';
-        ctx.fillText('Chord', (chordX1 + chordX2) / 2 - 20, (chordY1 + chordY2) / 2 + 20);
-        ctx.fillText('Central Angle', centerX - 40, centerY - 20);
-
-        // Draw the angle arc
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 20, angle1, angle2);
-        ctx.stroke();
+        chordsSceneRef.current = { scene, camera, renderer, circle, animate };
     };
 
-    // Draw Arcs Canvas
-    const drawArcsCanvas = () => {
+    // Initialize Three.js scene for Arcs
+    const initArcsScene = () => {
         const canvas = arcsCanvasRef.current;
-        if (!canvas) return;
+        const container = arcsContainerRef.current;
+        if (!canvas || !container) return;
 
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const { width, height } = setSceneSize(container);
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setClearColor(0x111111);
 
-        // Set styles
-        ctx.strokeStyle = '#00FF00';
-        ctx.fillStyle = '#00FF00';
-        ctx.lineWidth = 2;
+        const arcGeometry = new THREE.RingGeometry(0.4, 0.5, 32, 1, 0, Math.PI);
+        const material = new THREE.MeshBasicMaterial({ color: 0xff00ff, side: THREE.DoubleSide });
+        const arc = new THREE.Mesh(arcGeometry, material);
+        arc.rotation.x = Math.PI / 2;
+        scene.add(arc);
 
-        // Draw main circle
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 30;
+        camera.position.z = 1.5;
 
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.stroke();
+        const animate = () => {
+            requestAnimationFrame(animate);
+            arc.rotation.z += 0.01;
+            renderer.render(scene, camera);
+        };
+        animate();
 
-        // Draw center point
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Draw an arc
-        const startAngle = -Math.PI / 4; // -45 degrees
-        const endAngle = Math.PI / 2; // 90 degrees
-
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-        ctx.strokeStyle = '#FF00FF'; // Highlight the arc
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.strokeStyle = '#00FF00';
-        ctx.lineWidth = 2;
-
-        // Draw radius lines
-        const arcX1 = centerX + radius * Math.cos(startAngle);
-        const arcY1 = centerY + radius * Math.sin(startAngle);
-        const arcX2 = centerX + radius * Math.cos(endAngle);
-        const arcY2 = centerY + radius * Math.sin(endAngle);
-
-        ctx.setLineDash([5, 3]);
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(arcX1, arcY1);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(arcX2, arcY2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Label parts
-        ctx.font = '16px VT323';
-        const midAngle = (startAngle + endAngle) / 2;
-        const textX = centerX + (radius + 20) * Math.cos(midAngle);
-        const textY = centerY + (radius + 20) * Math.sin(midAngle);
-        ctx.fillText('Arc', textX - 15, textY);
-
-        // Label the central angle
-        ctx.fillText('Central Angle', centerX - 40, centerY - 20);
-
-        // Draw the angle arc
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 20, startAngle, endAngle);
-        ctx.stroke();
+        arcsSceneRef.current = { scene, camera, renderer, arc, animate };
     };
 
-    // Draw Sectors Canvas
-    const drawSectorsCanvas = () => {
+    // Initialize Three.js scene for Sectors
+    const initSectorsScene = () => {
         const canvas = sectorsCanvasRef.current;
-        if (!canvas) return;
+        const container = sectorsContainerRef.current;
+        if (!canvas || !container) return;
 
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const { width, height } = setSceneSize(container);
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setClearColor(0x111111);
 
-        // Set styles
-        ctx.strokeStyle = '#00FF00';
-        ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
-        ctx.lineWidth = 2;
+        const sectorGeometry = new THREE.RingGeometry(0, 0.5, 32, 1, 0, 2 * Math.PI / 3);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+        const sector = new THREE.Mesh(sectorGeometry, material);
+        sector.rotation.x = Math.PI / 2;
+        scene.add(sector);
 
-        // Draw main circle
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 30;
+        camera.position.z = 1.5;
 
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.stroke();
+        const animate = () => {
+            requestAnimationFrame(animate);
+            sector.rotation.z += 0.01;
+            renderer.render(scene, camera);
+        };
+        animate();
 
-        // Draw a sector
-        const startAngle = -Math.PI / 6; // -30 degrees
-        const endAngle = Math.PI / 3; // 60 degrees
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        // Label parts
-        ctx.fillStyle = '#00FF00';
-        ctx.font = '16px VT323';
-        const midAngle = (startAngle + endAngle) / 2;
-        const textX = centerX + (radius / 2) * Math.cos(midAngle);
-        const textY = centerY + (radius / 2) * Math.sin(midAngle);
-        ctx.fillText('Sector', textX - 20, textY);
-
-        // Label the central angle
-        ctx.fillText('Central Angle', centerX - 40, centerY - 20);
-
-        // Draw the angle arc
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 20, startAngle, endAngle);
-        ctx.stroke();
+        sectorsSceneRef.current = { scene, camera, renderer, sector, animate };
     };
 
-    // Draw Tangents Canvas
-    const drawTangentsCanvas = () => {
+    // Initialize Three.js scene for Tangents
+    const initTangentsScene = () => {
         const canvas = tangentsCanvasRef.current;
-        if (!canvas) return;
+        const container = tangentsContainerRef.current;
+        if (!canvas || !container) return;
 
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const { width, height } = setSceneSize(container);
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setClearColor(0x111111);
 
-        // Set styles
-        ctx.strokeStyle = '#00FF00';
-        ctx.fillStyle = '#00FF00';
-        ctx.lineWidth = 2;
+        const geometry = new THREE.CircleGeometry(0.5, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+        const circle = new THREE.Mesh(geometry, material);
+        scene.add(circle);
 
-        // Draw main circle
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(centerX, centerY) - 50;
+        const pointGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+        const pointMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const point = new THREE.Mesh(pointGeometry, pointMaterial);
+        point.position.set(0.7, 0, 0);
+        scene.add(point);
 
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.stroke();
+        const tangent1 = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0.7, 0, 0),
+                new THREE.Vector3(0.5, -0.5, 0)
+            ]),
+            new THREE.LineBasicMaterial({ color: 0xff00ff })
+        );
+        const tangent2 = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0.7, 0, 0),
+                new THREE.Vector3(0.5, 0.5, 0)
+            ]),
+            new THREE.LineBasicMaterial({ color: 0xff00ff })
+        );
+        scene.add(tangent1, tangent2);
 
-        // Draw center point
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
-        ctx.fill();
+        camera.position.z = 1.5;
 
-        // Draw an external point
-        const pointX = centerX + radius + 50;
-        const pointY = centerY;
+        const animate = () => {
+            requestAnimationFrame(animate);
+            circle.rotation.z += 0.01;
+            renderer.render(scene, camera);
+        };
+        animate();
 
-        ctx.beginPath();
-        ctx.arc(pointX, pointY, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillText('P', pointX + 10, pointY + 5);
-
-        // Calculate tangent points
-        const d = Math.sqrt((pointX - centerX) ** 2 + (pointY - centerY) ** 2);
-        const angle = Math.asin(radius / d);
-        const baseAngle = Math.atan2(pointY - centerY, pointX - centerX);
-
-        const tangentAngle1 = baseAngle + angle;
-        const tangentAngle2 = baseAngle - angle;
-
-        const tangentX1 = centerX + radius * Math.cos(tangentAngle1);
-        const tangentY1 = centerY + radius * Math.sin(tangentAngle1);
-
-        const tangentX2 = centerX + radius * Math.cos(tangentAngle2);
-        const tangentY2 = centerY + radius * Math.sin(tangentAngle2);
-
-        // Draw tangent lines
-        ctx.beginPath();
-        ctx.moveTo(pointX, pointY);
-        ctx.lineTo(tangentX1, tangentY1);
-        ctx.strokeStyle = '#FF00FF';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(pointX, pointY);
-        ctx.lineTo(tangentX2, tangentY2);
-        ctx.stroke();
-        ctx.strokeStyle = '#00FF00';
-
-        // Draw tangent points
-        ctx.fillStyle = '#FF00FF';
-        ctx.beginPath();
-        ctx.arc(tangentX1, tangentY1, 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(tangentX2, tangentY2, 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Draw radius to tangent points (to show perpendicular)
-        ctx.setLineDash([5, 3]);
-        ctx.strokeStyle = '#00FF00';
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(tangentX1, tangentY1);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(tangentX2, tangentY2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Draw right angle marks
-        drawRightAngleMark(ctx, centerX, centerY, tangentX1, tangentY1, pointX, pointY);
-        drawRightAngleMark(ctx, centerX, centerY, tangentX2, tangentY2, pointX, pointY);
-
-        // Labels
-        ctx.fillStyle = '#00FF00';
-        ctx.font = '16px VT323';
-        ctx.fillText('Tangent Lines', pointX - 20, pointY - 20);
-        ctx.fillText('Tangent Points', tangentX1 - 30, tangentY1 - 15);
+        tangentsSceneRef.current = { scene, camera, renderer, circle, animate };
     };
 
-    // Helper to draw a right angle mark
-    const drawRightAngleMark = (ctx, cx, cy, tx, ty, px, py) => {
-        // Vectors
-        const v1x = tx - cx;
-        const v1y = ty - cy;
-        const v2x = tx - px;
-        const v2y = ty - py;
-
-        // Normalize vectors
-        const v1Length = Math.sqrt(v1x * v1x + v1y * v1y);
-        const v1nx = v1x / v1Length;
-        const v1ny = v1y / v1Length;
-
-        const v2Length = Math.sqrt(v2x * v2x + v2y * v2y);
-        const v2nx = v2x / v2Length;
-        const v2ny = v2y / v2Length;
-
-        // Calculate right angle mark points
-        const size = 15;
-        const p1x = tx;
-        const p1y = ty;
-        const p2x = tx - v1nx * size;
-        const p2y = ty - v1ny * size;
-        const p3x = p2x - v2nx * size;
-        const p3y = p2y - v2ny * size;
-
-        // Draw right angle mark
-        ctx.strokeStyle = '#FFFF00';
-        ctx.beginPath();
-        ctx.moveTo(p1x, p1y);
-        ctx.lineTo(p2x, p2y);
-        ctx.lineTo(p3x, p3y);
-        ctx.stroke();
-        ctx.strokeStyle = '#00FF00';
+    // Cleanup function for a scene
+    const cleanupScene = (sceneRef) => {
+        if (sceneRef.current && sceneRef.current.renderer) {
+            const { renderer, animate } = sceneRef.current;
+            cancelAnimationFrame(animate);
+            renderer.dispose();
+            sceneRef.current = null;
+        }
     };
 
     // Handle question submission
-    const handleQuestionSubmit = (e) => {
-        e.preventDefault();
+    const handleQuestionSubmit = () => {
         if (userQuestion.trim() === '') return;
-
         setQuestions([...questions, userQuestion]);
         setUserQuestion('');
     };
 
+    // Handle formula copy
+    const handleFormulaCopy = (e) => {
+        const formulaText = e.target.textContent;
+        navigator.clipboard.writeText(formulaText).then(() => {
+            e.target.classList.add('copied');
+            setTimeout(() => {
+                e.target.classList.remove('copied');
+            }, 2000);
+        });
+    };
+
+    // Initialize or update scenes based on current topic
+    useEffect(() => {
+        // Cleanup previous scene
+        cleanupScene(introSceneRef);
+        cleanupScene(chordsSceneRef);
+        cleanupScene(arcsSceneRef);
+        cleanupScene(sectorsSceneRef);
+        cleanupScene(tangentsSceneRef);
+
+        // Initialize new scene based on current topic
+        switch (currentTopic) {
+            case 'intro':
+                initIntroScene();
+                break;
+            case 'chords':
+                initChordsScene();
+                break;
+            case 'arcs':
+                initArcsScene();
+                break;
+            case 'sectors':
+                initSectorsScene();
+                break;
+            case 'tangents':
+                initTangentsScene();
+                break;
+            default:
+                break;
+        }
+
+        // Handle resize
+        const handleResize = () => {
+            const updateScene = (canvasRef, sceneRef, containerRef) => {
+                const canvas = canvasRef.current;
+                const container = containerRef.current;
+                if (!canvas || !container || !sceneRef.current) return;
+
+                const { width, height } = setSceneSize(container);
+                const { camera, renderer } = sceneRef.current;
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+            };
+
+            updateScene(introCanvasRef, introSceneRef, introContainerRef);
+            updateScene(chordsCanvasRef, chordsSceneRef, chordsContainerRef);
+            updateScene(arcsCanvasRef, arcsSceneRef, arcsContainerRef);
+            updateScene(sectorsCanvasRef, sectorsSceneRef, sectorsContainerRef);
+            updateScene(tangentsCanvasRef, tangentsSceneRef, tangentsContainerRef);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            cleanupScene(introSceneRef);
+            cleanupScene(chordsSceneRef);
+            cleanupScene(arcsSceneRef);
+            cleanupScene(sectorsSceneRef);
+            cleanupScene(tangentsSceneRef);
+        };
+    }, [currentTopic]);
+
     return (
         <div className="recursion-container">
-            {/* Background elements */}
             <div className="pixel-background">
                 <div className="pixel-overlay"></div>
             </div>
 
-            {/* Main Content */}
             <div className="pixel-content">
                 <div className="pixel-window recursion-window">
                     <div className="pixel-window-header">
@@ -546,40 +435,69 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                             <div className="topic-buttons" style={{ display: 'flex', gap: '10px', padding: '10px', backgroundColor: '#1a1a1a' }}>
                                 <button
                                     className={`pixel-button ${currentTopic === 'intro' ? 'active' : ''}`}
-                                    onClick={() => setCurrentTopic('intro')}
+                                    onClick={() => {
+                                        setIsTransitioning(true);
+                                        setTimeout(() => {
+                                            setCurrentTopic('intro');
+                                            setIsTransitioning(false);
+                                        }, 300);
+                                    }}
                                 >
                                     INTRODUCTION
                                 </button>
                                 <button
                                     className={`pixel-button ${currentTopic === 'chords' ? 'active' : ''}`}
-                                    onClick={() => setCurrentTopic('chords')}
+                                    onClick={() => {
+                                        setIsTransitioning(true);
+                                        setTimeout(() => {
+                                            setCurrentTopic('chords');
+                                            setIsTransitioning(false);
+                                        }, 300);
+                                    }}
                                 >
                                     CHORDS
                                 </button>
                                 <button
                                     className={`pixel-button ${currentTopic === 'arcs' ? 'active' : ''}`}
-                                    onClick={() => setCurrentTopic('arcs')}
+                                    onClick={() => {
+                                        setIsTransitioning(true);
+                                        setTimeout(() => {
+                                            setCurrentTopic('arcs');
+                                            setIsTransitioning(false);
+                                        }, 300);
+                                    }}
                                 >
                                     ARCS
                                 </button>
                                 <button
                                     className={`pixel-button ${currentTopic === 'sectors' ? 'active' : ''}`}
-                                    onClick={() => setCurrentTopic('sectors')}
+                                    onClick={() => {
+                                        setIsTransitioning(true);
+                                        setTimeout(() => {
+                                            setCurrentTopic('sectors');
+                                            setIsTransitioning(false);
+                                        }, 300);
+                                    }}
                                 >
                                     SECTORS
                                 </button>
                                 <button
                                     className={`pixel-button ${currentTopic === 'tangents' ? 'active' : ''}`}
-                                    onClick={() => setCurrentTopic('tangents')}
+                                    onClick={() => {
+                                        setIsTransitioning(true);
+                                        setTimeout(() => {
+                                            setCurrentTopic('tangents');
+                                            setIsTransitioning(false);
+                                        }, 300);
+                                    }}
                                 >
                                     TANGENTS
                                 </button>
                             </div>
                         </div>
 
-                        {/* Introduction Content */}
                         {currentTopic === 'intro' && (
-                            <div className="topic-content">
+                            <div className={`topic-content ${isTransitioning ? 'fade-out' : 'fade-in'}`}>
                                 <div className="terminal-card">
                                     <div className="terminal-header">CIRCLE BASICS</div>
                                     <div className="terminal-content">
@@ -595,17 +513,12 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                                                 </ul>
                                                 <p><strong>Circle Equation:</strong></p>
                                                 <p>For a circle with center (h,k) and radius r:</p>
-                                                <p className="formula">(x - h)² + (y - k)² = r²</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>(x - h)² + (y - k)² = r²</p>
                                                 <p>For a circle with center at origin:</p>
-                                                <p className="formula">x² + y² = r²</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>x² + y² = r²</p>
                                             </div>
-                                            <div className="visual-column" style={{ flex: 1 }}>
-                                                <canvas
-                                                    ref={introCanvasRef}
-                                                    width={300}
-                                                    height={300}
-                                                    style={{ backgroundColor: '#111', borderRadius: '4px' }}
-                                                ></canvas>
+                                            <div className="visual-column" style={{ flex: 1 }} ref={introContainerRef}>
+                                                <canvas ref={introCanvasRef} style={{ width: '100%', height: '100%', backgroundColor: '#111', borderRadius: '4px' }}></canvas>
                                                 <div className="canvas-caption" style={{ textAlign: 'center', marginTop: '10px' }}>
                                                     Basic components of a circle
                                                 </div>
@@ -616,9 +529,8 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                             </div>
                         )}
 
-                        {/* Chords Content */}
                         {currentTopic === 'chords' && (
-                            <div className="topic-content">
+                            <div className={`topic-content ${isTransitioning ? 'fade-out' : 'fade-in'}`}>
                                 <div className="terminal-card">
                                     <div className="terminal-header">CHORDS</div>
                                     <div className="terminal-content">
@@ -633,18 +545,13 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                                                 </ul>
                                                 <p><strong>Chord Length Formula:</strong></p>
                                                 <p>For a chord with central angle θ (in radians) in a circle with radius r:</p>
-                                                <p className="formula">Chord length = 2r·sin(θ/2)</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>Chord length = 2r·sin(θ/2)</p>
                                                 <p><strong>Distance Formula:</strong></p>
                                                 <p>The distance d from the center to a chord with length c:</p>
-                                                <p className="formula">d = √(r² - (c/2)²)</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>d = √(r² - (c/2)²)</p>
                                             </div>
-                                            <div className="visual-column" style={{ flex: 1 }}>
-                                                <canvas
-                                                    ref={chordsCanvasRef}
-                                                    width={300}
-                                                    height={300}
-                                                    style={{ backgroundColor: '#111', borderRadius: '4px' }}
-                                                ></canvas>
+                                            <div className="visual-column" style={{ flex: 1 }} ref={chordsContainerRef}>
+                                                <canvas ref={chordsCanvasRef} style={{ width: '100%', height: '100%', backgroundColor: '#111', borderRadius: '4px' }}></canvas>
                                                 <div className="canvas-caption" style={{ textAlign: 'center', marginTop: '10px' }}>
                                                     Chord and central angle
                                                 </div>
@@ -659,9 +566,8 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                             </div>
                         )}
 
-                        {/* Arcs Content */}
                         {currentTopic === 'arcs' && (
-                            <div className="topic-content">
+                            <div className={`topic-content ${isTransitioning ? 'fade-out' : 'fade-in'}`}>
                                 <div className="terminal-card">
                                     <div className="terminal-header">ARCS</div>
                                     <div className="terminal-content">
@@ -676,19 +582,14 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                                                 </ul>
                                                 <p><strong>Arc Length Formula:</strong></p>
                                                 <p>For an arc with central angle θ (in radians):</p>
-                                                <p className="formula">Arc length = r·θ</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>Arc length = r·θ</p>
                                                 <p>If θ is in degrees:</p>
-                                                <p className="formula">Arc length = (π·r·θ)/180</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>Arc length = (π·r·θ)/180</p>
                                                 <p><strong>Arc Measure:</strong></p>
                                                 <p>The measure of an arc equals the measure of its central angle (in degrees or radians).</p>
                                             </div>
-                                            <div className="visual-column" style={{ flex: 1 }}>
-                                                <canvas
-                                                    ref={arcsCanvasRef}
-                                                    width={300}
-                                                    height={300}
-                                                    style={{ backgroundColor: '#111', borderRadius: '4px' }}
-                                                ></canvas>
+                                            <div className="visual-column" style={{ flex: 1 }} ref={arcsContainerRef}>
+                                                <canvas ref={arcsCanvasRef} style={{ width: '100%', height: '100%', backgroundColor: '#111', borderRadius: '4px' }}></canvas>
                                                 <div className="canvas-caption" style={{ textAlign: 'center', marginTop: '10px' }}>
                                                     Arc and central angle
                                                 </div>
@@ -703,9 +604,8 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                             </div>
                         )}
 
-                        {/* Sectors Content */}
                         {currentTopic === 'sectors' && (
-                            <div className="topic-content">
+                            <div className={`topic-content ${isTransitioning ? 'fade-out' : 'fade-in'}`}>
                                 <div className="terminal-card">
                                     <div className="terminal-header">SECTORS</div>
                                     <div className="terminal-content">
@@ -720,19 +620,14 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                                                 </ul>
                                                 <p><strong>Sector Area Formula:</strong></p>
                                                 <p>For a sector with central angle θ (in radians):</p>
-                                                <p className="formula">Area = (r² × θ) / 2</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>Area = (r² × θ) / 2</p>
                                                 <p>If θ is in degrees:</p>
-                                                <p className="formula">Area = (π × r² × θ) / 360</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>Area = (π × r² × θ) / 360</p>
                                                 <p><strong>Applications:</strong></p>
                                                 <p>Sectors are used in pie charts, calculating areas of irregular shapes, and in engineering for designing circular segments.</p>
                                             </div>
-                                            <div className="visual-column" style={{ flex: 1 }}>
-                                                <canvas
-                                                    ref={sectorsCanvasRef}
-                                                    width={300}
-                                                    height={300}
-                                                    style={{ backgroundColor: '#111', borderRadius: '4px' }}
-                                                ></canvas>
+                                            <div className="visual-column" style={{ flex: 1 }} ref={sectorsContainerRef}>
+                                                <canvas ref={sectorsCanvasRef} style={{ width: '100%', height: '100%', backgroundColor: '#111', borderRadius: '4px' }}></canvas>
                                                 <div className="canvas-caption" style={{ textAlign: 'center', marginTop: '10px' }}>
                                                     Sector showing area as portion of circle
                                                 </div>
@@ -748,9 +643,8 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                             </div>
                         )}
 
-                        {/* Tangents Content */}
                         {currentTopic === 'tangents' && (
-                            <div className="topic-content">
+                            <div className={`topic-content ${isTransitioning ? 'fade-out' : 'fade-in'}`}>
                                 <div className="terminal-card">
                                     <div className="terminal-header">TANGENTS</div>
                                     <div className="terminal-content">
@@ -766,16 +660,11 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                                                 </ul>
                                                 <p><strong>Tangent-Secant Theorem:</strong></p>
                                                 <p>If from an external point P, a tangent PT and a secant PAB are drawn to a circle, then:</p>
-                                                <p className="formula">PT² = PA × PB</p>
+                                                <p className="formula" onClick={handleFormulaCopy}>PT² = PA × PB</p>
                                                 <p>Where PT is the length of the tangent and PA and PB are the lengths of the secant segments.</p>
                                             </div>
-                                            <div className="visual-column" style={{ flex: 1 }}>
-                                                <canvas
-                                                    ref={tangentsCanvasRef}
-                                                    width={300}
-                                                    height={300}
-                                                    style={{ backgroundColor: '#111', borderRadius: '4px' }}
-                                                ></canvas>
+                                            <div className="visual-column" style={{ flex: 1 }} ref={tangentsContainerRef}>
+                                                <canvas ref={tangentsCanvasRef} style={{ width: '100%', height: '100%', backgroundColor: '#111', borderRadius: '4px' }}></canvas>
                                                 <div className="canvas-caption" style={{ textAlign: 'center', marginTop: '10px' }}>
                                                     Tangent lines from an external point
                                                 </div>
@@ -821,54 +710,56 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
                             )}
                         </div>
 
-                        {/* Interactive elements section */}
                         <div className="terminal-card">
                             <div className="terminal-header">CIRCLE FORMULAS & RELATIONSHIPS</div>
                             <div className="terminal-content">
                                 <div className="formulas-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
                                     <div className="formula-card">
                                         <h3>Basic Circle Formulas</h3>
-                                        <p>Circumference: C = 2πr = πd</p>
-                                        <p>Area: A = πr²</p>
-                                        <p>Diameter: d = 2r</p>
+                                        <p>Circumference: <span className="formula" onClick={handleFormulaCopy}>C = 2πr = πd</span></p>
+                                        <p>Area: <span className="formula" onClick={handleFormulaCopy}>A = πr²</span></p>
+                                        <p>Diameter: <span className="formula" onClick={handleFormulaCopy}>d = 2r</span></p>
                                     </div>
                                     <div className="formula-card">
                                         <h3>Chord Formulas</h3>
-                                        <p>Chord Length: c = 2r·sin(θ/2)</p>
-                                        <p>Distance from center to chord: d = r·cos(θ/2)</p>
-                                        <p>Central angle (in radians): θ = 2·arcsin(c/2r)</p>
+                                        <p>Chord Length: <span className="formula" onClick={handleFormulaCopy}>c = 2r·sin(θ/2)</span></p>
+                                        <p>Distance from center to chord: <span className="formula" onClick={handleFormulaCopy}>d = r·cos(θ/2)</span></p>
+                                        <p>Central angle (in radians): <span className="formula" onClick={handleFormulaCopy}>θ = 2·arcsin(c/2r)</span></p>
                                     </div>
                                     <div className="formula-card">
                                         <h3>Arc Formulas</h3>
-                                        <p>Arc Length: L = r·θ (θ in radians)</p>
-                                        <p>Arc Length: L = (πr·θ)/180° (θ in degrees)</p>
+                                        <p>Arc Length: <span className="formula" onClick={handleFormulaCopy}>L = r·θ (θ in radians)</span></p>
+                                        <p>Arc Length: <span className="formula" onClick={handleFormulaCopy}>L = (πr·θ)/180° (θ in degrees)</span></p>
                                     </div>
                                     <div className="formula-card">
                                         <h3>Sector Formulas</h3>
-                                        <p>Sector Area: A = (r²·θ)/2 (θ in radians)</p>
-                                        <p>Sector Area: A = (πr²·θ)/360° (θ in degrees)</p>
+                                        <p>Sector Area: <span className="formula" onClick={handleFormulaCopy}>A = (r²·θ)/2 (θ in radians)</span></p>
+                                        <p>Sector Area: <span className="formula" onClick={handleFormulaCopy}>A = (πr²·θ)/360° (θ in degrees)</span></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Questions/Comments Section */}
                         <div className="terminal-card">
                             <div className="terminal-header">QUESTIONS & COMMENTS</div>
                             <div className="terminal-content">
-                                <form onSubmit={handleQuestionSubmit}>
-                                    <div className="question-input-container" style={{ display: 'flex', gap: '10px' }}>
-                                        <input
-                                            type="text"
-                                            value={userQuestion}
-                                            onChange={(e) => setUserQuestion(e.target.value)}
-                                            className="pixel-input"
-                                            style={{ flex: 1 }}
-                                            placeholder="Ask a question about circles..."
-                                        />
-                                        <button type="submit" className="pixel-button small-button">SUBMIT</button>
-                                    </div>
-                                </form>
+                                <div className="question-input-container" style={{ display: 'flex', gap: '10px' }}>
+                                    <input
+                                        type="text"
+                                        value={userQuestion}
+                                        onChange={(e) => setUserQuestion(e.target.value)}
+                                        className="pixel-input"
+                                        style={{ flex: 1 }}
+                                        placeholder="Ask a question about circles..."
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleQuestionSubmit}
+                                        className="pixel-button small-button"
+                                    >
+                                        SUBMIT
+                                    </button>
+                                </div>
                                 <div className="questions-list" style={{ marginTop: '10px', maxHeight: '150px', overflowY: 'auto' }}>
                                     {questions.length > 0 ? (
                                         <ul style={{ paddingLeft: '20px' }}>
@@ -927,3 +818,4 @@ drawTangent(ctx, 100, 100, 50, 170, 100); // Tangent at point (170, 100)`
 };
 
 export default CirclesComponent;
+

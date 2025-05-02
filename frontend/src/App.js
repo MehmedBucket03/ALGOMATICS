@@ -7,6 +7,7 @@ import Login from './components/auth/login/login';
 import Signup from './components/auth/signup/signup';
 import About from './pages/about';
 import Settings from './pages/settings';
+import Profile from './pages/profile';
 
 import AlgorithmsPage from './components/algorithm/algorithms';
 import ArraysPage from './pages/arrays'; // Import new ArraysPage component
@@ -43,6 +44,7 @@ const App = () => {
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/about" element={<About />} /> {/* Add the route for About page */}
                         <Route path="/settings" element={<Settings />} />
+                        <Route path="/profile" element={<Profile />} />
                         <Route path="/graphs" element={<GraphVisualization />} />
                         <Route path="/trees" element={<TreeVisualization />} />
                         <Route path="/sorting" element={<SortingAlgorithms />} />

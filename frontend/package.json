@@ -12,12 +12,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@react-three/fiber": "^9.1.2",
     "chart.js": "^4.4.8",
     "d3": "^7.9.0",
     "gsap": "^3.13.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.5.0"
+    "react-router-dom": "^7.5.0",
+    "three": "^0.176.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",

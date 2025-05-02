@@ -4,8 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="SUdoku solver integrated">
-      <changelist_data name="Ranveer225" email="singr12@farmingdale.edu" date="1745856793000" automatic="true" />
+    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="fixed more pages &#10;KInda&#10;Not rlly tho">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/mathTopics/Circles/circles.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/mathTopics/Circles/circles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/mathTopics/Circles/circles.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/mathTopics/Circles/circles.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/profile.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/profile.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,6 +22,7 @@
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
+        <option value="samin &lt;mahmst@farmingdale.edu&gt;" />
         <option value="Ranveer225 &lt;singr12@farmingdale.edu&gt;" />
       </list>
     </option>
@@ -32,12 +40,12 @@
     &quot;assignee&quot;: &quot;MehmedBucket03&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/MehmedBucket03/ALGOMATICS.git&quot;,
-    &quot;accountId&quot;: &quot;d7d04d58-b7c3-45d7-968f-2585095bd310&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/MehmedBucket03/ALGOMATICS.git",
+    "accountId": "d699cf8c-f678-4a7a-aaba-a25ad2d9d3e5"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 5
@@ -71,7 +79,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2025.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2024.3.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -106,6 +114,7 @@
       <workItem from="1744665232567" duration="1401000" />
       <workItem from="1744838590504" duration="257000" />
       <workItem from="1745708718797" duration="3298000" />
+      <workItem from="1746216667722" duration="3980000" />
     </task>
     <task id="LOCAL-00001" summary="updates to animations">
       <option name="closed" value="true" />
@@ -131,7 +140,23 @@
       <option name="project" value="LOCAL" />
       <updated>1744666624012</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="commiting profile and settings page with continue learning linked list">
+      <option name="closed" value="true" />
+      <created>1746215926335</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1746215926335</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Updating routes">
+      <option name="closed" value="true" />
+      <created>1746216555330</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1746216555331</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -142,7 +167,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/backup-develop" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -155,6 +192,9 @@
     <MESSAGE value="fixes for red-black tree" />
     <MESSAGE value="sudoku solver" />
     <MESSAGE value="SUdoku solver integrated" />
-    <option name="LAST_COMMIT_MESSAGE" value="SUdoku solver integrated" />
+    <MESSAGE value="commiting profile and settings page with continue learning linked list" />
+    <MESSAGE value="Updating routes" />
+    <MESSAGE value="fixed more pages &#10;KInda&#10;Not rlly tho" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed more pages &#10;KInda&#10;Not rlly tho" />
   </component>
 </project>
