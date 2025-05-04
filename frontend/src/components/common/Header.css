@@ -172,16 +172,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'VT323', monospace;
-    font-size: 16px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    text-transform: uppercase;
     font-weight: bold;
 }
 
 .user-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
     color: #fff;
-    font-family: 'VT323', monospace;
-    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     margin-right: 8px;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: auto;
+    font-smooth: never;
 }
 
 .dropdown-arrow {
@@ -195,19 +201,14 @@
 }
 
 .dropdown-menu {
-    position: absolute;
-    top: 120%;
-    right: 0;
-    min-width: 200px;
-    background-color: #222;
-    border: 2px solid #444;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    padding: 6px 0;
-    z-index: 100;
-    animation: dropdownFadeIn 0.2s ease;
-    overflow: hidden;
+    background-color: #111;
+    border: 2px solid #00ff00;
+    padding: 0;
+    min-width: 220px;
+    font-family: 'Press Start 2P', cursive;
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.3);
 }
+
 
 @keyframes dropdownFadeIn {
     from {
@@ -231,18 +232,26 @@
 }
 
 .full-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
     color: #fff;
-    font-weight: bold;
-    font-family: 'VT323', monospace;
-    font-size: 16px;
-    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 10px;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: auto;
+    font-smooth: never;
 }
 
 .user-email {
-    color: #999;
-    font-size: 14px;
-    font-family: 'VT323', monospace;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    color: #888;
+    image-rendering: pixelated;
+    -webkit-font-smoothing: none;
+    text-rendering: optimizeSpeed;
 }
+
 
 .dropdown-divider {
     height: 1px;
@@ -256,24 +265,29 @@
 }
 
 .dropdown-link, .dropdown-button {
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    color: #ccc;
-    font-family: 'VT323', monospace;
-    font-size: 16px;
-    text-decoration: none;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: #33cd33;
+    background: transparent;
     width: 100%;
     border: none;
-    background: none;
     text-align: left;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding-left: 20px;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
+    image-rendering: pixelated;
+    -webkit-font-smoothing: none;
+    text-rendering: optimizeSpeed;
 }
 
 .dropdown-link:hover, .dropdown-button:hover {
-    background-color: #333;
-    color: #4c00ff;
+    background-color: #222;
+    color: #ffffff;
+    text-shadow: 0 0 3px #29c329;
 }
 
 .dropdown-icon {
