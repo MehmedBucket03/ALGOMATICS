@@ -47,6 +47,11 @@ const QuadraticSolver = () => {
         try {
             const calculator = window.Desmos.GraphingCalculator(graphContainerRef.current, {
                 expressionsCollapsed: true,
+                expressions: true,
+                settingsMenu: false,
+                keypad: false,
+                invertedColors: false,
+                theme: 'light',
                 settings: {
                     showGrid: true,
                     showXAxis: true,
@@ -61,27 +66,36 @@ const QuadraticSolver = () => {
             setCalculatorLoaded(true);
 
             // Disable scroll wheel zooming
-            graphContainerRef.current.addEventListener('wheel', (event) => {
-                event.preventDefault();
+            graphContainerRef.current.addEventListener(
+                'wheel',
+                (event) => {
+                    event.preventDefault();
 
-                // Optional: Custom scroll behavior
-                const bounds = calculator.getState().graph.bounds;
-                const deltaY = event.deltaY * 0.01;
-                calculator.setMathBounds({
-                    left: bounds.left,
-                    right: bounds.right,
-                    bottom: bounds.bottom - deltaY,
-                    top: bounds.top - deltaY
-                });
-            }, { passive: false });
+                    try {
+                        const state = calculator.getState();
+                        const bounds = state.graph?.bounds;
 
-            // Plot initial quadratic
-            plotQuadratic(1, -3, 2);
+                        if (!bounds) return;
+                        //if bounds are undefined, eror prevented
 
+                        const deltaY = event.deltaY * 0.01;
+                        calculator.setMathBounds({
+                            left: bounds.left,
+                            right: bounds.right,
+                            bottom: bounds.bottom - deltaY,
+                            top: bounds.top - deltaY
+                        });
+                    } catch (error) {
+                        console.error("Scroll zoom error:", error);
+                    }
+                },
+                { passive: false }
+            );
         } catch (error) {
-            console.error("❌ Error initializing Desmos calculator:", error);
+            console.error("Graph initialization error:", error);
         }
-    };
+
+        };
 
     const plotQuadratic = (a, b, c) => {
         if (!calculatorRef.current) return;

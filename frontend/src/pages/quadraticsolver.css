@@ -48,6 +48,10 @@
     max-width: 100%;
 }
 
+.pixel-graph .dcg-graph-inner {
+    background-color: #e4e4e4 !important;
+}
+
 /* Input styling */
 .pixel-input-group {
     display: flex;
