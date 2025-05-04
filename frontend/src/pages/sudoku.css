@@ -16,13 +16,15 @@
 }
 
 input.cell {
-    width: 50px;
-    height: 50px;
+    font-family: 'Silkscreen', Arial, sans-serif; /* Make sure this line is present */
     font-size: 20px;
     text-align: center;
     border: 2px solid #ffffff;
     background-color: #1c0033;
     color: white;
+    image-rendering: pixelated;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 input.cell:focus {
