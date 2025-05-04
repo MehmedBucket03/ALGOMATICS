@@ -58,13 +58,18 @@
 }
 
 .pixel-link {
-    color: #ccc;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    color: #986dc6;
+    background-color: #111;
+    margin: 6px;
     text-decoration: none;
-    font-family: 'VT323', monospace;
-    font-size: 20px;
-    padding: 6px 8px;
+    display: inline-block;
+    text-align: center;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(85, 8, 246, 0.7);
     transition: all 0.2s ease;
-    display: block;
+    border-radius: 4px;
 }
 
 .pixel-link:hover {
@@ -313,7 +318,7 @@
     }
 
     .pixel-nav.open {
-        max-height: 300px;
+        max-height: 1000px;
         border-top: 1px solid #333;
     }
 
