@@ -2,6 +2,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './GeometryExplorer.css';
 
+const saveProgressToFirestore = async (inputString) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const topicId = 'geometry';
+    const docRef = doc(db, 'users', user.uid);
+    await setDoc(docRef, {
+        lastTopicVisited: topicId,
+        [`topics.${topicId}`]: {
+            input: inputString,
+            timestamp: new Date().toISOString()
+        }
+    }, { merge: true });
+};
+
 const GeometryExplorer = () => {
     const canvasRef = useRef(null);
     const [activeSection, setActiveSection] = useState('');

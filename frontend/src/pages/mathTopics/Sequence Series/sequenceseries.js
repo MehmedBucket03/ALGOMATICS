@@ -2,6 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './sequenceseries.css';
 
+const saveProgressToFirestore = async (inputString) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const topicId = 'sequence-series';
+    const docRef = doc(db, 'users', user.uid);
+    await setDoc(docRef, {
+        lastTopicVisited: topicId,
+        [`topics.${topicId}`]: {
+            input: inputString,
+            timestamp: new Date().toISOString()
+        }
+    }, { merge: true });
+};
+
 const SequencesSeries = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [sequenceType, setSequenceType] = useState('arithmetic');

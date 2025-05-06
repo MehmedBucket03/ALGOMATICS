@@ -1,6 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './SystemEquations.css';
 
+const saveProgressToFirestore = async (inputString) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const topicId = 'system-equations';
+    const docRef = doc(db, 'users', user.uid);
+    await setDoc(docRef, {
+        lastTopicVisited: topicId,
+        [`topics.${topicId}`]: {
+            input: inputString,
+            timestamp: new Date().toISOString()
+        }
+    }, { merge: true });
+};
+
 const InteractiveGraph = () => {
     const [equation1, setEquation1] = useState('2x + y = 5');
     const [equation2, setEquation2] = useState('y = x - 1');

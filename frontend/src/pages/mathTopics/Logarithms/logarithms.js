@@ -2,6 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './Logarithms.css';
 
+const saveProgressToFirestore = async (inputString) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const topicId = 'logarithms';
+    const docRef = doc(db, 'users', user.uid);
+    await setDoc(docRef, {
+        lastTopicVisited: topicId,
+        [`topics.${topicId}`]: {
+            input: inputString,
+            timestamp: new Date().toISOString()
+        }
+    }, { merge: true });
+};
+
 const Logarithms = () => {
     const [activeTab, setActiveTab] = useState('introduction');
     const [animatedText, setAnimatedText] = useState('');

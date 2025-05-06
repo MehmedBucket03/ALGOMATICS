@@ -2,6 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './stackqueue.css';
 
+const saveProgressToFirestore = async (inputString) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const topicId = 'stack-queue';
+    const docRef = doc(db, 'users', user.uid);
+    await setDoc(docRef, {
+        lastTopicVisited: topicId,
+        [`topics.${topicId}`]: {
+            input: inputString,
+            timestamp: new Date().toISOString()
+        }
+    }, { merge: true });
+};
+
 const StackQueuePage = () => {
     const [stack, setStack] = useState([]);
     const [queue, setQueue] = useState([]);

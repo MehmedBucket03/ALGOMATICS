@@ -1,6 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './quadraticsolver.css';
+import { auth, db } from '../firebase/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+const saveProgressToFirestore = async (inputString) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const topicId = 'quadratic-solver';
+    const docRef = doc(db, 'users', user.uid);
+    await setDoc(docRef, {
+        lastTopicVisited: topicId,
+        [`topics.${topicId}`]: {
+            input: inputString,
+            timestamp: new Date().toISOString()
+        }
+    }, { merge: true });
+};
 
 const QuadraticSolver = () => {
     const [a, setA] = useState(1);
@@ -10,6 +27,28 @@ const QuadraticSolver = () => {
     const [solutionInfo, setSolutionInfo] = useState(null);
     const calculatorRef = useRef(null);
     const graphContainerRef = useRef(null);
+
+    useEffect(() => {
+        const fetchProgress = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const docRef = doc(db, 'users', user.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                const saved = data.topics?.['quadratic-solver']?.input;
+                if (saved) {
+                    const [aVal, bVal, cVal] = saved.split(',').map(Number);
+                    setA(aVal);
+                    setB(bVal);
+                    setC(cVal);
+                }
+            }
+        };
+
+        fetchProgress();
+    }, []);
 
     // Initialize the Desmos calculator
     useEffect(() => {
@@ -40,6 +79,7 @@ const QuadraticSolver = () => {
             }
         };
     }, []);
+
 
     const initializeGraph = () => {
         if (!graphContainerRef.current) return;
@@ -187,6 +227,7 @@ const QuadraticSolver = () => {
         }
 
         plotQuadratic(a, b, c);
+        saveProgressToFirestore(`${a},${b},${c}`);
     };
 
     const [explanationVisible, setExplanationVisible] = useState(false);

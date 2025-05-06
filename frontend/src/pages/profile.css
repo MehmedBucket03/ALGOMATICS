@@ -11,6 +11,29 @@
     align-items: center;
 }
 
+* {
+    image-rendering: pixelated;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: auto;
+    font-family: 'Press Start 2P', cursive !important;
+    letter-spacing: 1px;
+}
+
+body {
+    margin: 0;
+    background: #0e0822;
+    color: white;
+    font-family: 'Press Start 2P', cursive !important;
+}
+
+.profile-wrapper {
+    padding: 1rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 /* Container to control width */
 .profile-container {
     width: 100%;
@@ -45,27 +68,23 @@
 }
 
 .pixel-section {
-    margin-top: 2.5rem;
+    background-color: #1b1328;
     border: 2px solid #955eff;
     border-radius: 8px;
     padding: 1.5rem;
-    background-color: rgba(27, 19, 40, 0.8);
+    margin-top: 2rem;
     box-shadow: 0 0 20px rgba(149, 94, 255, 0.2), inset 0 0 10px rgba(149, 94, 255, 0.1);
-    position: relative;
 }
 
-.pixel-subtitle {
-    position: relative;
-    top: -1rem;
-    left: 0;
+.pixel-subtitle, .pixel-title {
     background-color: #0c0817;
     padding: 0.5rem 1rem;
     border: 2px solid #955eff;
     border-radius: 4px;
-    color: #fff;
-    font-size: 1rem;
-    text-shadow: 0 0 8px #955eff;
     display: inline-block;
+    font-size: 1rem;
+    color: #fff;
+    text-shadow: 0 0 8px #955eff;
 }
 
 .profile-topic-scroll {
@@ -95,17 +114,14 @@
 }
 
 .profile-topic-card {
-    background-color: #1b1328;
+    background: #1b1328;
     border: 2px solid #955eff;
-    min-width: 250px;
-    max-width: 320px;
-    padding: 1.25rem;
     border-radius: 12px;
+    min-width: 250px;
+    padding: 1rem;
     flex-shrink: 0;
     text-align: center;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    transition: 0.3s ease;
 }
 
 .profile-topic-card::before {
@@ -198,6 +214,17 @@
     transform: translateY(2px);
     border-bottom-width: 2px;
 }
+
+/* util class for uppercase text */
+.pixel-uppercase {
+    font-family: 'Press Start 2P', cursive !important;
+    font-smooth: never !important;
+    -webkit-font-smoothing: none !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
 
 /* Explore topics button */
 .explore-button {
@@ -350,16 +377,34 @@
 
 .logout-button {
     background: linear-gradient(to bottom, #ff5e62, #ff5e62);
-    box-shadow: 0 4px 0 #b83a3d, 0 8px 10px rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 4px;
+    border-bottom: 4px solid #b83a3d;
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.85rem;
+    padding: 0.9rem 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 8px rgba(255, 94, 98, 0.5);
+    transition: all 0.2s;
 }
 
 .logout-button:hover {
     background: linear-gradient(to bottom, #ff706f, #ff5e62);
+    transform: translateY(-2px);
     box-shadow: 0 6px 0 #b83a3d, 0 10px 15px rgba(0, 0, 0, 0.3);
 }
 
 .logout-button:active {
+    transform: translateY(2px);
     box-shadow: 0 2px 0 #b83a3d, 0 4px 5px rgba(0, 0, 0, 0.3);
+    border-bottom-width: 2px;
 }
 
 /* Add some responsive adjustments */

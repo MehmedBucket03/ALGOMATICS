@@ -3,6 +3,21 @@ import { Link } from 'react-router-dom';
 import * as THREE from 'three';
 import './circles.css';
 
+const saveProgressToFirestore = async (inputString) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const topicId = 'circles';
+    const docRef = doc(db, 'users', user.uid);
+    await setDoc(docRef, {
+        lastTopicVisited: topicId,
+        [`topics.${topicId}`]: {
+            input: inputString,
+            timestamp: new Date().toISOString()
+        }
+    }, { merge: true });
+};
+
 const CirclesComponent = () => {
     const [currentTopic, setCurrentTopic] = useState('intro');
     const [showCode, setShowCode] = useState(false);

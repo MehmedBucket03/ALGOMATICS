@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './TreeVisualization.css';
+import { auth, db } from '../firebase/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+
 
 const EnhancedTreeVisualization = () => {
     const canvasRef = useRef(null);
@@ -32,15 +35,97 @@ const EnhancedTreeVisualization = () => {
     const [rbtConnections, setRbtConnections] = useState([]);
     const [trieConnections, setTrieConnections] = useState([]);
 
+    const getSerializedTreeData = () => {
+        switch (currentTreeType) {
+            case 'bst':
+                return JSON.stringify({ nodes: bstNodes, connections: bstConnections });
+            case 'avl':
+                return JSON.stringify({ nodes: avlNodes, connections: avlConnections });
+            case 'rbt':
+                return JSON.stringify({ nodes: rbtNodes, connections: rbtConnections });
+            case 'trie':
+                return JSON.stringify({ nodes: trieNodes, connections: trieConnections, words: trieWords });
+            default:
+                return '{}';
+        }
+    };
+
+    const saveProgressToFirestore = async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const topicId = 'tree-visualization';
+        const inputString = getSerializedTreeData();
+        const docRef = doc(db, 'users', user.uid);
+
+        const docSnap = await getDoc(docRef);  // <--- Add this
+        const data = docSnap.exists() ? docSnap.data() : {};  // <--- And this
+
+        await setDoc(docRef, {
+            lastTopicVisited: topicId,
+            [`topics.${topicId}`]: {
+                input: inputString,
+                history: [
+                    ...(data?.topics?.[topicId]?.history || []),
+                    { input: inputString, timestamp: new Date().toISOString() }
+                ],
+                timestamp: new Date().toISOString()
+            }
+        }, { merge: true });
+    };
+
+
+    useEffect(() => {
+        const fetchProgress = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const docRef = doc(db, 'users', user.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                const saved = data.topics?.['tree-visualization']?.input;
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+
+                    switch (currentTreeType) {
+                        case 'bst':
+                            setBstNodes(parsed.nodes || []);
+                            setBstConnections(parsed.connections || []);
+                            break;
+                        case 'avl':
+                            setAvlNodes(parsed.nodes || []);
+                            setAvlConnections(parsed.connections || []);
+                            break;
+                        case 'rbt':
+                            setRbtNodes(parsed.nodes || []);
+                            setRbtConnections(parsed.connections || []);
+                            break;
+                        case 'trie':
+                            setTrieNodes(parsed.nodes || []);
+                            setTrieConnections(parsed.connections || []);
+                            setTrieWords(parsed.words || []);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        };
+
+        fetchProgress();
+    }, [currentTreeType]); // <<-- Add this
+
+
     // Initialize canvas
     useEffect(() => {
         const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
         if (!canvas) return;
 
         canvas.width = 1000;
         canvas.height = 500;
 
-        const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
         ctxRef.current = ctx;
@@ -125,6 +210,41 @@ const EnhancedTreeVisualization = () => {
         trieNodes, trieConnections,
         hoverInfo
     ]);
+
+    useEffect(() => {
+        console.log("Drawing Tree");
+        drawTree();
+    }, [currentTreeType, bstNodes, bstConnections]);
+
+
+    useEffect(() => {
+        if (currentTreeType === 'bst' && bstNodes.length > 0) {
+            saveProgressToFirestore();
+            console.log("Auto-saving BST:", bstNodes);
+        }
+    }, [bstNodes, bstConnections]);
+
+    useEffect(() => {
+        if (currentTreeType === 'avl' && avlNodes.length > 0) {
+            saveProgressToFirestore();
+            console.log("Auto-saving AVL:", bstNodes);
+        }
+    }, [avlNodes, avlConnections]);
+
+    useEffect(() => {
+        if (currentTreeType === 'rbt' && rbtNodes.length > 0) {
+            saveProgressToFirestore();
+            console.log("Auto-saving RBT:", bstNodes);
+        }
+    }, [rbtNodes, rbtConnections]);
+
+    useEffect(() => {
+        if (currentTreeType === 'trie' && trieNodes.length > 0) {
+            saveProgressToFirestore();
+            console.log("Auto-saving Trie:", bstNodes);
+        }
+    }, [trieNodes, trieConnections, trieWords]);
+
 
     // Mouse event handlers for canvas interactions
     const handleMouseMove = (e) => {
@@ -442,70 +562,37 @@ const EnhancedTreeVisualization = () => {
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Select nodes and connections based on tree type
-        let nodes = [];
-        let connections = [];
-
-        switch (currentTreeType) {
-            case 'bst':
-                nodes = bstNodes;
-                connections = bstConnections;
-                break;
-            case 'avl':
-                nodes = avlNodes;
-                connections = avlConnections;
-                break;
-            case 'rbt':
-                nodes = rbtNodes;
-                connections = rbtConnections;
-                break;
-            case 'trie':
-                nodes = trieNodes;
-                connections = trieConnections;
-                break;
-            default:
-                break;
+        // Select current nodes and connections
+        let nodes = bstNodes;
+        let connections = bstConnections;
+        if (currentTreeType === 'avl') {
+            nodes = avlNodes;
+            connections = avlConnections;
+        } else if (currentTreeType === 'rbt') {
+            nodes = rbtNodes;
+            connections = rbtConnections;
+        } else if (currentTreeType === 'trie') {
+            nodes = trieNodes;
+            connections = trieConnections;
         }
 
-        // Draw connections
-        ctx.lineWidth = 2;
+        // debug
+        console.log("Drawing nodes:", nodes);
+
+        // Draw connections (edges)
         connections.forEach(conn => {
             ctx.beginPath();
             ctx.moveTo(conn.fromX, conn.fromY);
             ctx.lineTo(conn.toX, conn.toY);
             ctx.strokeStyle = conn.color || '#ffffff';
-
-            // Draw arrow tips for directed connections
-            const angle = Math.atan2(conn.toY - conn.fromY, conn.toX - conn.fromX);
-            const arrowSize = 8;
-
             ctx.stroke();
-
-            // For Trie, draw character labels on edges
-            if (currentTreeType === 'trie' && conn.char) {
-                const midX = (conn.fromX + conn.toX) / 2;
-                const midY = (conn.fromY + conn.toY) / 2;
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                // Draw a small background circle
-                ctx.beginPath();
-                ctx.arc(midX, midY, 10, 0, Math.PI * 2);
-                ctx.fillStyle = '#333333';
-                ctx.fill();
-
-                // Draw the character
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(conn.char, midX, midY);
-            }
         });
 
-        // Draw nodes
-        nodes.forEach(node => {
-            // Node shadow (for 3D effect)
+        const drawNode = (node) => {
+            const ctx = ctxRef.current;
+            if (!ctx) return;
+
+            // Node shadow
             ctx.beginPath();
             ctx.arc(node.x + 3, node.y + 3, 20, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
@@ -515,29 +602,27 @@ const EnhancedTreeVisualization = () => {
             ctx.beginPath();
             ctx.arc(node.x, node.y, 20, 0, Math.PI * 2);
 
-            // Gradient fill for nodes
+            // Gradient fill
             const gradient = ctx.createRadialGradient(node.x - 5, node.y - 5, 2, node.x, node.y, 20);
             const baseColor = node.color ||
                 (currentTreeType === 'avl' ? '#a4f7ff' :
                     currentTreeType === 'bst' ? '#d4a4ff' :
                         currentTreeType === 'trie' ? '#90ee90' : '#ffffff');
-
             gradient.addColorStop(0, lightenColor(baseColor, 50));
             gradient.addColorStop(1, baseColor);
-
             ctx.fillStyle = gradient;
             ctx.fill();
             ctx.strokeStyle = '#ffffff';
             ctx.stroke();
 
-            // Node text
+            // Text
             ctx.fillStyle = node.textColor || '#000000';
             ctx.font = `${node.fontSize || 16}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(node.value.toString(), node.x, node.y);
 
-            // Special indicators (for Trie end nodes or balance factors)
+            // End node indicator (for Trie)
             if (node.isEnd) {
                 ctx.beginPath();
                 ctx.arc(node.x + 15, node.y - 15, 5, 0, Math.PI * 2);
@@ -545,6 +630,7 @@ const EnhancedTreeVisualization = () => {
                 ctx.fill();
             }
 
+            // Balance factor (for AVL)
             if (currentTreeType === 'avl' && node.balanceFactor !== undefined) {
                 ctx.fillStyle = '#ffffff';
                 ctx.font = '12px Arial';
@@ -559,7 +645,6 @@ const EnhancedTreeVisualization = () => {
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Show node details on hover
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(hoverInfo.x + 10, hoverInfo.y - 10, 100, 60);
                 ctx.strokeStyle = '#ffffff';
@@ -579,13 +664,21 @@ const EnhancedTreeVisualization = () => {
                     ctx.fillText(`End: ${node.isEnd ? 'Yes' : 'No'}`, hoverInfo.x + 15, hoverInfo.y + 40);
                 }
             }
+        };
+
+
+        // Draw nodes (circles and text)
+        nodes.forEach(node => {
+            drawNode(node);
         });
+    };
+
+
 
         // Draw tutorial overlay if enabled
         if (showTutorial) {
             drawTutorial(ctx, canvas);
         }
-    };
 
     // Helper function to draw tutorial overlay
     const drawTutorial = (ctx, canvas) => {
@@ -737,53 +830,90 @@ const EnhancedTreeVisualization = () => {
         animate();
     };
 
+
+    const findBSTInsertionPath = (nodes, value) => {
+        if (nodes.length === 0) return [];
+
+        const path = [];
+        let currentNode = nodes.find(node => !nodes.some(n =>
+            getCurrentConnections().some(conn =>
+                conn.toX === node.x && conn.toY === node.y
+            )
+        )) || nodes[0]; // Find root (node with no incoming connections)
+
+        while (currentNode) {
+            path.push(currentNode);
+
+            if (value === currentNode.value) {
+                return null; // duplicate, path invalid
+            }
+
+            const isLeft = value < currentNode.value;
+
+            // Find child node based on connections
+            const childConnection = getCurrentConnections().find(conn =>
+                conn.fromX === currentNode.x &&
+                conn.fromY === currentNode.y &&
+                (isLeft ? conn.toX < conn.fromX : conn.toX > conn.fromX)
+            );
+
+            if (!childConnection) break; // Found insertion point
+
+            currentNode = nodes.find(n =>
+                n.x === childConnection.toX &&
+                n.y === childConnection.toY
+            );
+        }
+
+        return path;
+    };
+
     /*
      * BST Operations
      */
-    const insertBST = (value) => {
-        if (bstNodes.length === 0) {
-            // Add root node
-            const newNodes = [
-                {
-                    id: 1,
-                    value: value,
-                    x: canvasRef.current.width / 2,
-                    y: 50
-                }
-            ];
-            setBstNodes(newNodes);
-            saveState();
-            setDescription(`Created root node with value ${value}`);
-            return;
+    const insertBST = (value, customNodes = bstNodes, customConnections = bstConnections) => {
+        const newNodes = [...customNodes];
+        const newConnections = [...customConnections];
+
+        if (newNodes.some(n => n.value === value)) {
+            setDescription(`Value ${value} already exists in the tree`);
+            return { nodes: newNodes, connections: newConnections };
         }
 
-        // Clone current nodes and connections
-        const newNodes = [...bstNodes];
-        const newConnections = [...bstConnections];
+        if (newNodes.length === 0) {
+            const rootNode = {
+                id: 1,
+                value: value,
+                x: canvasRef.current.width / 2,
+                y: 50
+            };
+            newNodes.push(rootNode);
+            setBstNodes(newNodes);
+            setBstConnections([]);
+            setDescription(`Created root node with value ${value}`);
+            saveState();
+            return { nodes: newNodes, connections: [] };
+        }
 
-        // Find insertion path and position
         const path = findBSTInsertionPath(newNodes, value);
         if (!path) {
             setDescription(`Value ${value} already exists in the tree`);
-            return;
+            return { nodes: newNodes, connections: newConnections };
         }
 
         const parentNode = path[path.length - 1];
         const isLeft = value < parentNode.value;
-
-        // Calculate position for new node
         const nodeX = isLeft ? parentNode.x - 80 / (path.length * 0.5) : parentNode.x + 80 / (path.length * 0.5);
         const nodeY = parentNode.y + 60;
 
-        // Create new node
         const newNode = {
             id: newNodes.length + 1,
-            value: value,
+            value,
             x: nodeX,
             y: nodeY
         };
 
-        // Add connection from parent to new node
+        newNodes.push(newNode);
         newConnections.push({
             fromX: parentNode.x,
             fromY: parentNode.y,
@@ -791,58 +921,21 @@ const EnhancedTreeVisualization = () => {
             toY: nodeY
         });
 
-        // Add the new node to the tree
-        newNodes.push(newNode);
-
-        // Update state
         setBstNodes(newNodes);
         setBstConnections(newConnections);
-        saveState();
         setDescription(`Inserted ${value} into the BST`);
-
-        // Highlight insertion path (for visual effect)
+        saveState();
         highlightPath(path.concat(newNode));
-    };
+        saveProgressToFirestore();
 
-    const findBSTInsertionPath = (nodes, value) => {
-        if (nodes.length === 0) return [];
-
-        const path = [];
-        let currentNodeIndex = 0; // Root
-
-        while (true) {
-            const currentNode = nodes[currentNodeIndex];
-            path.push(currentNode);
-
-            if (value === currentNode.value) {
-                return null; // Value already exists
-            }
-
-            const isLeft = value < currentNode.value;
-
-            // Find child node index
-            const childIndex = nodes.findIndex(node => {
-                const connection = getCurrentConnections().find(conn =>
-                    conn.fromX === currentNode.x &&
-                    conn.fromY === currentNode.y &&
-                    node.x === conn.toX &&
-                    node.y === conn.toY);
-
-                return connection && ((isLeft && node.x < currentNode.x) || (!isLeft && node.x > currentNode.x));
-            });
-
-            if (childIndex === -1) {
-                return path; // Found insertion point
-            }
-
-            currentNodeIndex = childIndex;
-        }
+        return { nodes: newNodes, connections: newConnections };
     };
 
     const searchBST = (value) => {
         if (bstNodes.length === 0) {
             setDescription("Tree is empty");
             return;
+
         }
 
         const path = findBSTPath(bstNodes, value);
@@ -860,6 +953,33 @@ const EnhancedTreeVisualization = () => {
             setDescription(`Value ${value} not found in the tree`);
         }
     };
+
+    const deleteBST = (value) => {
+        const newNodes = [...bstNodes];
+        const newConnections = [...bstConnections];
+
+        const nodeToDelete = newNodes.find(n => n.value === value);
+        if (!nodeToDelete) {
+            setDescription(`Value ${value} not found for deletion`);
+            return;
+        }
+
+        // Remove the node and any connections related to it
+        const filteredNodes = newNodes.filter(n => n.id !== nodeToDelete.id);
+        const filteredConnections = newConnections.filter(conn =>
+            conn.fromX !== nodeToDelete.x &&
+            conn.fromY !== nodeToDelete.y &&
+            conn.toX !== nodeToDelete.x &&
+            conn.toY !== nodeToDelete.y
+        );
+
+        setBstNodes(filteredNodes);
+        setBstConnections(filteredConnections);
+        saveState();
+        saveProgressToFirestore();
+        setDescription(`Deleted node ${value}`);
+    };
+
 
     const findBSTPath = (nodes, value) => {
         if (nodes.length === 0) return null;
@@ -901,52 +1021,45 @@ const EnhancedTreeVisualization = () => {
     /*
  * AVL Tree Operations
  */
-    const insertAVL = (value) => {
-        if (avlNodes.length === 0) {
-            // Add root node
-            const newNodes = [
-                {
-                    id: 1,
-                    value: value,
-                    x: canvasRef.current.width / 2,
-                    y: 50,
-                    height: 1 // Track height for balance factor calculation
-                }
-            ];
+    const insertAVL = (value, customNodes = avlNodes, customConnections = avlConnections) => {
+        let newNodes = [...customNodes];
+        let newConnections = [...customConnections];
+
+        if (newNodes.length === 0) {
+            const rootNode = {
+                id: 1,
+                value: value,
+                x: canvasRef.current.width / 2,
+                y: 50,
+                height: 1
+            };
+            newNodes.push(rootNode);
             setAvlNodes(newNodes);
+            setAvlConnections([]);
             saveState();
             setDescription(`Created root node with value ${value}`);
-            return;
+            return { nodes: newNodes, connections: [] };
         }
 
-        // Clone current nodes and connections
-        let newNodes = [...avlNodes];
-        let newConnections = [...avlConnections];
-
-        // Find insertion path and position
         const path = findAVLInsertionPath(newNodes, value);
         if (!path) {
             setDescription(`Value ${value} already exists in the tree`);
-            return;
+            return { nodes: newNodes, connections: newConnections };
         }
 
         const parentNode = path[path.length - 1];
         const isLeft = value < parentNode.value;
-
-        // Calculate position for new node
         const nodeX = isLeft ? parentNode.x - 80 / (path.length * 0.5) : parentNode.x + 80 / (path.length * 0.5);
         const nodeY = parentNode.y + 60;
 
-        // Create new node
         const newNode = {
             id: newNodes.length + 1,
             value: value,
             x: nodeX,
             y: nodeY,
-            height: 1 // Leaf node has height 1
+            height: 1
         };
 
-        // Add connection from parent to new node
         newConnections.push({
             fromX: parentNode.x,
             fromY: parentNode.y,
@@ -954,28 +1067,25 @@ const EnhancedTreeVisualization = () => {
             toY: nodeY
         });
 
-        // Add the new node to the tree
         newNodes.push(newNode);
 
-        // Update heights along the path
         updateHeights(newNodes, newConnections, path);
 
-        // Check for imbalance and perform rotations if necessary
         const { nodes: balancedNodes, connections: balancedConnections } =
             balanceAVLTree(newNodes, newConnections, path);
 
         newNodes = balancedNodes;
         newConnections = balancedConnections;
 
-        // Update state
         setAvlNodes(newNodes);
         setAvlConnections(newConnections);
         saveState();
         setDescription(`Inserted ${value} into the AVL tree and rebalanced if needed`);
-
-        // Highlight insertion path (for visual effect)
         highlightPath([...path, newNode]);
+
+        return { nodes: newNodes, connections: newConnections };
     };
+
 
     const findAVLInsertionPath = (nodes, value) => {
         if (nodes.length === 0) return [];
@@ -1686,19 +1796,24 @@ const EnhancedTreeVisualization = () => {
                                     case 'bst':
                                         setBstNodes([]);
                                         setBstConnections([]);
+                                        saveProgressToFirestore();
                                         break;
                                     case 'avl':
                                         setAvlNodes([]);
                                         setAvlConnections([]);
+
+                                        saveProgressToFirestore();
                                         break;
                                     case 'rbt':
                                         setRbtNodes([]);
                                         setRbtConnections([]);
+                                        saveProgressToFirestore();
                                         break;
                                     case 'trie':
                                         setTrieNodes([]);
                                         setTrieConnections([]);
                                         setTrieWords([]);
+                                        saveProgressToFirestore();
                                         break;
                                     default:
                                         break;
@@ -1706,6 +1821,7 @@ const EnhancedTreeVisualization = () => {
                                 saveState();
                                 setDescription(`Reset ${getTabFullName(currentTreeType)}`);
                             }}
+
                             disabled={isAnimating}
                         >
                             <span role="img" aria-label="Reset">🔄</span> Reset
@@ -1721,20 +1837,72 @@ const EnhancedTreeVisualization = () => {
                                 };
 
                                 const values = generateRandomValues(7);
+
                                 switch (currentTreeType) {
-                                    case 'bst':
-                                        setBstNodes([]);
-                                        setBstConnections([]);
-                                        values.forEach(val => insertBST(val));
+                                    case 'bst': {
+                                        let tempNodes = [];
+                                        let tempConnections = [];
+
+                                        values.forEach(val => {
+                                            const result = insertBST(val, tempNodes, tempConnections);
+                                            tempNodes = result.nodes;
+                                            tempConnections = result.connections;
+                                        });
+
+                                        setBstNodes(tempNodes);
+                                        setBstConnections(tempConnections);
                                         break;
-                                    case 'avl':
-                                        setAvlNodes([]);
-                                        setAvlConnections([]);
-                                        values.forEach(val => insertAVL(val));
+                                    }
+
+                                    case 'avl': {
+                                        let tempNodes = [];
+                                        let tempConnections = [];
+
+                                        values.forEach(val => {
+                                            const result = insertAVL(val, tempNodes, tempConnections);
+                                            tempNodes = result.nodes;
+                                            tempConnections = result.connections;
+                                        });
+
+                                        setAvlNodes(tempNodes);
+                                        setAvlConnections(tempConnections);
                                         break;
+                                    }
+
+                                    case 'rbt': {
+                                        let tempNodes = [];
+                                        let tempConnections = [];
+
+                                        values.forEach(val => {
+                                            const result = insertRBT(val, tempNodes, tempConnections);
+                                            tempNodes = result.nodes;
+                                            tempConnections = result.connections;
+                                        });
+
+                                        setRbtNodes(tempNodes);
+                                        setRbtConnections(tempConnections);
+                                        break;
+                                    }
+
+                                    case 'trie': {
+                                        let tempNodes = [];
+                                        let tempConnections = [];
+
+                                        values.forEach(val => {
+                                            const result = insertTrie(val.toString(), tempNodes, tempConnections);
+                                            tempNodes = result.nodes;
+                                            tempConnections = result.connections;
+                                        });
+
+                                        setTrieNodes(tempNodes);
+                                        setTrieConnections(tempConnections);
+                                        break;
+                                    }
+
                                     default:
                                         break;
                                 }
+
                                 setDescription(`Generated random ${getTabFullName(currentTreeType)}`);
                             }}
                             disabled={isAnimating}
@@ -1836,13 +2004,33 @@ const EnhancedTreeVisualization = () => {
                     </button>
                     <button
                         onClick={() => {
-                            setDescription("Delete operation is not implemented yet");
+                            if (!nodeValue) {
+                                setDescription("Please enter a value");
+                                return;
+                            }
+
+                            const value = parseInt(nodeValue);
+                            if (isNaN(value)) {
+                                setDescription("Invalid number");
+                                return;
+                            }
+
+                            switch (currentTreeType) {
+                                case 'bst':
+                                    deleteBST(value);
+                                    break;
+                                default:
+                                    setDescription("Delete not implemented for this tree type yet");
+                            }
+
+                            setNodeValue('');
                         }}
                         disabled={isAnimating}
                         style={{ borderColor: themeColor }}
                     >
                         Delete
                     </button>
+
                 </div>
             </div>
 

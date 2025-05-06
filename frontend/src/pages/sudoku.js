@@ -2,6 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import './sudoku.css';
 
+const saveProgressToFirestore = async (inputString) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const topicId = 'sudoku-solver';
+    const docRef = doc(db, 'users', user.uid);
+    await setDoc(docRef, {
+        lastTopicVisited: topicId,
+        [`topics.${topicId}`]: {
+            input: inputString,
+            timestamp: new Date().toISOString()
+        }
+    }, { merge: true });
+};
+
 const SudokuSolver = () => {
     const [board, setBoard] = useState(Array.from({ length: 9 }, () => Array(9).fill(0)));
     const [stopSolving, setStopSolving] = useState(false);
