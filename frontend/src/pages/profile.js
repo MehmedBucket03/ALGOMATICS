@@ -8,26 +8,32 @@ import { signOut } from 'firebase/auth';
 // Topic metadata - centralized for easy maintenance
 const topicTitles = {
     'linked-list': 'LINKED LIST',
+    'tree-visualization': 'TREE VISUALIZATION',
+    'quadratic-solver': 'QUADRATIC EQUATIONS',
     'sequences-series': 'SEQUENCES AND SERIES',
     'logarithms': 'LOGARITHMS AND EXPONENTIALS',
-    'quadratic-solver': 'QUADRATIC EQUATIONS',
     'polynomials': 'POLYNOMIAL OPERATIONS'
 };
 
 
 const topicRoutes = {
-    'linked-list': '/linkedlist',
+    'linked-list': '/algorithms/linked-list',
+    'tree-visualization': '/trees',
+    'quadratic-solver': '/quadratic',
     'sequences-series': '/sequences-series',
     'logarithms': '/logarithms-exponential',
-    'quadratic-solver': '/quadratic',
-    'polynomials': '/algorithms/polynomial-operations'
+    'polynomials': '/polynomial-operations'
 };
+
+
+
 
 const Profile = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [savedTopics, setSavedTopics] = useState([]);
     const navigate = useNavigate();
+    const [savedSnippets, setSavedSnippets] = useState([]);
 
     // Handle auth state and fetch initial user data
     useEffect(() => {
@@ -53,6 +59,15 @@ const Profile = () => {
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
+
+                if (data.snippets) {
+                    const snippetEntries = Object.entries(data.snippets).map(([id, snippet]) => ({
+                        id,
+                        ...snippet
+                    }));
+                    setSavedSnippets(snippetEntries);
+                }
+
                 const topicKeys = Object.keys(data).filter(key => key.startsWith('topics.'));
 
                 if (topicKeys.length > 0) {
@@ -137,9 +152,17 @@ const Profile = () => {
                                                 }
                                             })()}
                                         </p>
-                                        <button className="pixel-button" onClick={() => navigate(topicRoutes[topic.id] || '/')}>
+                                        <button
+                                            className="pixel-button"
+                                            onClick={() => {
+                                                console.log("Navigating to:", topic.id);
+                                                navigate(topicRoutes[topic.id] || '/');
+                                            }}
+                                        >
                                             CONTINUE
                                         </button>
+
+
                                     </div>
                                 ))}
                         </div>
@@ -149,6 +172,28 @@ const Profile = () => {
                             <p className="empty-hint pixel-uppercase">Start learning to see your progress here</p>
                             <button className="pixel-button explore-button pixel-uppercase">Explore Topics</button>
                         </div>
+                    )}
+                </div>
+
+                <div className="pixel-section">
+                    <h2 className="pixel-subtitle pixel-uppercase">💾 SAVED CODE SNIPPETS</h2>
+                    {savedSnippets.length > 0 ? (
+                        <div className="profile-snippet-scroll">
+                            {savedSnippets
+                                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                                .map((snippet) => (
+                                    <div key={snippet.id} className="profile-snippet-card">
+                                        <p className="pixel-code-preview">
+                                            <strong>Input:</strong> {snippet.input || 'N/A'}
+                                        </p>
+                                        <pre className="pixel-code-box">
+              <code>{snippet.code}</code>
+            </pre>
+                                    </div>
+                                ))}
+                        </div>
+                    ) : (
+                        <p className="empty-message pixel-uppercase">No Saved Snippets Yet!</p>
                     )}
                 </div>
 
@@ -165,6 +210,7 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
+
 
                 <div className="pixel-section logout-section">
                     <button className="pixel-button logout-button pixel-uppercase" onClick={handleLogout}>

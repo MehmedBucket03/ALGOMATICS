@@ -16,6 +16,7 @@ const LinkedList = () => {
     const [currentAnimation, setCurrentAnimation] = useState(null);
     const [currentStep, setCurrentStep] = useState(0);
     const [errorMessage, setErrorMessage] = useState('');
+    const [codeSnippet, setCodeSnippet] = useState('');
 
     const saveProgressToFirestore = async (nodes, newValue) => {
         const user = auth.currentUser;
@@ -69,26 +70,93 @@ const LinkedList = () => {
 
     useEffect(() => {
         if (auth.currentUser && nodes.length > 0) {
-            console.log("Auto-saving to Firestore");
+            const snippet = generateCodeSnippet(nodes);
+            setCodeSnippet(snippet);
             saveProgressToFirestore(nodes, '');
+            saveSnippetToFirestore(snippet, nodes.map(n => n.value).join(', '));
         }
     }, [nodes]);
 
 
     // Reset list to default example
     const resetList = () => {
-        setNodes([
+        const defaultNodes = [
             { value: 10, next: 1 },
             { value: 20, next: 2 },
             { value: 30, next: 3 },
             { value: 40, next: null }
-        ]);
+        ];
+
+        setNodes(defaultNodes);
+
+        const inputString = defaultNodes.map(node => node.value).join(', ');
+        const snippet = generateCodeSnippet(defaultNodes);
+        setCodeSnippet(snippet);
+        saveProgressToFirestore(defaultNodes, '');
+        saveSnippetToFirestore(snippet, inputString);
+
         setNewValue('');
         setIndexToInsert(0);
         setIndexToDelete(0);
         setCurrentAnimation(null);
         setErrorMessage('');
     };
+
+    const codeTemplates = {
+        append: `
+function append(head, value) {
+  let newNode = { value, next: null };
+  if (!head) return newNode;
+  let current = head;
+  while (current.next !== null) {
+    current = current.next;
+  }
+  current.next = newNode;
+  return head;
+}`,
+
+        insert: `
+function insertAt(head, index, value) {
+  let newNode = { value, next: null };
+  if (index === 0) {
+    newNode.next = head;
+    return newNode;
+  }
+  let current = head;
+  for (let i = 0; i < index - 1 && current !== null; i++) {
+    current = current.next;
+  }
+  if (current === null) return head;
+  newNode.next = current.next;
+  current.next = newNode;
+  return head;
+}`,
+
+        delete: `
+function deleteAt(head, index) {
+  if (index === 0) return head.next;
+  let current = head;
+  for (let i = 0; i < index - 1 && current !== null; i++) {
+    current = current.next;
+  }
+  if (current === null || current.next === null) return head;
+  current.next = current.next.next;
+  return head;
+}`,
+
+        search: `
+function search(head, value) {
+  let current = head;
+  let index = 0;
+  while (current !== null) {
+    if (current.value === value) return index;
+    current = current.next;
+    index++;
+  }
+  return -1;
+}`
+    };
+
 
     // Add a node to the end of the list
     const handleAppend = () => {
@@ -135,7 +203,13 @@ const LinkedList = () => {
 
                         newNodeList.push({ value, next: null });
 
+                        const inputString = newNodeList.map(node => node.value).join(', ');
+                        const codeSnippet = generateCodeSnippet(newNodeList);
                         saveProgressToFirestore(newNodeList, '');
+                        saveSnippetToFirestore(codeSnippet, inputString);
+                        setCodeSnippet(generateCodeSnippet(newNodeList));
+                        setCodeSnippet(codeTemplates.append);
+
                         return newNodeList;
                     });
 
@@ -255,9 +329,15 @@ const LinkedList = () => {
                                     }
                                 }
                             }
+                            const inputString = newNodeList.map(node => node.value).join(', ');
+                            const codeSnippet = generateCodeSnippet(newNodeList);
                             saveProgressToFirestore(newNodeList, '');
+                            saveSnippetToFirestore(codeSnippet, inputString);
+                            setCodeSnippet(generateCodeSnippet(newNodeList));
+                            setCodeSnippet(codeTemplates.insert);
 
                             return newNodeList;
+
                         });
 
                         setNewValue('');
@@ -359,8 +439,15 @@ const LinkedList = () => {
                                         };
                                     }
                                 }
+                                const inputString = newNodeList.map(node => node.value).join(', ');
+                                const codeSnippet = generateCodeSnippet(newNodeList);
                                 saveProgressToFirestore(newNodeList, '');
+                                saveSnippetToFirestore(codeSnippet, inputString);
+                                setCodeSnippet(generateCodeSnippet(newNodeList));
+                                setCodeSnippet(codeTemplates.delete);
+
                                 return newNodeList;
+
                             }
                         });
 
@@ -374,7 +461,6 @@ const LinkedList = () => {
         }, stepTimer);
     };
 
-    // Search for a specific value
     const handleSearch = () => {
         if (!newValue.trim()) {
             setErrorMessage('Please enter a value to search');
@@ -384,52 +470,78 @@ const LinkedList = () => {
         setErrorMessage('');
         const value = parseInt(newValue) || 0;
 
-        // Animation steps for search
-        const steps = [
-            { type: 'message', content: `Step 1: Start at the head of the list` },
-            { type: 'message', content: `Step 2: Check each node for value ${value}` },
-            { type: 'message', content: `Step 3: Continue until value is found or end of list is reached` }
-        ];
-
-        setOperationSteps(steps);
-        setCurrentStep(0);
+        setOperationSteps([]);
         setSelectedOperation('search');
+        setCurrentStep(0);
         setCurrentAnimation('search');
         setActiveTab('steps');
+        setCodeSnippet(codeTemplates.search); // ✅ Your template for search code
 
-        // Find the value
         let foundIndex = -1;
+        const steps = [];
+
+        // Step 1: Start search
+        steps.push({ type: 'message', content: 'Step 1: Start at the head of the list' });
+        steps.push({ type: 'message', content: `Step 2: Traverse each node to find value ${value}` });
+
+        // Push a step for each node traversal
         nodes.forEach((node, index) => {
+            steps.push({
+                type: 'message',
+                content: `Checking node at index ${index} with value ${node.value}`
+            });
+
             if (node.value === value && foundIndex === -1) {
                 foundIndex = index;
             }
         });
 
-        // Simulating animation steps with timeouts
-        setTimeout(() => {
-            setCurrentStep(1);
+        // Final step
+        steps.push({
+            type: 'message',
+            content: foundIndex !== -1
+                ? `Complete: Value ${value} found at index ${foundIndex}`
+                : `Complete: Value ${value} not found in the list`
+        });
+
+        // Set all steps at once
+        setOperationSteps(steps);
+
+        // Animate the steps
+        for (let i = 1; i < steps.length; i++) {
             setTimeout(() => {
-                setCurrentStep(2);
-                setTimeout(() => {
-                    // Add result to steps
-                    if (foundIndex !== -1) {
-                        setOperationSteps([...steps, {
-                            type: 'message',
-                            content: `Complete: Value ${value} found at index ${foundIndex}`
-                        }]);
-                    } else {
-                        setOperationSteps([...steps, {
-                            type: 'message',
-                            content: `Complete: Value ${value} not found in the list`
-                        }]);
-                    }
-                    setCurrentStep(3);
-                    setTimeout(() => {
-                        setCurrentAnimation(null);
-                    }, 1000);
-                }, 1000);
-            }, 1000);
-        }, 1000);
+                setCurrentStep(i);
+                if (i === steps.length - 1) {
+                    setTimeout(() => setCurrentAnimation(null), 1000);
+                }
+            }, i * 1000);
+        }
+    };
+
+
+    const generateCodeSnippet = (nodes) => {
+        const nodeDeclarations = nodes.map((node, index) =>
+            `const node${index} = { value: ${node.value}, next: ${node.next !== null ? `node${node.next}` : 'null'} };`
+        ).join('\n');
+
+        const headDeclaration = nodes.length > 0 ? `const head = node0;` : `const head = null;`;
+
+        return `// Linked List generated from user input (${nodes.length} nodes)\n\n${nodeDeclarations}\n\n${headDeclaration}`;
+    };
+
+    const saveSnippetToFirestore = async (code, input) => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const snippetId = `linked-list.${Date.now()}`;
+        const docRef = doc(db, 'users', user.uid);
+        await setDoc(docRef, {
+            [`snippets.${snippetId}`]: {
+                input,
+                code,
+                timestamp: new Date().toISOString()
+            }
+        }, { merge: true });
     };
 
     // Generate explanation for a specific operation
@@ -556,7 +668,7 @@ const LinkedList = () => {
                         <div className="pixel-window pixel-input-box">
                             <div className="pixel-window-header">
                                 <div className="pixel-title">
-                                    <span className="pixel-icon">⌨️</span> OPERATIONS
+                                    <span className="pixel-icon"></span> OPERATIONS
                                 </div>
                             </div>
                             <div className="pixel-window-body">
@@ -618,7 +730,7 @@ const LinkedList = () => {
                         <div className="pixel-window pixel-info-box">
                             <div className="pixel-window-header">
                                 <div className="pixel-title">
-                                    <span className="pixel-icon">ℹ️</span> OPERATIONS INFO
+                                    <span className="pixel-icon"></span> OPERATIONS INFO
                                 </div>
                             </div>
                             <div className="pixel-window-body">
@@ -670,7 +782,7 @@ const LinkedList = () => {
                         <div className="pixel-window pixel-display-box">
                             <div className="pixel-window-header">
                                 <div className="pixel-title">
-                                    <span className="pixel-icon">🔗</span> LINKED LIST VISUALIZATION
+                                    <span className="pixel-icon"></span> LINKED LIST VISUALIZATION
                                 </div>
                             </div>
                             <div className="pixel-window-body">
@@ -807,48 +919,22 @@ const LinkedList = () => {
                         <div className="pixel-window pixel-code-box">
                             <div className="pixel-window-header">
                                 <div className="pixel-title">
-                                    <span className="pixel-icon">📝</span> CODE EXAMPLE
+                                    <span className="pixel-icon"> </span> CODE EXAMPLE
                                 </div>
+                                <button
+                                    className="pixel-button"
+                                    onClick={() =>
+                                        saveSnippetToFirestore(codeSnippet, JSON.stringify({ nodes }))
+                                    }
+                                >
+                                    Save Code to Profile
+                                </button>
+
                             </div>
                             <div className="pixel-window-body">
                                 <div className="pixel-code">
                   <pre>
-                    <code>
-{`class Node {
-  constructor(value) {
-    this.value = value;
-    this.next = null;
-  }
-}
-
-class LinkedList {
-  constructor() {
-    this.head = null;
-    this.size = 0;
-  }
-  
-  // Add a node to the end
-  append(value) {
-    const newNode = new Node(value);
-    
-    // If list is empty
-    if (!this.head) {
-      this.head = newNode;
-      return;
-    }
-    
-    // Find the last node
-    let current = this.head;
-    while (current.next) {
-      current = current.next;
-    }
-    
-    // Add the new node
-    current.next = newNode;
-    this.size++;
-  }
-}`}
-                    </code>
+                    <code>{codeSnippet || '// No snippet available'}</code>
                   </pre>
                                 </div>
                             </div>
