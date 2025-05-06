@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../../firebase/firebase';
 import './signup.css';
+
 
 function Signup() {
     const [name, setName] = useState('');
@@ -14,6 +15,21 @@ function Signup() {
     const [success, setSuccess] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
+
+    const handleGoogleSignup = () => {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                const user = result.user;
+                console.log("Google Sign Up successful:", user.email);
+                setSuccess("Signed up with Google! Redirecting...");
+                setTimeout(() => navigate('/'), 1500);
+            })
+            .catch((error) => {
+                console.error("Google Sign Up error:", error.code, error.message);
+                setError("Google signup failed: " + error.message);
+            });
+    };
 
     const handleSignup = async () => {
         console.log("Signup button clicked");
@@ -185,6 +201,11 @@ function Signup() {
                         {isSubmitting ? 'PROCESSING...' : 'SIGN UP'}
                     </div>
 
+                    <button className="google-button" onClick={handleGoogleSignup}>
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" className="google-logo" />
+                        Sign up with Google
+                    </button>
+
                     <Link to="/login" className="switch-button">
                         ALREADY HAVE AN ACCOUNT
                     </Link>
@@ -199,3 +220,5 @@ function Signup() {
 }
 
 export default Signup;
+
+

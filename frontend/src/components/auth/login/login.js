@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../../../firebase/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import './login.css';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -10,6 +12,21 @@ function Login() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const navigate = useNavigate();
+
+    const handleGoogleLogin = () => {
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                const user = result.user;
+                console.log("Google Login successful:", user.email);
+                setSuccess("Logged in with Google! Redirecting...");
+                setTimeout(() => navigate('/'), 1500);
+            })
+            .catch((error) => {
+                console.error("Google Login error:", error.code, error.message);
+                setError("Google login failed: " + error.message);
+            });
+    };
 
     const handleLogin = () => {
         console.log("Login button clicked");
@@ -110,6 +127,10 @@ function Login() {
                     <div className="button" onClick={handleLogin}>
                         LOGIN
                     </div>
+                    <button className="google-button" onClick={handleGoogleLogin}>
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" className="google-logo" />
+                        Login with Google
+                    </button>
 
                     <Link to="/register" className="switch-button">
                         CREATE NEW ACCOUNT
@@ -125,3 +146,4 @@ function Login() {
 }
 
 export default Login;
+
