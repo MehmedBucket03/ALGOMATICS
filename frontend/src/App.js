@@ -8,6 +8,7 @@ import Signup from './components/auth/signup/signup';
 import About from './pages/about';
 import Settings from './pages/settings';
 import Profile from './pages/profile';
+import AudioPlayer from './components/common/AudioPlayer';
 
 import './index.css';
 import Chatbot from './components/Chatbot';
@@ -78,6 +79,7 @@ const App = () => {
                     theme="light"
                     initialMessage="Hello! I'm powered by Mistral-7B-Instruct-v0.3."
                 />
+                <AudioPlayer />
             </div>
         </Router>
     );

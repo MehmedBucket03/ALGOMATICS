@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="fixed more pages &#10;KInda&#10;Not rlly tho">
+    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="AI chatbot added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/chatbot/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/common/Layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/common/Layout.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,11 +80,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mehul\WebstormProjects\ALGOMATICS\frontend\src\assets\music" />
+      <recent name="C:\Users\mehul\WebstormProjects\ALGOMATICS\frontend\public" />
       <recent name="C:\Users\mehul\WebstormProjects\ALGOMATICS\backend\src\routes\chatbot" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\coordinate-geometry" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages" />
-      <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\angles-triangles" />
-      <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\advanced-trees" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -114,7 +111,7 @@
       <workItem from="1745708718797" duration="3298000" />
       <workItem from="1746216667722" duration="7050000" />
       <workItem from="1746230926575" duration="5801000" />
-      <workItem from="1746579930322" duration="3237000" />
+      <workItem from="1746579930322" duration="6944000" />
     </task>
     <task id="LOCAL-00001" summary="updates to animations">
       <option name="closed" value="true" />
@@ -164,7 +161,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746220757026</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="AI chatbot added">
+      <option name="closed" value="true" />
+      <created>1746583768812</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1746583768812</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -203,6 +208,7 @@
     <MESSAGE value="commiting profile and settings page with continue learning linked list" />
     <MESSAGE value="Updating routes" />
     <MESSAGE value="fixed more pages &#10;KInda&#10;Not rlly tho" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed more pages &#10;KInda&#10;Not rlly tho" />
+    <MESSAGE value="AI chatbot added" />
+    <option name="LAST_COMMIT_MESSAGE" value="AI chatbot added" />
   </component>
 </project>
