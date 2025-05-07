@@ -9,6 +9,9 @@ import About from './pages/about';
 import Settings from './pages/settings';
 import Profile from './pages/profile';
 
+import './index.css';
+import Chatbot from './components/Chatbot';
+
 import AlgorithmsPage from './components/algorithm/algorithms';
 import ArraysPage from './pages/arrays'; // Import new ArraysPage component
 import StackQueuePage from './pages/stackqueue';
@@ -67,6 +70,14 @@ const App = () => {
                     </Routes>
                 </main>
                 <UniversalFooter />
+
+                {/* Add the AI Chatbot component using Mistral-7B-Instruct-v0.3 */}
+                <Chatbot
+                    apiUrl="http://localhost:5000/api/chat"
+                    position="bottom-right"
+                    theme="light"
+                    initialMessage="Hello! I'm powered by Mistral-7B-Instruct-v0.3."
+                />
             </div>
         </Router>
     );

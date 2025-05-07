@@ -6,13 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="fixed more pages &#10;KInda&#10;Not rlly tho">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/chatbot/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/mathTopics/Circles/circles.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/mathTopics/Circles/circles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/mathTopics/Circles/circles.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/mathTopics/Circles/circles.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/profile.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/profile.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/profile.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,12 +38,12 @@
     &quot;assignee&quot;: &quot;MehmedBucket03&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/MehmedBucket03/ALGOMATICS.git",
-    "accountId": "d699cf8c-f678-4a7a-aaba-a25ad2d9d3e5"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/MehmedBucket03/ALGOMATICS.git&quot;,
+    &quot;accountId&quot;: &quot;d699cf8c-f678-4a7a-aaba-a25ad2d9d3e5&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 5
@@ -85,11 +83,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mehul\WebstormProjects\ALGOMATICS\backend\src\routes\chatbot" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\coordinate-geometry" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\angles-triangles" />
       <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\advanced-trees" />
-      <recent name="C:\Users\ranve\WebstormProjects\ALGOMATICS\pages\algorithms" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -114,7 +112,9 @@
       <workItem from="1744665232567" duration="1401000" />
       <workItem from="1744838590504" duration="257000" />
       <workItem from="1745708718797" duration="3298000" />
-      <workItem from="1746216667722" duration="3980000" />
+      <workItem from="1746216667722" duration="7050000" />
+      <workItem from="1746230926575" duration="5801000" />
+      <workItem from="1746579930322" duration="3237000" />
     </task>
     <task id="LOCAL-00001" summary="updates to animations">
       <option name="closed" value="true" />
@@ -156,7 +156,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746216555331</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="fixed more pages &#10;KInda&#10;Not rlly tho">
+      <option name="closed" value="true" />
+      <created>1746220757026</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1746220757026</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
