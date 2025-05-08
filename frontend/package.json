@@ -12,14 +12,18 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@p5-wrapper/react": "^4.4.2",
     "@react-three/fiber": "^9.1.2",
     "chart.js": "^4.4.8",
     "d3": "^7.9.0",
+    "firebase": "^11.7.1",
+    "framer-motion": "^12.10.3",
     "gsap": "^3.13.0",
+    "lodash": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-p5": "^1.4.1",
-    "react-router-dom": "^7.5.0",
+    "react-router-dom": "^7.5.3",
     "three": "^0.176.0"
   },
   "devDependencies": {

@@ -1,387 +1,211 @@
-/* Enhanced Tree Visualization CSS */
-.tree-canvas {
+/* Root-level custom properties with fallback */
+.tree-visualization-container {
+    --theme-color: #d4a4ff; /* Fallback to BST theme color */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
     background-color: #1a1a2e;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(100, 100, 255, 0.2) inset;
+    color: #ffffff;
     border-radius: 8px;
-    transition: all 0.3s ease;
-    cursor: default;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-.tree-canvas:hover {
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(100, 100, 255, 0.3) inset;
-}
-
-/* Enhanced controls section */
-.enhanced-controls {
+/* Controls section */
+.controls {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
     margin-bottom: 20px;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
-    border: 1px solid #444;
-}
-
-.animation-speed-control {
-    display: flex;
     align-items: center;
-    gap: 10px;
 }
 
-.animation-speed-control label {
-    color: #ddd;
-    font-size: 14px;
-}
-
-.animation-speed-control input[type="range"] {
-    width: 120px;
-    accent-color: var(--theme-color, #d4a4ff);
-}
-
-.history-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.history-buttons button,
-.quick-actions button {
-    background-color: #333;
-    color: #fff;
-    border: 1px solid #555;
+.controls select {
+    padding: 8px 12px;
+    border: 1px solid #444;
     border-radius: 4px;
-    padding: 5px 10px;
+    background-color: #2a2a4a;
+    color: #ffffff;
     font-size: 14px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: border-color 0.3s;
+}
+
+.controls select:focus {
+    outline: none;
+    border-color: var(--theme-color, #d4a4ff); /* Fallback color */
+}
+
+/* Input group */
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.input-group input {
+    padding: 8px 12px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #2a2a4a;
+    color: #ffffff;
+    font-size: 14px;
+    width: 150px;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--theme-color, #d4a4ff); /* Fallback color */
+}
+
+.input-group input:disabled,
+.controls select:disabled,
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Buttons */
+button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--theme-color, #d4a4ff); /* Fallback color */
+    color: #1a1a2e;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+button:hover:not(:disabled) {
+    background-color: #ffffff;
+    transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* History controls */
+.history-controls {
+    display: flex;
+    gap: 10px;
+}
+
+/* Toggle controls */
+.toggle-controls {
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+}
+
+.toggle-controls label {
     display: flex;
     align-items: center;
     gap: 5px;
+    color: #cccccc;
 }
 
-.history-buttons button:hover,
-.quick-actions button:hover {
-    background-color: #444;
-    border-color: #777;
-}
-
-.history-buttons button:disabled,
-.quick-actions button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.quick-actions {
-    display: flex;
-    gap: 10px;
-}
-
-/* Message box with theme color */
-.message-box {
-    background-color: rgba(0, 0, 0, 0.7);
-    border: 2px solid var(--theme-color, #d4a4ff);
-    color: #fff;
-    padding: 15px;
-    margin: 20px 0;
-    border-radius: 8px;
-    text-align: center;
-    min-height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    font-size: 18px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.message-box:before {
-    content: "》";
-    margin-right: 10px;
-    color: var(--theme-color, #d4a4ff);
-}
-
-.message-box:after {
-    content: "《";
-    margin-left: 10px;
-    color: var(--theme-color, #d4a4ff);
-}
-
-/* Improved node input section */
-.node-input {
-    display: flex;
-    gap: 15px;
-    margin: 20px 0;
-    align-items: center;
-}
-
-.node-input input {
-    flex: 1;
-    background-color: #111;
-    color: #fff;
-    border: 2px solid #444;
-    border-radius: 4px;
-    padding: 12px 15px;
-    font-size: 16px;
-    font-family: monospace;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-}
-
-.node-input input:focus {
-    border-color: var(--theme-color, #d4a4ff);
-    box-shadow: 0 0 5px var(--theme-color, #d4a4ff);
-    outline: none;
-}
-
-.operation-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.operation-buttons button {
-    background-color: #222;
-    color: #fff;
-    border: 2px solid var(--theme-color, #d4a4ff);
-    border-radius: 4px;
-    padding: 10px 15px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    min-width: 100px;
-    transition: all 0.2s ease;
-}
-
-.operation-buttons button:hover {
-    background-color: var(--theme-color, #d4a4ff);
-    color: #000;
-}
-
-.operation-buttons button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Enhanced trie words box */
-.trie-words-box {
-    background-color: rgba(0, 0, 0, 0.3);
-    border: 1px solid #444;
-    border-radius: 8px;
-    padding: 15px;
-    margin: 20px 0;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.trie-words-box h3 {
-    color: var(--theme-color, #90ee90);
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 18px;
-}
-
-.trie-words-table {
-    width: 100%;
-}
-
-.trie-words-table table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.trie-words-table td {
-    padding: 8px 12px;
-    border-bottom: 1px solid #333;
-    color: #ddd;
-}
-
-.trie-words-table tr:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.mini-button {
-    background-color: #333;
-    color: #ddd;
-    border: 1px solid #555;
-    border-radius: 4px;
-    padding: 3px 8px;
-    font-size: 12px;
+.toggle-controls input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
 
-.mini-button:hover {
-    background-color: var(--theme-color, #90ee90);
-    color: #000;
-}
-
-/* Enhanced explanation box */
-.explanation-box {
-    background-color: rgba(0, 0, 0, 0.3);
-    border: 2px solid var(--theme-color, #d4a4ff);
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-    color: #ddd;
-    line-height: 1.6;
-}
-
-.explanation-box h3 {
-    color: var(--theme-color, #d4a4ff);
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 20px;
-}
-
-.feature-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    list-style-type: none;
-    padding: 0;
-    margin: 0 0 20px 0;
-}
-
-.feature-list li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    background-color: rgba(0, 0, 0, 0.2);
+/* Description panel */
+.description {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #2a2a4a;
     border-radius: 4px;
-    border-left: 3px solid var(--theme-color, #d4a4ff);
-}
-
-.feature-list li span[role="img"] {
-    font-size: 20px;
-}
-
-/* Enhanced window footer */
-.pixel-window-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #222;
-    padding: 10px 15px;
-    border-top: 2px solid #444;
-    border-radius: 0 0 8px 8px;
-    color: #ddd;
-    font-family: monospace;
     font-size: 14px;
+    color: #cccccc;
 }
 
-.pixel-status {
-    display: flex;
-    align-items: center;
-}
-
-.pixel-status:before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: var(--theme-color, #d4a4ff);
-    border-radius: 50%;
-    margin-right: 10px;
-    box-shadow: 0 0 5px var(--theme-color, #d4a4ff);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-
-.pixel-memory {
-    font-weight: bold;
-    color: var(--theme-color, #d4a4ff);
-}
-
-/* Button active state */
-button.active {
-    background-color: var(--theme-color, #d4a4ff);
-    color: #000;
-}
-
-/* Media queries for better responsiveness */
-@media (max-width: 1200px) {
-    .enhanced-controls {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .animation-speed-control,
-    .history-buttons,
-    .quick-actions {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .node-input {
-        flex-direction: column;
-    }
-
-    .node-input input {
-        width: 100%;
-    }
-
-    .operation-buttons {
-        width: 100%;
-        justify-content: space-between;
-    }
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: #111;
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #444;
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--theme-color, #d4a4ff);
-}
-
-/* Keyboard shortcut tooltip */
-.tooltip {
+/* Canvas container */
+.canvas-container {
     position: relative;
-    display: inline-block;
+    width: 100%;
+    max-width: 1000px;
+    height: 500px;
+    margin: 0 auto;
+    background-color: #1a1a2e;
+    border: 1px solid #444;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 120px;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
+/* D3 overlay for GSAP animations */
+.d3-overlay {
     position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -60px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 12px;
+    top: 0;
+    left: 0;
     pointer-events: none;
 }
 
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
+/* Tutorial panel */
+.tutorial {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #2a2a4a;
+    border-radius: 4px;
+    max-width: 300px;
 }
 
-/* CSS variables for dynamic theme colors */
-:root {
-    --theme-color: #d4a4ff;
+.tutorial h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    color: var(--theme-color, #d4a4ff); /* Fallback color */
+}
+
+.tutorial ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px;
+}
+
+.tutorial li {
+    padding: 5px 0;
+    font-size: 14px;
+    color: #cccccc;
+}
+
+/* Tutorial toggle button */
+.tutorial-toggle {
+    margin-top: 15px;
+    background-color: #444;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .tree-visualization-container {
+        padding: 15px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    .input-group input {
+        width: 100%;
+    }
+
+    .history-controls,
+    .toggle-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .canvas-container {
+        height: 400px;
+    }
+
+    .tutorial {
+        max-width: 100%;
+    }
 }

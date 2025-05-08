@@ -1,2153 +1,908 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import Sketch from 'react-p5';
+import { motion, AnimatePresence } from 'framer-motion';
+import { gsap } from 'gsap';
+import { debounce } from 'lodash';
+import * as d3 from 'd3';
 import './TreeVisualization.css';
 import { auth, db } from '../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
+// Tree type constants
+const TREE_TYPES = {
+    BST: 'bst',
+    AVL: 'avl',
+    RBT: 'rbt',
+    TRIE: 'trie'
+};
+
+// Theme colors by tree type
+const THEME_COLORS = {
+    [TREE_TYPES.BST]: '#d4a4ff',
+    [TREE_TYPES.AVL]: '#a4f7ff',
+    [TREE_TYPES.RBT]: '#ff5e78',
+    [TREE_TYPES.TRIE]: '#90ee90'
+};
+
+// Tree descriptions
+const TREE_DESCRIPTIONS = {
+    [TREE_TYPES.BST]: 'Binary Search Tree: Nodes with left children < parent < right children.',
+    [TREE_TYPES.AVL]: 'AVL Tree: Self-balancing BST with balance factor [-1, 0, 1].',
+    [TREE_TYPES.RBT]: 'Red-Black Tree: Self-balancing BST with red/black nodes.',
+    [TREE_TYPES.TRIE]: 'Trie: Prefix tree for storing strings.'
+};
+
+// Animation variants for Framer Motion
+const pageVariants = {
+    initial: { opacity: 0 },
+    in: { opacity: 1, transition: { duration: 0.3 } },
+    out: { opacity: 0, transition: { duration: 0.3 } }
+};
+
+const listItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: i => ({
+        opacity: 1,
+        x: 0,
+        transition: {
+            delay: i * 0.1,
+            duration: 0.4
+        }
+    })
+};
 
 const EnhancedTreeVisualization = () => {
-    const canvasRef = useRef(null);
-    const ctxRef = useRef(null);
+    // Refs
+    const canvasContainerRef = useRef(null);
     const animationSpeedRef = useRef(1);
-    const [currentTreeType, setCurrentTreeType] = useState('bst');
+    const animationTimeoutsRef = useRef([]);
+    const isDraggingRef = useRef(false);
+    const draggedNodeRef = useRef(null);
+    const gsapContextRef = useRef(null);
+    const d3ContainerRef = useRef(null);
+
+    // State
+    const [currentTreeType, setCurrentTreeType] = useState(TREE_TYPES.BST);
     const [nodeValue, setNodeValue] = useState('');
-    const [description, setDescription] = useState('');
-    const [trieWords, setTrieWords] = useState([]);
+    const [description, setDescription] = useState(TREE_DESCRIPTIONS[TREE_TYPES.BST]);
     const [hoverInfo, setHoverInfo] = useState(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [draggedNode, setDraggedNode] = useState(null);
     const [showTutorial, setShowTutorial] = useState(false);
-    const [nodeHistory, setNodeHistory] = useState([]);
-    const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
     const [isAnimating, setIsAnimating] = useState(false);
-    const [autoBalanceAvl, setAutoBalanceAvl] = useState(true);
-    const [themeColor, setThemeColor] = useState('#d4a4ff'); // Default BST color
+    const [themeColor, setThemeColor] = useState(THEME_COLORS[TREE_TYPES.BST]);
+    const [useD3Layout, setUseD3Layout] = useState(false);
+    const [useGsapAnimations, setUseGsapAnimations] = useState(true);
 
-    // State for each tree type
-    const [bstNodes, setBstNodes] = useState([]);
-    const [avlNodes, setAvlNodes] = useState([]);
-    const [rbtNodes, setRbtNodes] = useState([]);
-    const [trieNodes, setTrieNodes] = useState([]);
+    // Tree data
+    const [treeData, setTreeData] = useState({
+        [TREE_TYPES.BST]: { nodes: [], connections: [] },
+        [TREE_TYPES.AVL]: { nodes: [], connections: [] },
+        [TREE_TYPES.RBT]: { nodes: [], connections: [] },
+        [TREE_TYPES.TRIE]: { nodes: [], connections: [], words: [] }
+    });
 
-    // State for connections between nodes
-    const [bstConnections, setBstConnections] = useState([]);
-    const [avlConnections, setAvlConnections] = useState([]);
-    const [rbtConnections, setRbtConnections] = useState([]);
-    const [trieConnections, setTrieConnections] = useState([]);
+    // History
+    const [history, setHistory] = useState([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
 
-    const getSerializedTreeData = () => {
-        switch (currentTreeType) {
-            case 'bst':
-                return JSON.stringify({ nodes: bstNodes, connections: bstConnections });
-            case 'avl':
-                return JSON.stringify({ nodes: avlNodes, connections: avlConnections });
-            case 'rbt':
-                return JSON.stringify({ nodes: rbtNodes, connections: rbtConnections });
-            case 'trie':
-                return JSON.stringify({ nodes: trieNodes, connections: trieConnections, words: trieWords });
-            default:
-                return '{}';
-        }
-    };
+    // Memoized selectors
+    const currentNodes = useMemo(() => treeData[currentTreeType].nodes, [treeData, currentTreeType]);
+    const currentConnections = useMemo(() => treeData[currentTreeType].connections, [treeData, currentTreeType]);
+    const trieWords = useMemo(() => treeData[TREE_TYPES.TRIE].words, [treeData]);
 
-    const saveProgressToFirestore = async () => {
+    // GSAP context setup
+    useEffect(() => {
+        gsapContextRef.current = gsap.context(() => {}, canvasContainerRef);
+        return () => gsapContextRef.current.revert();
+    }, []);
+
+    // Cleanup timeouts
+    useEffect(() => {
+        return () => {
+            animationTimeoutsRef.current.forEach(timeoutId => clearTimeout(timeoutId));
+        };
+    }, []);
+
+    // Theme color update
+    useEffect(() => {
+        document.documentElement.style.setProperty('--theme-color', THEME_COLORS[currentTreeType]);
+    }, [currentTreeType]);
+
+    // Firestore serialization
+    const getSerializedTreeData = useCallback(() => {
+        const data = treeData[currentTreeType];
+        return JSON.stringify({
+            nodes: data.nodes,
+            connections: data.connections,
+            ...(currentTreeType === TREE_TYPES.TRIE ? { words: data.words } : {})
+        });
+    }, [treeData, currentTreeType]);
+
+    // Save to Firestore
+    const saveProgressToFirestore = useCallback(debounce(async () => {
         const user = auth.currentUser;
         if (!user) return;
 
-        const topicId = 'tree-visualization';
-        const inputString = getSerializedTreeData();
-        const docRef = doc(db, 'users', user.uid);
+        try {
+            const topicId = 'tree-visualization';
+            const inputString = getSerializedTreeData();
+            const docRef = doc(db, 'users', user.uid);
 
-        const docSnap = await getDoc(docRef);  // <--- Add this
-        const data = docSnap.exists() ? docSnap.data() : {};  // <--- And this
+            const docSnap = await getDoc(docRef);
+            const data = docSnap.exists() ? docSnap.data() : {};
 
-        await setDoc(docRef, {
-            lastTopicVisited: topicId,
-            [`topics.${topicId}`]: {
-                input: inputString,
-                history: [
-                    ...(data?.topics?.[topicId]?.history || []),
-                    { input: inputString, timestamp: new Date().toISOString() }
-                ],
-                timestamp: new Date().toISOString()
-            }
-        }, { merge: true });
-    };
+            await setDoc(
+                docRef,
+                {
+                    lastTopicVisited: topicId,
+                    [`themes.${topicId}`]: {
+                        input: inputString,
+                        history: [
+                            ...(data?.topics?.[topicId]?.history || []),
+                            { input: inputString, timestamp: new Date().toISOString() },
+                        ],
+                        timestamp: new Date().toISOString(),
+                    },
+                },
+                { merge: true }
+            );
+        } catch (error) {
+            console.error('Error saving to Firestore:', error);
+        }
+    }, 1000), [getSerializedTreeData]);
 
+    // Load from Firestore
+    const fetchProgress = useCallback(async () => {
+        const user = auth.currentUser;
+        if (!user) return;
 
-    useEffect(() => {
-        const fetchProgress = async () => {
-            const user = auth.currentUser;
-            if (!user) return;
-
+        try {
             const docRef = doc(db, 'users', user.uid);
             const docSnap = await getDoc(docRef);
+
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 const saved = data.topics?.['tree-visualization']?.input;
+
                 if (saved) {
                     const parsed = JSON.parse(saved);
 
-                    switch (currentTreeType) {
-                        case 'bst':
-                            setBstNodes(parsed.nodes || []);
-                            setBstConnections(parsed.connections || []);
-                            break;
-                        case 'avl':
-                            setAvlNodes(parsed.nodes || []);
-                            setAvlConnections(parsed.connections || []);
-                            break;
-                        case 'rbt':
-                            setRbtNodes(parsed.nodes || []);
-                            setRbtConnections(parsed.connections || []);
-                            break;
-                        case 'trie':
-                            setTrieNodes(parsed.nodes || []);
-                            setTrieConnections(parsed.connections || []);
-                            setTrieWords(parsed.words || []);
-                            break;
-                        default:
-                            break;
-                    }
+                    setTreeData(prevData => ({
+                        ...prevData,
+                        [currentTreeType]: {
+                            nodes: parsed.nodes || [],
+                            connections: parsed.connections || [],
+                            ...(currentTreeType === TREE_TYPES.TRIE ? { words: parsed.words || [] } : {})
+                        }
+                    }));
                 }
             }
-        };
-
-        fetchProgress();
-    }, [currentTreeType]); // <<-- Add this
-
-
-    // Initialize canvas
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas?.getContext('2d');
-        if (!canvas) return;
-
-        canvas.width = 1000;
-        canvas.height = 500;
-
-        if (!ctx) return;
-
-        ctxRef.current = ctx;
-
-        // Set initial description
-        selectTree('bst');
-
-        // Set up mouse event listeners for canvas interactions
-        canvas.addEventListener('mousemove', handleMouseMove);
-        canvas.addEventListener('mousedown', handleMouseDown);
-        canvas.addEventListener('mouseup', handleMouseUp);
-        canvas.addEventListener('click', handleCanvasClick);
-
-        // Clean up event listeners on unmount
-        return () => {
-            canvas.removeEventListener('mousemove', handleMouseMove);
-            canvas.removeEventListener('mousedown', handleMouseDown);
-            canvas.removeEventListener('mouseup', handleMouseUp);
-            canvas.removeEventListener('click', handleCanvasClick);
-        };
-    }, []);
-
-    // Effect to update theme color based on tree type
-    useEffect(() => {
-        switch(currentTreeType) {
-            case 'bst':
-                setThemeColor('#d4a4ff');
-                break;
-            case 'avl':
-                setThemeColor('#a4f7ff');
-                break;
-            case 'rbt':
-                setThemeColor('#ff5e78');
-                break;
-            case 'trie':
-                setThemeColor('#90ee90');
-                break;
-            default:
-                setThemeColor('#d4a4ff');
+        } catch (error) {
+            console.error('Error fetching from Firestore:', error);
         }
     }, [currentTreeType]);
 
-    // After the theme color effect
-// Handle window resizing
+    // Load data on tree type change
     useEffect(() => {
-        const handleResize = () => {
-            if (canvasRef.current) {
-                // Maintain canvas dimensions on window resize
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
+        fetchProgress();
+        setDescription(TREE_DESCRIPTIONS[currentTreeType]);
+        setThemeColor(THEME_COLORS[currentTreeType]);
+    }, [currentTreeType, fetchProgress]);
 
-                // Save original image data
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // Save progress on tree data change
+    useEffect(() => {
+        const currentData = treeData[currentTreeType];
+        if (currentData.nodes.length > 0) {
+            saveProgressToFirestore();
+        }
+    }, [treeData, currentTreeType, saveProgressToFirestore]);
 
-                // Update canvas dimensions
-                const container = canvas.parentElement;
-                if (container) {
-                    const containerWidth = container.clientWidth;
-                    canvas.width = containerWidth > 1000 ? 1000 : containerWidth - 20;
-                }
-
-                // Restore image data
-                ctx.putImageData(imageData, 0, 0);
-
-                // Redraw the tree
-                drawTree();
+    // Update tree data
+    const updateTreeData = useCallback((nodes, connections, words = null) => {
+        setTreeData(prevData => ({
+            ...prevData,
+            [currentTreeType]: {
+                nodes,
+                connections,
+                ...(words && currentTreeType === TREE_TYPES.TRIE ? { words } :
+                    currentTreeType === TREE_TYPES.TRIE ? { words: prevData[TREE_TYPES.TRIE].words } : {})
             }
+        }));
+
+        if (useGsapAnimations && gsapContextRef.current && nodes.length > 0) {
+            gsapContextRef.current.add(() => {
+                const nodeElements = document.querySelectorAll('.node-circle');
+                gsap.to(nodeElements, {
+                    scale: 1.1,
+                    duration: 0.3,
+                    stagger: 0.05,
+                    yoyo: true,
+                    repeat: 1,
+                    ease: "power2.inOut"
+                });
+            });
+        }
+    }, [currentTreeType, useGsapAnimations]);
+
+    // D3 layout
+    const applyD3Layout = useCallback(() => {
+        if (!useD3Layout || currentNodes.length <= 1) return;
+
+        const simulation = d3.forceSimulation(currentNodes)
+            .force("link", d3.forceLink(currentConnections)
+                .id(d => d.id)
+                .distance(100)
+                .strength(0.1))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(500, 250))
+            .force("x", d3.forceX(500).strength(0.05))
+            .force("y", d3.forceY(250).strength(0.05))
+            .stop();
+
+        for (let i = 0; i < 100; i++) {
+            simulation.tick();
+        }
+
+        const updatedConnections = currentConnections.map(conn => {
+            const sourceNode = currentNodes.find(n => n.id === conn.sourceId);
+            const targetNode = currentNodes.find(n => n.id === conn.targetId);
+
+            if (sourceNode && targetNode) {
+                return {
+                    ...conn,
+                    fromX: sourceNode.x,
+                    fromY: sourceNode.y,
+                    toX: targetNode.x,
+                    toY: targetNode.y
+                };
+            }
+            return conn;
+        });
+
+        updateTreeData(
+            currentNodes.map(node => ({
+                ...node,
+                x: Math.max(50, Math.min(950, node.x)),
+                y: Math.max(50, Math.min(450, node.y))
+            })),
+            updatedConnections
+        );
+    }, [currentNodes, currentConnections, updateTreeData, useD3Layout]);
+
+    // History management
+    const saveState = useCallback(() => {
+        const currentState = {
+            type: currentTreeType,
+            ...treeData[currentTreeType]
         };
 
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        const newHistory = history.slice(0, historyIndex + 1);
+        newHistory.push(currentState);
+
+        setHistory(newHistory);
+        setHistoryIndex(newHistory.length - 1);
+    }, [history, historyIndex, treeData, currentTreeType]);
+
+    const restoreState = useCallback((state) => {
+        updateTreeData(
+            state.nodes,
+            state.connections,
+            state.type === TREE_TYPES.TRIE ? state.words : null
+        );
+    }, [updateTreeData]);
+
+    const handleUndo = useCallback(() => {
+        if (historyIndex <= 0) return;
+        const prevState = history[historyIndex - 1];
+        restoreState(prevState);
+        setHistoryIndex(historyIndex - 1);
+    }, [historyIndex, history, restoreState]);
+
+    const handleRedo = useCallback(() => {
+        if (historyIndex >= history.length - 1) return;
+        const nextState = history[historyIndex + 1];
+        restoreState(nextState);
+        setHistoryIndex(historyIndex + 1);
+    }, [historyIndex, history, restoreState, history.length]);
+
+    // Animation utilities
+    const addTimeout = useCallback((callback, delay) => {
+        const timeoutId = setTimeout(() => {
+            callback();
+            animationTimeoutsRef.current = animationTimeoutsRef.current.filter(id => id !== timeoutId);
+        }, delay);
+
+        animationTimeoutsRef.current.push(timeoutId);
+        return timeoutId;
     }, []);
 
-    // Update drawing when any relevant state changes
-    useEffect(() => {
-        drawTree();
-    }, [
-        currentTreeType,
-        bstNodes, bstConnections,
-        avlNodes, avlConnections,
-        rbtNodes, rbtConnections,
-        trieNodes, trieConnections,
-        hoverInfo
-    ]);
+    const clearAllTimeouts = useCallback(() => {
+        animationTimeoutsRef.current.forEach(timeoutId => clearTimeout(timeoutId));
+        animationTimeoutsRef.current = [];
+    }, []);
 
-    useEffect(() => {
-        console.log("Drawing Tree");
-        drawTree();
-    }, [currentTreeType, bstNodes, bstConnections]);
+    // Node utilities
+    const findNodeAtCoordinates = useCallback((x, y, radius = 20) => {
+        const radiusSquared = radius * radius;
+        return currentNodes.find(node => {
+            const distanceSquared = Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2);
+            return distanceSquared < radiusSquared;
+        });
+    }, [currentNodes]);
 
-
-    useEffect(() => {
-        if (currentTreeType === 'bst' && bstNodes.length > 0) {
-            saveProgressToFirestore();
-            console.log("Auto-saving BST:", bstNodes);
-        }
-    }, [bstNodes, bstConnections]);
-
-    useEffect(() => {
-        if (currentTreeType === 'avl' && avlNodes.length > 0) {
-            saveProgressToFirestore();
-            console.log("Auto-saving AVL:", bstNodes);
-        }
-    }, [avlNodes, avlConnections]);
-
-    useEffect(() => {
-        if (currentTreeType === 'rbt' && rbtNodes.length > 0) {
-            saveProgressToFirestore();
-            console.log("Auto-saving RBT:", bstNodes);
-        }
-    }, [rbtNodes, rbtConnections]);
-
-    useEffect(() => {
-        if (currentTreeType === 'trie' && trieNodes.length > 0) {
-            saveProgressToFirestore();
-            console.log("Auto-saving Trie:", bstNodes);
-        }
-    }, [trieNodes, trieConnections, trieWords]);
-
-
-    // Mouse event handlers for canvas interactions
-    const handleMouseMove = (e) => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        // Get current nodes based on tree type
-        let nodes = getCurrentNodes();
-
-        // Check if mouse is over any node
-        const hoveredNode = nodes.find(node =>
-            Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2)) < 20
-        );
-
-        if (hoveredNode) {
-            canvas.style.cursor = 'pointer';
-            setHoverInfo({
-                node: hoveredNode,
-                x: x,
-                y: y
-            });
-
-            // Handle dragging
-            if (isDragging && draggedNode && draggedNode.id === hoveredNode.id) {
-                const updatedNodes = nodes.map(node => {
-                    if (node.id === draggedNode.id) {
-                        return { ...node, x, y };
-                    }
-                    return node;
-                });
-
-                // Update the connections
-                let connections = getCurrentConnections();
-                const updatedConnections = connections.map(conn => {
-                    if (conn.fromX === draggedNode.x && conn.fromY === draggedNode.y) {
-                        return { ...conn, fromX: x, fromY: y };
-                    }
-                    if (conn.toX === draggedNode.x && conn.toY === draggedNode.y) {
-                        return { ...conn, toX: x, toY: y };
-                    }
-                    return conn;
-                });
-
-                // Update state based on tree type
-                updateNodesAndConnections(updatedNodes, updatedConnections);
-            }
-        } else {
-            canvas.style.cursor = 'default';
-            setHoverInfo(null);
-        }
-    };
-
-    const handleMouseDown = (e) => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        // Get current nodes based on tree type
-        let nodes = getCurrentNodes();
-
-        // Check if mouse is down on any node
-        const clickedNode = nodes.find(node =>
-            Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2)) < 20
-        );
-
-        if (clickedNode) {
-            setIsDragging(true);
-            setDraggedNode(clickedNode);
-            canvas.style.cursor = 'grabbing';
-
-            // Save the current state for undo/redo
-            saveState();
-        }
-    };
-
-    const handleMouseUp = () => {
-        if (isDragging) {
-            setIsDragging(false);
-            setDraggedNode(null);
-            canvasRef.current.style.cursor = 'default';
-        }
-    };
-
-    const handleCanvasClick = (e) => {
-        if (isDragging) return; // Don't handle as a click if we were dragging
-
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        // Get current nodes based on tree type
-        let nodes = getCurrentNodes();
-
-        // Check if click is on any node
-        const clickedNode = nodes.find(node =>
-            Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2)) < 20
-        );
-
-        if (clickedNode) {
-            // Highlight node and show details
-            highlightNode(clickedNode);
-        } else if (x < 100 && y < 100) {
-            // If clicking in the top-left corner, toggle tutorial
-            setShowTutorial(!showTutorial);
-        } else {
-            // Double click to add a node at this position (only for BST, not implemented for other trees)
-            if (currentTreeType === 'bst' && e.detail === 2) {
-                handleDoubleClickAddNode(x, y);
-            }
-        }
-    };
-
-    const handleDoubleClickAddNode = (x, y) => {
-        // Prompt for a value
-        const value = prompt("Enter a value for the new node:");
-        if (value === null || value === "") return;
-
+    // BST insertion
+    const insertBSTNode = useCallback((value) => {
         const parsedValue = parseInt(value);
         if (isNaN(parsedValue)) {
-            setDescription("Please enter a valid number");
+            setDescription('Please enter a valid number');
             return;
         }
 
-        // For BST, add the node directly at the position
-        const newNodes = [...bstNodes];
-        const newNode = {
-            id: newNodes.length + 1,
-            value: parsedValue,
-            x: x,
-            y: y
-        };
+        setIsAnimating(true);
+        clearAllTimeouts();
 
-        // If there are existing nodes, try to connect to the closest one
-        if (newNodes.length > 0) {
-            let closestNode = null;
-            let minDistance = Infinity;
+        const newNodes = [...currentNodes];
+        const newConnections = [...currentConnections];
+        const path = [];
+        let currentX = 500;
+        let currentY = 50;
+        let parentNode = null;
+        let currentNode = null;
 
-            for (const node of newNodes) {
-                const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestNode = node;
+        if (newNodes.length === 0) {
+            const newNode = {
+                id: 1,
+                value: parsedValue,
+                x: currentX,
+                y: currentY,
+            };
+            newNodes.push(newNode);
+        } else {
+            currentNode = newNodes.find(node => node.x === 500 && node.y === 50) || newNodes[0];
+            path.push(currentNode);
+
+            while (currentNode) {
+                if (parsedValue < currentNode.value) {
+                    const leftChild = newNodes.find(node =>
+                        newConnections.some(conn =>
+                            conn.fromX === currentNode.x &&
+                            conn.fromY === currentNode.y &&
+                            conn.toX === node.x &&
+                            node.x < currentNode.x
+                        )
+                    );
+
+                    if (!leftChild) {
+                        const newNode = {
+                            id: newNodes.length + 1,
+                            value: parsedValue,
+                            x: currentNode.x - 100,
+                            y: currentNode.y + 100,
+                            sourceId: currentNode.id,
+                            targetId: newNodes.length + 1
+                        };
+                        newNodes.push(newNode);
+                        newConnections.push({
+                            id: `conn-${currentNode.id}-${newNode.id}`,
+                            fromX: currentNode.x,
+                            fromY: currentNode.y,
+                            toX: newNode.x,
+                            toY: newNode.y,
+                            sourceId: currentNode.id,
+                            targetId: newNode.id
+                        });
+                        parentNode = currentNode;
+                        break;
+                    }
+                    currentNode = leftChild;
+                    path.push(currentNode);
+                } else if (parsedValue > currentNode.value) {
+                    const rightChild = newNodes.find(node =>
+                        newConnections.some(conn =>
+                            conn.fromX === currentNode.x &&
+                            conn.fromY === currentNode.y &&
+                            conn.toX === node.x &&
+                            node.x > currentNode.x
+                        )
+                    );
+
+                    if (!rightChild) {
+                        const newNode = {
+                            id: newNodes.length + 1,
+                            value: parsedValue,
+                            x: currentNode.x + 100,
+                            y: currentNode.y + 100,
+                            sourceId: currentNode.id,
+                            targetId: newNodes.length + 1
+                        };
+                        newNodes.push(newNode);
+                        newConnections.push({
+                            id: `conn-${currentNode.id}-${newNode.id}`,
+                            fromX: currentNode.x,
+                            fromY: currentNode.y,
+                            toX: newNode.x,
+                            toY: newNode.y,
+                            sourceId: currentNode.id,
+                            targetId: newNode.id
+                        });
+                        parentNode = currentNode;
+                        break;
+                    }
+                    currentNode = rightChild;
+                    path.push(currentNode);
+                } else {
+                    setDescription('Duplicate values are not allowed in BST');
+                    setIsAnimating(false);
+                    return;
                 }
             }
-
-            if (closestNode && minDistance < 150) {
-                const newConnections = [...bstConnections];
-                newConnections.push({
-                    fromX: closestNode.x,
-                    fromY: closestNode.y,
-                    toX: x,
-                    toY: y
-                });
-
-                setBstConnections(newConnections);
-            }
         }
 
-        newNodes.push(newNode);
-        setBstNodes(newNodes);
+        updateTreeData(newNodes, newConnections);
 
-        // Save state for undo/redo
-        saveState();
-
-        setDescription(`Added node with value ${parsedValue} at (${Math.round(x)}, ${Math.round(y)})`);
-    };
-
-    // Helper function to get current nodes based on tree type
-    const getCurrentNodes = () => {
-        switch (currentTreeType) {
-            case 'bst': return bstNodes;
-            case 'avl': return avlNodes;
-            case 'rbt': return rbtNodes;
-            case 'trie': return trieNodes;
-            default: return [];
-        }
-    };
-
-    // Helper function to get current connections based on tree type
-    const getCurrentConnections = () => {
-        switch (currentTreeType) {
-            case 'bst': return bstConnections;
-            case 'avl': return avlConnections;
-            case 'rbt': return rbtConnections;
-            case 'trie': return trieConnections;
-            default: return [];
-        }
-    };
-
-    // Helper function to update nodes and connections based on tree type
-    const updateNodesAndConnections = (updatedNodes, updatedConnections) => {
-        switch (currentTreeType) {
-            case 'bst':
-                setBstNodes(updatedNodes);
-                setBstConnections(updatedConnections);
-                break;
-            case 'avl':
-                setAvlNodes(updatedNodes);
-                setAvlConnections(updatedConnections);
-                break;
-            case 'rbt':
-                setRbtNodes(updatedNodes);
-                setRbtConnections(updatedConnections);
-                break;
-            case 'trie':
-                setTrieNodes(updatedNodes);
-                setTrieConnections(updatedConnections);
-                break;
-            default:
-                break;
-        }
-    };
-
-    // History management for undo/redo
-    const saveState = () => {
-        let currentState;
-        switch (currentTreeType) {
-            case 'bst':
-                currentState = {
-                    nodes: [...bstNodes],
-                    connections: [...bstConnections],
-                    type: 'bst'
-                };
-                break;
-            case 'avl':
-                currentState = {
-                    nodes: [...avlNodes],
-                    connections: [...avlConnections],
-                    type: 'avl'
-                };
-                break;
-            case 'rbt':
-                currentState = {
-                    nodes: [...rbtNodes],
-                    connections: [...rbtConnections],
-                    type: 'rbt'
-                };
-                break;
-            case 'trie':
-                currentState = {
-                    nodes: [...trieNodes],
-                    connections: [...trieConnections],
-                    type: 'trie',
-                    words: [...trieWords]
-                };
-                break;
-            default:
-                return;
-        }
-
-        // Remove future states if we're not at the end of the history
-        const newHistory = nodeHistory.slice(0, currentHistoryIndex + 1);
-        newHistory.push(currentState);
-
-        setNodeHistory(newHistory);
-        setCurrentHistoryIndex(newHistory.length - 1);
-    };
-
-    const handleUndo = () => {
-        if (currentHistoryIndex <= 0) return;
-
-        const prevState = nodeHistory[currentHistoryIndex - 1];
-        restoreState(prevState);
-        setCurrentHistoryIndex(currentHistoryIndex - 1);
-    };
-
-    const handleRedo = () => {
-        if (currentHistoryIndex >= nodeHistory.length - 1) return;
-
-        const nextState = nodeHistory[currentHistoryIndex + 1];
-        restoreState(nextState);
-        setCurrentHistoryIndex(currentHistoryIndex + 1);
-    };
-
-    const restoreState = (state) => {
-        switch (state.type) {
-            case 'bst':
-                setBstNodes(state.nodes);
-                setBstConnections(state.connections);
-                break;
-            case 'avl':
-                setAvlNodes(state.nodes);
-                setAvlConnections(state.connections);
-                break;
-            case 'rbt':
-                setRbtNodes(state.nodes);
-                setRbtConnections(state.connections);
-                break;
-            case 'trie':
-                setTrieNodes(state.nodes);
-                setTrieConnections(state.connections);
-                if (state.words) setTrieWords(state.words);
-                break;
-            default:
-                break;
-        }
-    };
-
-    // Function to draw the current tree
-    const drawTree = () => {
-        const canvas = canvasRef.current;
-        const ctx = ctxRef.current;
-        if (!canvas || !ctx) return;
-
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Select current nodes and connections
-        let nodes = bstNodes;
-        let connections = bstConnections;
-        if (currentTreeType === 'avl') {
-            nodes = avlNodes;
-            connections = avlConnections;
-        } else if (currentTreeType === 'rbt') {
-            nodes = rbtNodes;
-            connections = rbtConnections;
-        } else if (currentTreeType === 'trie') {
-            nodes = trieNodes;
-            connections = trieConnections;
-        }
-
-        // debug
-        console.log("Drawing nodes:", nodes);
-
-        // Draw connections (edges)
-        connections.forEach(conn => {
-            ctx.beginPath();
-            ctx.moveTo(conn.fromX, conn.fromY);
-            ctx.lineTo(conn.toX, conn.toY);
-            ctx.strokeStyle = conn.color || '#ffffff';
-            ctx.stroke();
-        });
-
-        const drawNode = (node) => {
-            const ctx = ctxRef.current;
-            if (!ctx) return;
-
-            // Node shadow
-            ctx.beginPath();
-            ctx.arc(node.x + 3, node.y + 3, 20, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.fill();
-
-            // Node circle
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, 20, 0, Math.PI * 2);
-
-            // Gradient fill
-            const gradient = ctx.createRadialGradient(node.x - 5, node.y - 5, 2, node.x, node.y, 20);
-            const baseColor = node.color ||
-                (currentTreeType === 'avl' ? '#a4f7ff' :
-                    currentTreeType === 'bst' ? '#d4a4ff' :
-                        currentTreeType === 'trie' ? '#90ee90' : '#ffffff');
-            gradient.addColorStop(0, lightenColor(baseColor, 50));
-            gradient.addColorStop(1, baseColor);
-            ctx.fillStyle = gradient;
-            ctx.fill();
-            ctx.strokeStyle = '#ffffff';
-            ctx.stroke();
-
-            // Text
-            ctx.fillStyle = node.textColor || '#000000';
-            ctx.font = `${node.fontSize || 16}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(node.value.toString(), node.x, node.y);
-
-            // End node indicator (for Trie)
-            if (node.isEnd) {
-                ctx.beginPath();
-                ctx.arc(node.x + 15, node.y - 15, 5, 0, Math.PI * 2);
-                ctx.fillStyle = "#ff69b4";
-                ctx.fill();
-            }
-
-            // Balance factor (for AVL)
-            if (currentTreeType === 'avl' && node.balanceFactor !== undefined) {
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '12px Arial';
-                ctx.fillText(`BF: ${node.balanceFactor}`, node.x, node.y + 30);
-            }
-
-            // Highlight hovered node
-            if (hoverInfo && hoverInfo.node.id === node.id) {
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, 23, 0, Math.PI * 2);
-                ctx.strokeStyle = "#ffff00";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(hoverInfo.x + 10, hoverInfo.y - 10, 100, 60);
-                ctx.strokeStyle = '#ffffff';
-                ctx.strokeRect(hoverInfo.x + 10, hoverInfo.y - 10, 100, 60);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '12px Arial';
-                ctx.textAlign = 'left';
-                ctx.fillText(`Value: ${node.value}`, hoverInfo.x + 15, hoverInfo.y + 10);
-                ctx.fillText(`ID: ${node.id}`, hoverInfo.x + 15, hoverInfo.y + 25);
-
-                if (currentTreeType === 'avl') {
-                    ctx.fillText(`BF: ${node.balanceFactor || 0}`, hoverInfo.x + 15, hoverInfo.y + 40);
-                } else if (currentTreeType === 'rbt') {
-                    ctx.fillText(`Color: ${node.isRed ? 'Red' : 'Black'}`, hoverInfo.x + 15, hoverInfo.y + 40);
-                } else if (currentTreeType === 'trie') {
-                    ctx.fillText(`End: ${node.isEnd ? 'Yes' : 'No'}`, hoverInfo.x + 15, hoverInfo.y + 40);
+        if (useGsapAnimations && path.length > 0) {
+            const timeline = gsap.timeline({
+                onComplete: () => {
+                    const newNode = newNodes[newNodes.length - 1];
+                    gsap.to(`#node-${newNode.id}`, {
+                        scale: 1.5,
+                        fill: '#ffff00',
+                        duration: 0.3,
+                        repeat: 3,
+                        yoyo: true,
+                        ease: "elastic.out(1, 0.3)",
+                        onComplete: () => {
+                            setIsAnimating(false);
+                            saveState();
+                        }
+                    });
                 }
-            }
-        };
+            });
 
+            path.forEach((node, index) => {
+                timeline.to(`#node-${node.id}`, {
+                    scale: 1.3,
+                    fill: '#ff9900',
+                    duration: 0.3,
+                    onStart: () => setDescription(`Traversing node ${node.value}`),
+                    onComplete: () => {
+                        gsap.to(`#node-${node.id}`, {
+                            scale: 1,
+                            fill: themeColor,
+                            duration: 0.2
+                        });
+                    }
+                }, index * 0.5);
+            });
+        } else {
+            let i = 0;
+            const animatePath = () => {
+                if (i >= path.length) {
+                    const newNode = newNodes[newNodes.length - 1];
+                    updateTreeData(
+                        newNodes.map(node =>
+                            node.id === newNode.id ?
+                                { ...node, color: '#ffff00', textColor: '#000000' } :
+                                { ...node, color: themeColor, textColor: '#000000' }
+                        ),
+                        newConnections
+                    );
 
-        // Draw nodes (circles and text)
-        nodes.forEach(node => {
-            drawNode(node);
-        });
-    };
+                    setDescription(`Inserted node with value ${parsedValue}`);
+                    saveState();
 
+                    addTimeout(() => {
+                        updateTreeData(
+                            newNodes.map(node => ({ ...node, color: themeColor, textColor: '#000000' })),
+                            newConnections
+                        );
+                        setIsAnimating(false);
+                    }, 1000 / animationSpeedRef.current);
 
+                    return;
+                }
 
-        // Draw tutorial overlay if enabled
-        if (showTutorial) {
-            drawTutorial(ctx, canvas);
+                updateTreeData(
+                    newNodes.map(node =>
+                        node.id === path[i].id ?
+                            { ...node, color: '#ff9900', textColor: '#000000' } :
+                            { ...node, color: themeColor, textColor: '#000000' }
+                    ),
+                    newConnections
+                );
+
+                setDescription(`Traversing node ${path[i].value}`);
+                i++;
+                addTimeout(animatePath, 1000 / animationSpeedRef.current);
+            };
+
+            animatePath();
         }
+    }, [currentNodes, currentConnections, updateTreeData, themeColor, clearAllTimeouts, addTimeout, saveState, useGsapAnimations]);
 
-    // Helper function to draw tutorial overlay
-    const drawTutorial = (ctx, canvas) => {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '20px Arial';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-
-        const tutorialText = [
-            '🔍 INTERACTIVE CONTROLS:',
-            '',
-            '• Click on node to highlight',
-            '• Drag nodes to reposition',
-            '• Double-click on canvas to add node (BST only)',
-            '• Hover over nodes to see details',
-            '• CTRL+Z / CTRL+Y for undo/redo',
-            '• Use animation slider to control speed',
-            '',
-            'Click anywhere to close tutorial'
-        ];
-
-        let y = 50;
-        tutorialText.forEach(line => {
-            ctx.fillText(line, 50, y);
-            y += 30;
-        });
-    };
-
-    // Helper function to lighten a color
-    const lightenColor = (color, percent) => {
-        const num = parseInt(color.replace('#', ''), 16);
-        const amt = Math.round(2.55 * percent);
-        const R = (num >> 16) + amt;
-        const G = (num >> 8 & 0x00FF) + amt;
-        const B = (num & 0x0000FF) + amt;
-
-        return '#' + (
-            0x1000000 +
-            (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-            (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-            (B < 255 ? (B < 1 ? 0 : B) : 255)
-        ).toString(16).slice(1);
-    };
-
-    // Handle tree type selection
-    const selectTree = (type) => {
-        setCurrentTreeType(type);
-
-        const descriptions = {
-            bst: "Binary Search Tree: Nodes with left children < parent < right children. O(log n) search in average case.",
-            avl: "AVL Tree: A self-balancing BST. Keeps height difference ≤ 1 for all nodes.",
-            rbt: "Red-Black Tree: A self-balancing BST using red/black coloring rules.",
-            trie: "Trie: A prefix tree for storing words or characters like a dictionary."
-        };
-
-        setDescription(descriptions[type]);
-
-        // Save state when changing tree type
-        saveState();
-    };
-
-    // Add getTabFullName function
-    const getTabFullName = (tabName) => {
-        switch(tabName) {
-            case 'bst': return 'Binary Search Tree';
-            case 'avl': return 'AVL Tree';
-            case 'rbt': return 'Red-Black Tree';
-            case 'trie': return 'Trie';
-            default: return tabName;
-        }
-    };
-
-    // Helper function to highlight a specific node
-    const highlightNode = (node) => {
-        // Find all nodes connected to this one
-        let connections = getCurrentConnections();
+    // Node highlighting
+    const highlightNode = useCallback((node) => {
         let connectedNodes = [];
 
-        // Find nodes that are connected to the selected node
-        connections.forEach(conn => {
+        currentConnections.forEach(conn => {
             if (conn.fromX === node.x && conn.fromY === node.y) {
-                const toNode = getCurrentNodes().find(n => n.x === conn.toX && n.y === conn.toY);
+                const toNode = currentNodes.find(n => n.x === conn.toX && n.y === conn.toY);
                 if (toNode) connectedNodes.push(toNode);
             }
             if (conn.toX === node.x && conn.toY === node.y) {
-                const fromNode = getCurrentNodes().find(n => n.x === conn.fromX && n.y === conn.fromY);
+                const fromNode = currentNodes.find(n => n.x === conn.fromX && n.y === conn.fromY);
                 if (fromNode) connectedNodes.push(fromNode);
             }
         });
 
-        // Create animation sequence
-        const animSequence = [
-            { node, color: '#ffff00', textColor: '#000000' },
-            ...connectedNodes.map(n => ({ node: n, color: '#ff9900', textColor: '#000000' }))
-        ];
-
         setIsAnimating(true);
 
-        // Function to animate highlighting
-        let i = 0;
-        const animate = () => {
-            if (i >= animSequence.length) {
-                // Reset after animation
-                drawTree();
-                setIsAnimating(false);
-                return;
-            }
-
-            const item = animSequence[i];
-
-            // Store current state
-            const nodes = getCurrentNodes();
-            const highlightedNodes = nodes.map(n => {
-                if (n.id === item.node.id) {
-                    return { ...n, color: item.color, textColor: item.textColor };
-                }
-                return n;
+        if (useGsapAnimations) {
+            const timeline = gsap.timeline({
+                onComplete: () => setIsAnimating(false)
             });
 
-            // Update state based on tree type
-            switch (currentTreeType) {
-                case 'bst':
-                    setBstNodes(highlightedNodes);
-                    break;
-                case 'avl':
-                    setAvlNodes(highlightedNodes);
-                    break;
-                case 'rbt':
-                    setRbtNodes(highlightedNodes);
-                    break;
-                case 'trie':
-                    setTrieNodes(highlightedNodes);
-                    break;
-                default:
-                    break;
-            }
-
-            // Show node details
-            setDescription(`Node: ${item.node.value} | Connections: ${connectedNodes.length}`);
-
-            // Move to next node after delay
-            i++;
-            setTimeout(animate, 300 / animationSpeedRef.current);
-        };
-
-        animate();
-    };
-
-
-    const findBSTInsertionPath = (nodes, value) => {
-        if (nodes.length === 0) return [];
-
-        const path = [];
-        let currentNode = nodes.find(node => !nodes.some(n =>
-            getCurrentConnections().some(conn =>
-                conn.toX === node.x && conn.toY === node.y
-            )
-        )) || nodes[0]; // Find root (node with no incoming connections)
-
-        while (currentNode) {
-            path.push(currentNode);
-
-            if (value === currentNode.value) {
-                return null; // duplicate, path invalid
-            }
-
-            const isLeft = value < currentNode.value;
-
-            // Find child node based on connections
-            const childConnection = getCurrentConnections().find(conn =>
-                conn.fromX === currentNode.x &&
-                conn.fromY === currentNode.y &&
-                (isLeft ? conn.toX < conn.fromX : conn.toX > conn.fromX)
-            );
-
-            if (!childConnection) break; // Found insertion point
-
-            currentNode = nodes.find(n =>
-                n.x === childConnection.toX &&
-                n.y === childConnection.toY
-            );
-        }
-
-        return path;
-    };
-
-    /*
-     * BST Operations
-     */
-    const insertBST = (value, customNodes = bstNodes, customConnections = bstConnections) => {
-        const newNodes = [...customNodes];
-        const newConnections = [...customConnections];
-
-        if (newNodes.some(n => n.value === value)) {
-            setDescription(`Value ${value} already exists in the tree`);
-            return { nodes: newNodes, connections: newConnections };
-        }
-
-        if (newNodes.length === 0) {
-            const rootNode = {
-                id: 1,
-                value: value,
-                x: canvasRef.current.width / 2,
-                y: 50
-            };
-            newNodes.push(rootNode);
-            setBstNodes(newNodes);
-            setBstConnections([]);
-            setDescription(`Created root node with value ${value}`);
-            saveState();
-            return { nodes: newNodes, connections: [] };
-        }
-
-        const path = findBSTInsertionPath(newNodes, value);
-        if (!path) {
-            setDescription(`Value ${value} already exists in the tree`);
-            return { nodes: newNodes, connections: newConnections };
-        }
-
-        const parentNode = path[path.length - 1];
-        const isLeft = value < parentNode.value;
-        const nodeX = isLeft ? parentNode.x - 80 / (path.length * 0.5) : parentNode.x + 80 / (path.length * 0.5);
-        const nodeY = parentNode.y + 60;
-
-        const newNode = {
-            id: newNodes.length + 1,
-            value,
-            x: nodeX,
-            y: nodeY
-        };
-
-        newNodes.push(newNode);
-        newConnections.push({
-            fromX: parentNode.x,
-            fromY: parentNode.y,
-            toX: nodeX,
-            toY: nodeY
-        });
-
-        setBstNodes(newNodes);
-        setBstConnections(newConnections);
-        setDescription(`Inserted ${value} into the BST`);
-        saveState();
-        highlightPath(path.concat(newNode));
-        saveProgressToFirestore();
-
-        return { nodes: newNodes, connections: newConnections };
-    };
-
-    const searchBST = (value) => {
-        if (bstNodes.length === 0) {
-            setDescription("Tree is empty");
-            return;
-
-        }
-
-        const path = findBSTPath(bstNodes, value);
-        if (!path) {
-            setDescription(`Value ${value} not found in the tree`);
-            return;
-        }
-
-        // Highlight the path
-        highlightPath(path);
-
-        if (path[path.length - 1].value === value) {
-            setDescription(`Found value ${value} in the tree!`);
-        } else {
-            setDescription(`Value ${value} not found in the tree`);
-        }
-    };
-
-    const deleteBST = (value) => {
-        const newNodes = [...bstNodes];
-        const newConnections = [...bstConnections];
-
-        const nodeToDelete = newNodes.find(n => n.value === value);
-        if (!nodeToDelete) {
-            setDescription(`Value ${value} not found for deletion`);
-            return;
-        }
-
-        // Remove the node and any connections related to it
-        const filteredNodes = newNodes.filter(n => n.id !== nodeToDelete.id);
-        const filteredConnections = newConnections.filter(conn =>
-            conn.fromX !== nodeToDelete.x &&
-            conn.fromY !== nodeToDelete.y &&
-            conn.toX !== nodeToDelete.x &&
-            conn.toY !== nodeToDelete.y
-        );
-
-        setBstNodes(filteredNodes);
-        setBstConnections(filteredConnections);
-        saveState();
-        saveProgressToFirestore();
-        setDescription(`Deleted node ${value}`);
-    };
-
-
-    const findBSTPath = (nodes, value) => {
-        if (nodes.length === 0) return null;
-
-        const path = [];
-        let currentNodeIndex = 0; // Root
-
-        while (currentNodeIndex !== -1) {
-            const currentNode = nodes[currentNodeIndex];
-            path.push(currentNode);
-
-            if (value === currentNode.value) {
-                return path; // Found the value
-            }
-
-            const isLeft = value < currentNode.value;
-
-            // Find child node index
-            const childIndex = nodes.findIndex(node => {
-                const connection = getCurrentConnections().find(conn =>
-                    conn.fromX === currentNode.x &&
-                    conn.fromY === currentNode.y &&
-                    node.x === conn.toX &&
-                    node.y === conn.toY);
-
-                return connection && ((isLeft && node.x < currentNode.x) || (!isLeft && node.x > currentNode.x));
+            timeline.to(`#node-${node.id}`, {
+                scale: 1.4,
+                fill: '#ffff00',
+                duration: 0.4,
+                ease: "back.out(1.7)"
             });
 
-            if (childIndex === -1) {
-                return path; // Reached leaf node, value not found
-            }
-
-            currentNodeIndex = childIndex;
-        }
-
-        return null;
-    };
-
-    /*
- * AVL Tree Operations
- */
-    const insertAVL = (value, customNodes = avlNodes, customConnections = avlConnections) => {
-        let newNodes = [...customNodes];
-        let newConnections = [...customConnections];
-
-        if (newNodes.length === 0) {
-            const rootNode = {
-                id: 1,
-                value: value,
-                x: canvasRef.current.width / 2,
-                y: 50,
-                height: 1
-            };
-            newNodes.push(rootNode);
-            setAvlNodes(newNodes);
-            setAvlConnections([]);
-            saveState();
-            setDescription(`Created root node with value ${value}`);
-            return { nodes: newNodes, connections: [] };
-        }
-
-        const path = findAVLInsertionPath(newNodes, value);
-        if (!path) {
-            setDescription(`Value ${value} already exists in the tree`);
-            return { nodes: newNodes, connections: newConnections };
-        }
-
-        const parentNode = path[path.length - 1];
-        const isLeft = value < parentNode.value;
-        const nodeX = isLeft ? parentNode.x - 80 / (path.length * 0.5) : parentNode.x + 80 / (path.length * 0.5);
-        const nodeY = parentNode.y + 60;
-
-        const newNode = {
-            id: newNodes.length + 1,
-            value: value,
-            x: nodeX,
-            y: nodeY,
-            height: 1
-        };
-
-        newConnections.push({
-            fromX: parentNode.x,
-            fromY: parentNode.y,
-            toX: nodeX,
-            toY: nodeY
-        });
-
-        newNodes.push(newNode);
-
-        updateHeights(newNodes, newConnections, path);
-
-        const { nodes: balancedNodes, connections: balancedConnections } =
-            balanceAVLTree(newNodes, newConnections, path);
-
-        newNodes = balancedNodes;
-        newConnections = balancedConnections;
-
-        setAvlNodes(newNodes);
-        setAvlConnections(newConnections);
-        saveState();
-        setDescription(`Inserted ${value} into the AVL tree and rebalanced if needed`);
-        highlightPath([...path, newNode]);
-
-        return { nodes: newNodes, connections: newConnections };
-    };
-
-
-    const findAVLInsertionPath = (nodes, value) => {
-        if (nodes.length === 0) return [];
-
-        const path = [];
-        let currentNodeIndex = 0; // Root
-
-        while (true) {
-            const currentNode = nodes[currentNodeIndex];
-            path.push(currentNode);
-
-            if (value === currentNode.value) {
-                return null; // Value already exists
-            }
-
-            const isLeft = value < currentNode.value;
-
-            // Find child node index
-            const childIndex = nodes.findIndex(node => {
-                const connection = getCurrentAVLConnections().find(conn =>
-                    conn.fromX === currentNode.x &&
-                    conn.fromY === currentNode.y &&
-                    node.x === conn.toX &&
-                    node.y === conn.toY);
-
-                return connection && ((isLeft && node.x < currentNode.x) || (!isLeft && node.x > currentNode.x));
-            });
-
-            if (childIndex === -1) {
-                return path; // Found insertion point
-            }
-
-            currentNodeIndex = childIndex;
-        }
-    };
-
-// Get height of a node (0 if null)
-    const getHeight = (nodes, node) => {
-        return node ? node.height : 0;
-    };
-
-// Get balance factor of a node
-    const getBalanceFactor = (nodes, connections, node) => {
-        if (!node) return 0;
-
-        // Find left and right children
-        const leftChild = findChildNode(nodes, connections, node, true);
-        const rightChild = findChildNode(nodes, connections, node, false);
-
-        return getHeight(nodes, leftChild) - getHeight(nodes, rightChild);
-    };
-
-// Find child node (left or right)
-    const findChildNode = (nodes, connections, parentNode, isLeft) => {
-        return nodes.find(node => {
-            const connection = connections.find(conn =>
-                conn.fromX === parentNode.x &&
-                conn.fromY === parentNode.y &&
-                node.x === conn.toX &&
-                node.y === conn.toY);
-
-            return connection && ((isLeft && node.x < parentNode.x) || (!isLeft && node.x > parentNode.x));
-        });
-    };
-
-// Update heights of all nodes in the path
-    const updateHeights = (nodes, connections, path) => {
-        // Start from the bottom of the path (excluding the newly added node)
-        for (let i = path.length - 1; i >= 0; i--) {
-            const node = path[i];
-
-            // Find left and right children
-            const leftChild = findChildNode(nodes, connections, node, true);
-            const rightChild = findChildNode(nodes, connections, node, false);
-
-            // Update height
-            node.height = 1 + Math.max(
-                getHeight(nodes, leftChild),
-                getHeight(nodes, rightChild)
-            );
-        }
-    };
-
-// Perform rotations to balance the tree
-    const balanceAVLTree = (nodes, connections, path) => {
-        // Start from the bottom of the path
-        for (let i = path.length - 1; i >= 0; i--) {
-            const node = path[i];
-            const balanceFactor = getBalanceFactor(nodes, connections, node);
-
-            // Left heavy
-            if (balanceFactor > 1) {
-                const leftChild = findChildNode(nodes, connections, node, true);
-                const leftChildBalanceFactor = getBalanceFactor(nodes, connections, leftChild);
-
-                // Left-Right case
-                if (leftChildBalanceFactor < 0) {
-                    // Perform left rotation on left child
-                    const result = leftRotate(nodes, connections, leftChild);
-                    nodes = result.nodes;
-                    connections = result.connections;
-                }
-
-                // Left-Left case
-                // Perform right rotation on node
-                const result = rightRotate(nodes, connections, node);
-                nodes = result.nodes;
-                connections = result.connections;
-            }
-            // Right heavy
-            else if (balanceFactor < -1) {
-                const rightChild = findChildNode(nodes, connections, node, false);
-                const rightChildBalanceFactor = getBalanceFactor(nodes, connections, rightChild);
-
-                // Right-Left case
-                if (rightChildBalanceFactor > 0) {
-                    // Perform right rotation on right child
-                    const result = rightRotate(nodes, connections, rightChild);
-                    nodes = result.nodes;
-                    connections = result.connections;
-                }
-
-                // Right-Right case
-                // Perform left rotation on node
-                const result = leftRotate(nodes, connections, node);
-                nodes = result.nodes;
-                connections = result.connections;
-            }
-        }
-
-        return { nodes, connections };
-    };
-
-// Perform right rotation
-    const rightRotate = (nodes, connections, node) => {
-        const leftChild = findChildNode(nodes, connections, node, true);
-        if (!leftChild) return { nodes, connections }; // Can't rotate
-
-        // Identify the left-right child if it exists
-        const leftRightChild = findChildNode(nodes, connections, leftChild, false);
-
-        // Clone connections for modification
-        let newConnections = connections.filter(conn =>
-            !(conn.fromX === node.x && conn.fromY === node.y && conn.toX === leftChild.x && conn.toY === leftChild.y));
-
-        // Remove connection from left child to left-right child if it exists
-        if (leftRightChild) {
-            newConnections = newConnections.filter(conn =>
-                !(conn.fromX === leftChild.x && conn.fromY === leftChild.y &&
-                    conn.toX === leftRightChild.x && conn.toY === leftRightChild.y));
-        }
-
-        // Find parent of the node we're rotating
-        const nodeParent = findParentNode(nodes, connections, node);
-
-        // Adjust positions for rotation
-        const nodeOldX = node.x;
-        const nodeOldY = node.y;
-        const leftChildOldX = leftChild.x;
-        const leftChildOldY = leftChild.y;
-
-        // Swap positions of node and left child
-        leftChild.x = nodeOldX;
-        leftChild.y = nodeOldY;
-        node.x = nodeOldX + 80; // Move to right
-        node.y = nodeOldY + 60; // Move down
-
-        // Update connections
-        if (nodeParent) {
-            // Update connection from parent to left child (new root)
-            const parentConn = connections.find(conn =>
-                conn.fromX === nodeParent.x && conn.fromY === nodeParent.y &&
-                conn.toX === nodeOldX && conn.toY === nodeOldY);
-
-            if (parentConn) {
-                parentConn.toX = leftChild.x;
-                parentConn.toY = leftChild.y;
-            }
-        }
-
-        // Add connection from left child to node
-        newConnections.push({
-            fromX: leftChild.x,
-            fromY: leftChild.y,
-            toX: node.x,
-            toY: node.y
-        });
-
-        // Move left-right child if exists
-        if (leftRightChild) {
-            leftRightChild.x = node.x - 40;
-            leftRightChild.y = node.y;
-
-            // Add connection from node to left-right child
-            newConnections.push({
-                fromX: node.x,
-                fromY: node.y,
-                toX: leftRightChild.x,
-                toY: leftRightChild.y
-            });
-        }
-
-        // Update heights
-        const rightChild = findChildNode(nodes, newConnections, node, false);
-        node.height = 1 + Math.max(
-            getHeight(nodes, leftRightChild),
-            getHeight(nodes, rightChild)
-        );
-
-        leftChild.height = 1 + Math.max(
-            getHeight(nodes, findChildNode(nodes, newConnections, leftChild, true)),
-            getHeight(nodes, node)
-        );
-
-        return { nodes, connections: newConnections };
-    };
-
-// Perform left rotation
-    const leftRotate = (nodes, connections, node) => {
-        const rightChild = findChildNode(nodes, connections, node, false);
-        if (!rightChild) return { nodes, connections }; // Can't rotate
-
-        // Identify the right-left child if it exists
-        const rightLeftChild = findChildNode(nodes, connections, rightChild, true);
-
-        // Clone connections for modification
-        let newConnections = connections.filter(conn =>
-            !(conn.fromX === node.x && conn.fromY === node.y && conn.toX === rightChild.x && conn.toY === rightChild.y));
-
-        // Remove connection from right child to right-left child if it exists
-        if (rightLeftChild) {
-            newConnections = newConnections.filter(conn =>
-                !(conn.fromX === rightChild.x && conn.fromY === rightChild.y &&
-                    conn.toX === rightLeftChild.x && conn.toY === rightLeftChild.y));
-        }
-
-        // Find parent of the node we're rotating
-        const nodeParent = findParentNode(nodes, connections, node);
-
-        // Adjust positions for rotation
-        const nodeOldX = node.x;
-        const nodeOldY = node.y;
-        const rightChildOldX = rightChild.x;
-        const rightChildOldY = rightChild.y;
-
-        // Swap positions of node and right child
-        rightChild.x = nodeOldX;
-        rightChild.y = nodeOldY;
-        node.x = nodeOldX - 80; // Move to left
-        node.y = nodeOldY + 60; // Move down
-
-        // Update connections
-        if (nodeParent) {
-            // Update connection from parent to right child (new root)
-            const parentConn = connections.find(conn =>
-                conn.fromX === nodeParent.x && conn.fromY === nodeParent.y &&
-                conn.toX === nodeOldX && conn.toY === nodeOldY);
-
-            if (parentConn) {
-                parentConn.toX = rightChild.x;
-                parentConn.toY = rightChild.y;
-            }
-        }
-
-        // Add connection from right child to node
-        newConnections.push({
-            fromX: rightChild.x,
-            fromY: rightChild.y,
-            toX: node.x,
-            toY: node.y
-        });
-
-        // Move right-left child if exists
-        if (rightLeftChild) {
-            rightLeftChild.x = node.x + 40;
-            rightLeftChild.y = node.y;
-
-            // Add connection from node to right-left child
-            newConnections.push({
-                fromX: node.x,
-                fromY: node.y,
-                toX: rightLeftChild.x,
-                toY: rightLeftChild.y
-            });
-        }
-
-        // Update heights
-        const leftChild = findChildNode(nodes, newConnections, node, true);
-        node.height = 1 + Math.max(
-            getHeight(nodes, leftChild),
-            getHeight(nodes, rightLeftChild)
-        );
-
-        rightChild.height = 1 + Math.max(
-            getHeight(nodes, node),
-            getHeight(nodes, findChildNode(nodes, newConnections, rightChild, false))
-        );
-
-        return { nodes, connections: newConnections };
-    };
-
-// Helper to find parent node
-    const findParentNode = (nodes, connections, childNode) => {
-        return nodes.find(node => {
-            return connections.some(conn =>
-                conn.fromX === node.x &&
-                conn.fromY === node.y &&
-                conn.toX === childNode.x &&
-                conn.toY === childNode.y
-            );
-        });
-    };
-
-// Search in AVL tree (similar to BST search)
-    const searchAVL = (value) => {
-        if (avlNodes.length === 0) {
-            setDescription("Tree is empty");
-            return;
-        }
-
-        const path = findAVLPath(avlNodes, value);
-        if (!path) {
-            setDescription(`Value ${value} not found in the tree`);
-            return;
-        }
-
-        // Highlight the path
-        highlightPath(path);
-
-        if (path[path.length - 1].value === value) {
-            setDescription(`Found value ${value} in the AVL tree!`);
-        } else {
-            setDescription(`Value ${value} not found in the AVL tree`);
-        }
-    };
-
-    const findAVLPath = (nodes, value) => {
-        if (nodes.length === 0) return null;
-
-        const path = [];
-        let currentNodeIndex = 0; // Root
-
-        while (currentNodeIndex !== -1) {
-            const currentNode = nodes[currentNodeIndex];
-            path.push(currentNode);
-
-            if (value === currentNode.value) {
-                return path; // Found the value
-            }
-
-            const isLeft = value < currentNode.value;
-
-            // Find child node index
-            const childIndex = nodes.findIndex(node => {
-                const connection = getCurrentAVLConnections().find(conn =>
-                    conn.fromX === currentNode.x &&
-                    conn.fromY === currentNode.y &&
-                    node.x === conn.toX &&
-                    node.y === conn.toY);
-
-                return connection && ((isLeft && node.x < currentNode.x) || (!isLeft && node.x > currentNode.x));
-            });
-
-            if (childIndex === -1) {
-                return path; // Reached leaf node, value not found
-            }
-
-            currentNodeIndex = childIndex;
-        }
-
-        return null;
-    };
-
-    // After findAVLPath function
-// Search in Trie
-    const searchTrie = (word) => {
-        if (trieNodes.length === 0) {
-            setDescription("Trie is empty");
-            return;
-        }
-
-        // Implement a basic trie search
-        let currentNode = trieNodes[0]; // Root node
-        const path = [currentNode];
-
-        for (let i = 0; i < word.length; i++) {
-            const char = word[i];
-            const nextNode = trieNodes.find(node => {
-                const connection = trieConnections.find(conn =>
-                    conn.fromX === currentNode.x &&
-                    conn.fromY === currentNode.y &&
-                    node.x === conn.toX &&
-                    node.y === conn.toY &&
-                    conn.char === char
+            connectedNodes.forEach((connNode, index) => {
+                const connection = currentConnections.find(
+                    conn =>
+                        (conn.fromX === node.x && conn.fromY === node.y && conn.toX === connNode.x && conn.toY === connNode.y) ||
+                        (conn.toX === node.x && conn.toY === node.y && conn.fromX === connNode.x && conn.fromY === connNode.y)
                 );
-                return !!connection;
+
+                if (connection) {
+                    timeline.to(`#conn-${connection.id}`, {
+                        stroke: '#ff9900',
+                        strokeWidth: 3,
+                        duration: 0.3,
+                        ease: "power2.inOut"
+                    }, "<+=0.1");
+                }
+
+                timeline.to(`#node-${connNode.id}`, {
+                    scale: 1.2,
+                    fill: '#ff9900',
+                    duration: 0.3,
+                    ease: "power2.inOut"
+                }, "<");
             });
 
-            if (!nextNode) {
-                setDescription(`Word "${word}" not found in the trie`);
-                highlightPath(path);
-                return;
-            }
+            timeline.to([
+                `#node-${node.id}`,
+                ...connectedNodes.map(n => `#node-${n.id}`),
+                ...currentConnections
+                    .filter(conn =>
+                        (conn.fromX === node.x && conn.fromY === node.y) ||
+                        (conn.toX === node.x && conn.toY === node.y)
+                    )
+                    .map(conn => `#conn-${conn.id}`)
+            ], {
+                scale: 1,
+                fill: node => node.tagName === 'circle' ? themeColor : 'none',
+                stroke: conn => conn.tagName === 'path' ? '#ffffff' : 'none',
+                strokeWidth: 1,
+                duration: 0.5,
+                delay: 1,
+                ease: "power2.inOut"
+            });
 
-            path.push(nextNode);
-            currentNode = nextNode;
-        }
-
-        if (currentNode.isEnd) {
-            setDescription(`Found word "${word}" in the trie!`);
+            setDescription(`Node: ${node.value} | Connections: ${connectedNodes.length}`);
         } else {
-            setDescription(`Prefix "${word}" found, but it's not a complete word`);
-        }
+            clearAllTimeouts();
 
-        highlightPath(path);
-    };
-
-// Helper to get current AVL connections
-    const getCurrentAVLConnections = () => {
-        return avlConnections;
-    };
-    // After getCurrentAVLConnections function
-    /*
-     * Red-Black Tree Operations
-     */
-    const insertRBT = (value) => {
-        if (rbtNodes.length === 0) {
-            // Add root node (black)
-            const newNodes = [
-                {
-                    id: 1,
-                    value: value,
-                    x: canvasRef.current.width / 2,
-                    y: 50,
-                    isRed: false // Root is always black
-                }
+            const animSequence = [
+                { node, color: '#ffff00', textColor: '#000000' },
+                ...connectedNodes.map(n => ({ node: n, color: '#ff9900', textColor: '#000000' })),
             ];
-            setRbtNodes(newNodes);
-            saveState();
-            setDescription(`Created root node with value ${value}`);
-            return;
-        }
 
-        // For now, implement a basic BST insert without balancing
-        // (a complete RBT would require more complex balancing logic)
-        const newNodes = [...rbtNodes];
-        const newConnections = [...rbtConnections];
-
-        // Find insertion path
-        const path = findBSTInsertionPath(newNodes, value);
-        if (!path) {
-            setDescription(`Value ${value} already exists in the tree`);
-            return;
-        }
-
-        const parentNode = path[path.length - 1];
-        const isLeft = value < parentNode.value;
-
-        // Calculate position for new node
-        const nodeX = isLeft ? parentNode.x - 80 / (path.length * 0.5) : parentNode.x + 80 / (path.length * 0.5);
-        const nodeY = parentNode.y + 60;
-
-        // Create new node (initially red)
-        const newNode = {
-            id: newNodes.length + 1,
-            value: value,
-            x: nodeX,
-            y: nodeY,
-            isRed: true // New nodes are always red
-        };
-
-        // Add connection
-        newConnections.push({
-            fromX: parentNode.x,
-            fromY: parentNode.y,
-            toX: nodeX,
-            toY: nodeY
-        });
-
-        // Add the node
-        newNodes.push(newNode);
-
-        setRbtNodes(newNodes);
-        setRbtConnections(newConnections);
-        saveState();
-        setDescription(`Inserted ${value} into the Red-Black Tree (simplified without balancing)`);
-
-        highlightPath(path.concat(newNode));
-    };
-
-// Search in Red-Black Tree
-    const searchRBT = (value) => {
-        if (rbtNodes.length === 0) {
-            setDescription("Tree is empty");
-            return;
-        }
-
-        // Similar to BST search
-        const path = findBSTPath(rbtNodes, value);
-        if (!path) {
-            setDescription(`Value ${value} not found in the tree`);
-            return;
-        }
-
-        // Highlight the path
-        highlightPath(path);
-
-        if (path[path.length - 1].value === value) {
-            setDescription(`Found value ${value} in the Red-Black Tree!`);
-        } else {
-            setDescription(`Value ${value} not found in the Red-Black Tree`);
-        }
-    };
-    // Highlight path
-    const highlightPath = (path) => {
-        if (!path || path.length === 0) return;
-
-        setIsAnimating(true);
-
-        // Function to animate highlighting
-        let i = 0;
-        const animate = () => {
-            if (i >= path.length) {
-                // Reset after animation
-                drawTree();
-                setIsAnimating(false);
-                return;
-            }
-
-            const node = path[i];
-
-            // Store current state
-            const nodes = getCurrentNodes();
-            const highlightedNodes = nodes.map(n => {
-                if (n.id === node.id) {
-                    return { ...n, color: '#ffff00', textColor: '#000000' };
+            let i = 0;
+            const animate = () => {
+                if (i >= animSequence.length) {
+                    setIsAnimating(false);
+                    return;
                 }
-                return n;
-            });
 
-            // Update state based on tree type
-            updateNodesAndConnections(highlightedNodes, getCurrentConnections());
+                const item = animSequence[i];
+                const highlightedNodes = currentNodes.map(n =>
+                    n.id === item.node.id ?
+                        { ...n, color: item.color, textColor: item.textColor } :
+                        n
+                );
 
-            // Move to next node after delay
-            i++;
-            setTimeout(animate, 300 / animationSpeedRef.current);
-        };
+                updateTreeData(highlightedNodes, currentConnections);
+                setDescription(`Node: ${node.value} | Connections: ${connectedNodes.length}`);
 
-        animate();
-    };
-    /*
-     * Trie Operations
-     */
-    const insertTrie = (word) => {
-        if (!word || word.trim() === '') {
-            setDescription("Please enter a valid word");
-            return;
-        }
-
-        word = word.toLowerCase();
-
-        // Check if word already exists
-        if (trieWords.includes(word)) {
-            setDescription(`Word "${word}" already exists in the trie`);
-            return;
-        }
-
-        // If no nodes exist, create the root node
-        if (trieNodes.length === 0) {
-            const rootNode = {
-                id: 1,
-                value: "",
-                x: canvasRef.current.width / 2,
-                y: 50,
-                isEnd: false
+                i++;
+                addTimeout(animate, 300 / animationSpeedRef.current);
             };
 
-            setTrieNodes([rootNode]);
+            animate();
         }
+    }, [currentNodes, currentConnections, updateTreeData, clearAllTimeouts, addTimeout, themeColor, useGsapAnimations]);
 
-        // Clone current nodes and connections
-        const newNodes = [...trieNodes];
-        const newConnections = [...trieConnections];
-        const newWords = [...trieWords, word];
+    // p5.js setup
+    const setupSketch = useCallback((p5, canvasParentRef) => {
+        const containerWidth = canvasContainerRef.current.clientWidth;
+        const width = containerWidth > 1000 ? 1000 : containerWidth - 20;
+        const canvas = p5.createCanvas(width, 500);
+        canvas.parent(canvasParentRef);
+    }, []);
 
-        let currentNode = newNodes[0]; // Root node
-        const path = [currentNode];
+    // p5.js draw
+    const drawSketch = useCallback((p5) => {
+        p5.background(26, 26, 46);
+        p5.strokeWeight(2);
 
-        // For each character in the word
-        for (let i = 0; i < word.length; i++) {
-            const char = word[i];
+        if (useGsapAnimations && d3ContainerRef.current) {
+            const svg = d3.select(d3ContainerRef.current);
+            svg.selectAll("*").remove();
 
-            // Check if there's already a node for this character
-            let nextNode = newNodes.find(node => {
-                const connection = newConnections.find(conn =>
-                    conn.fromX === currentNode.x &&
-                    conn.fromY === currentNode.y &&
-                    node.x === conn.toX &&
-                    node.y === conn.toY &&
-                    conn.char === char
-                );
-                return !!connection;
+            currentConnections.forEach(conn => {
+                svg.append("path")
+                    .attr("id", `conn-${conn.id || `${conn.fromX}-${conn.fromY}-${conn.toX}-${conn.toY}`}`)
+                    .attr("d", `M${conn.fromX},${conn.fromY} L${conn.toX},${conn.toY}`)
+                    .attr("stroke", conn.color || "#ffffff")
+                    .attr("stroke-width", 2)
+                    .attr("fill", "none");
+
+                if (conn.char) {
+                    svg.append("text")
+                        .attr("x", (conn.fromX + conn.toX) / 2)
+                        .attr("y", (conn.fromY + conn.toY) / 2 - 10)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "#ffffff")
+                        .attr("font-size", 12)
+                        .text(conn.char);
+                }
             });
 
-            if (!nextNode) {
-                // Create a new node for this character
-                const isEnd = i === word.length - 1;
+            currentNodes.forEach(node => {
+                svg.append("circle")
+                    .attr("id", `node-${node.id}`)
+                    .attr("class", "node-circle")
+                    .attr("cx", node.x)
+                    .attr("cy", node.y)
+                    .attr("r", 20)
+                    .attr("fill", node.color ||
+                        (currentTreeType === TREE_TYPES.RBT && node.isRed ? '#ff0000' : themeColor));
 
-                // Calculate position
-                const angle = (newNodes.length % 5) * (Math.PI / 6) - Math.PI / 3;
-                const distance = 80;
-                const nodeX = currentNode.x + Math.cos(angle) * distance;
-                const nodeY = currentNode.y + 60;
+                svg.append("text")
+                    .attr("x", node.x)
+                    .attr("y", node.y)
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "middle")
+                    .attr("fill", node.textColor || "#000000")
+                    .attr("font-size", 16)
+                    .text(node.value.toString());
 
-                nextNode = {
-                    id: newNodes.length + 1,
-                    value: char,
-                    x: nodeX,
-                    y: nodeY,
-                    isEnd: isEnd
-                };
+                if (node.isEnd) {
+                    svg.append("circle")
+                        .attr("cx", node.x + 15)
+                        .attr("cy", node.y - 15)
+                        .attr("r", 5)
+                        .attr("fill", "#ff69b4");
+                }
 
-                // Add connection
-                newConnections.push({
-                    fromX: currentNode.x,
-                    fromY: currentNode.y,
-                    toX: nodeX,
-                    toY: nodeY,
-                    char: char
-                });
+                if (currentTreeType === TREE_TYPES.AVL && node.balanceFactor !== undefined) {
+                    svg.append("text")
+                        .attr("x", node.x)
+                        .attr("y", node.y + 30)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", "#ffffff")
+                        .attr("font-size", 12)
+                        .text(`BF: ${node.balanceFactor}`);
+                }
+            });
 
-                newNodes.push(nextNode);
-            } else if (i === word.length - 1) {
-                // Mark existing node as word end
-                nextNode.isEnd = true;
-            }
-
-            path.push(nextNode);
-            currentNode = nextNode;
+            return;
         }
 
-        // Update state
-        setTrieNodes(newNodes);
-        setTrieConnections(newConnections);
-        setTrieWords(newWords);
-        saveState();
-        setDescription(`Inserted word "${word}" into the trie`);
+        currentConnections.forEach(conn => {
+            p5.stroke(conn.color || 255);
+            p5.line(conn.fromX, conn.fromY, conn.toX, conn.toY);
 
-        // Highlight the path
-        highlightPath(path);
-    };
+            if (conn.char) {
+                p5.fill(255);
+                p5.textAlign(p5.CENTER);
+                p5.textSize(12);
+                p5.text(conn.char, (conn.fromX + conn.toX) / 2, (conn.fromY + conn.toY) / 2 - 10);
+            }
+        });
+
+        currentNodes.forEach(node => {
+            p5.noStroke();
+            const nodeColor = node.color ||
+                (currentTreeType === TREE_TYPES.RBT && node.isRed ? '#ff0000' : themeColor);
+
+            p5.fill(p5.color(nodeColor));
+            p5.circle(node.x, node.y, 40);
+            p5.fill(node.textColor || 0);
+            p5.textAlign(p5.CENTER, p5.CENTER);
+            p5.textSize(16);
+            p5.text(node.value.toString(), node.x, node.y);
+
+            if (node.isEnd) {
+                p5.fill(255, 105, 180);
+                p5.circle(node.x + 15, node.y - 15, 10);
+            }
+
+            if (currentTreeType === TREE_TYPES.AVL && node.balanceFactor !== undefined) {
+                p5.fill(255);
+                p5.textSize(12);
+                p5.text(`BF: ${node.balanceFactor}`, node.x, node.y + 30);
+            }
+        });
+    }, [currentNodes, currentConnections, currentTreeType, themeColor, useGsapAnimations]);
+
+    // Mouse interaction
+    const mousePressed = useCallback((p5) => {
+        const node = findNodeAtCoordinates(p5.mouseX, p5.mouseY);
+        if (node && !isAnimating) {
+            isDraggingRef.current = true;
+            draggedNodeRef.current = node;
+        }
+    }, [findNodeAtCoordinates, isAnimating]);
+
+    const mouseReleased = useCallback(() => {
+        if (isDraggingRef.current && draggedNodeRef.current && !isAnimating) {
+            highlightNode(draggedNodeRef.current);
+        }
+        isDraggingRef.current = false;
+        draggedNodeRef.current = null;
+    }, [highlightNode, isAnimating]);
+
+    const mouseDragged = useCallback((p5) => {
+        if (isDraggingRef.current && draggedNodeRef.current && !isAnimating) {
+            const newNodes = currentNodes.map(node =>
+                node.id === draggedNodeRef.current.id
+                    ? { ...node, x: p5.mouseX, y: p5.mouseY }
+                    : node
+            );
+
+            const newConnections = currentConnections.map(conn => {
+                if (conn.sourceId === draggedNodeRef.current.id) {
+                    return { ...conn, fromX: p5.mouseX, fromY: p5.mouseY };
+                }
+                if (conn.targetId === draggedNodeRef.current.id) {
+                    return { ...conn, toX: p5.mouseX, toY: p5.mouseY };
+                }
+                return conn;
+            });
+
+            updateTreeData(newNodes, newConnections);
+        }
+    }, [currentNodes, currentConnections, updateTreeData, isAnimating]);
+
+    // Handle input submission
+    const handleSubmit = useCallback((e) => {
+        e.preventDefault();
+        if (!nodeValue || isAnimating) return;
+
+        if (currentTreeType === TREE_TYPES.BST) {
+            insertBSTNode(nodeValue);
+        }
+        // Add other tree type insertions here
+        setNodeValue('');
+    }, [nodeValue, currentTreeType, insertBSTNode, isAnimating]);
+
+    // Render
     return (
-        <div className="enhanced-tree-visualization">
-            <h1>Tree Data Structure Visualizer</h1>
+        <motion.div
+            variants={pageVariants}
+            initial="initial"
+            animate="in"
+            exit="out"
+            className="tree-visualization-container"
+        >
+            <div className="controls">
+                <select
+                    value={currentTreeType}
+                    onChange={(e) => setCurrentTreeType(e.target.value)}
+                    disabled={isAnimating}
+                >
+                    {Object.values(TREE_TYPES).map(type => (
+                        <option key={type} value={type}>
+                            {type.toUpperCase()}
+                        </option>
+                    ))}
+                </select>
 
-            <div className="controls-container">
-                <div className="tree-selector">
-                    <button
-                        className={currentTreeType === 'bst' ? 'active' : ''}
-                        onClick={() => selectTree('bst')}
-                    >Binary Search Tree</button>
-                    <button
-                        className={currentTreeType === 'avl' ? 'active' : ''}
-                        onClick={() => selectTree('avl')}
-                    >AVL Tree</button>
-                    <button
-                        className={currentTreeType === 'rbt' ? 'active' : ''}
-                        onClick={() => selectTree('rbt')}
-                    >Red-Black Tree</button>
-                    <button
-                        className={currentTreeType === 'trie' ? 'active' : ''}
-                        onClick={() => selectTree('trie')}
-                    >Trie</button>
-                </div>
-
-                <div className="enhanced-controls">
-                    <div className="animation-speed-control">
-                        <label htmlFor="animation-speed">Animation Speed:</label>
-                        <input
-                            type="range"
-                            id="animation-speed"
-                            min="1"
-                            max="5"
-                            value={animationSpeedRef.current}
-                            onChange={(e) => animationSpeedRef.current = parseInt(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="history-buttons">
-                        <button
-                            onClick={handleUndo}
-                            disabled={currentHistoryIndex <= 0 || isAnimating}
-                        >
-                            <span role="img" aria-label="Undo">↩️</span> Undo
-                        </button>
-                        <button
-                            onClick={handleRedo}
-                            disabled={currentHistoryIndex >= nodeHistory.length - 1 || isAnimating}
-                        >
-                            <span role="img" aria-label="Redo">↪️</span> Redo
-                        </button>
-                    </div>
-
-                    <div className="quick-actions">
-                        <button
-                            onClick={() => {
-                                switch (currentTreeType) {
-                                    case 'bst':
-                                        setBstNodes([]);
-                                        setBstConnections([]);
-                                        saveProgressToFirestore();
-                                        break;
-                                    case 'avl':
-                                        setAvlNodes([]);
-                                        setAvlConnections([]);
-
-                                        saveProgressToFirestore();
-                                        break;
-                                    case 'rbt':
-                                        setRbtNodes([]);
-                                        setRbtConnections([]);
-                                        saveProgressToFirestore();
-                                        break;
-                                    case 'trie':
-                                        setTrieNodes([]);
-                                        setTrieConnections([]);
-                                        setTrieWords([]);
-                                        saveProgressToFirestore();
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                saveState();
-                                setDescription(`Reset ${getTabFullName(currentTreeType)}`);
-                            }}
-
-                            disabled={isAnimating}
-                        >
-                            <span role="img" aria-label="Reset">🔄</span> Reset
-                        </button>
-                        <button
-                            onClick={() => {
-                                const generateRandomValues = (count) => {
-                                    const values = [];
-                                    for (let i = 0; i < count; i++) {
-                                        values.push(Math.floor(Math.random() * 100));
-                                    }
-                                    return values;
-                                };
-
-                                const values = generateRandomValues(7);
-
-                                switch (currentTreeType) {
-                                    case 'bst': {
-                                        let tempNodes = [];
-                                        let tempConnections = [];
-
-                                        values.forEach(val => {
-                                            const result = insertBST(val, tempNodes, tempConnections);
-                                            tempNodes = result.nodes;
-                                            tempConnections = result.connections;
-                                        });
-
-                                        setBstNodes(tempNodes);
-                                        setBstConnections(tempConnections);
-                                        break;
-                                    }
-
-                                    case 'avl': {
-                                        let tempNodes = [];
-                                        let tempConnections = [];
-
-                                        values.forEach(val => {
-                                            const result = insertAVL(val, tempNodes, tempConnections);
-                                            tempNodes = result.nodes;
-                                            tempConnections = result.connections;
-                                        });
-
-                                        setAvlNodes(tempNodes);
-                                        setAvlConnections(tempConnections);
-                                        break;
-                                    }
-
-                                    case 'rbt': {
-                                        let tempNodes = [];
-                                        let tempConnections = [];
-
-                                        values.forEach(val => {
-                                            const result = insertRBT(val, tempNodes, tempConnections);
-                                            tempNodes = result.nodes;
-                                            tempConnections = result.connections;
-                                        });
-
-                                        setRbtNodes(tempNodes);
-                                        setRbtConnections(tempConnections);
-                                        break;
-                                    }
-
-                                    case 'trie': {
-                                        let tempNodes = [];
-                                        let tempConnections = [];
-
-                                        values.forEach(val => {
-                                            const result = insertTrie(val.toString(), tempNodes, tempConnections);
-                                            tempNodes = result.nodes;
-                                            tempConnections = result.connections;
-                                        });
-
-                                        setTrieNodes(tempNodes);
-                                        setTrieConnections(tempConnections);
-                                        break;
-                                    }
-
-                                    default:
-                                        break;
-                                }
-
-                                setDescription(`Generated random ${getTabFullName(currentTreeType)}`);
-                            }}
-                            disabled={isAnimating}
-                        >
-                            <span role="img" aria-label="Random">🎲</span> Random
-                        </button>
-                    </div>
-                </div>
-
-                {currentTreeType === 'avl' && (
-                    <div className="avl-settings">
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={autoBalanceAvl}
-                                onChange={() => setAutoBalanceAvl(!autoBalanceAvl)}
-                            />
-                            Auto-balance tree
-                        </label>
-                    </div>
-                )}
-            </div>
-
-            <div className="message-box" style={{ borderColor: themeColor }}>
-                {description}
-            </div>
-
-            <div className="node-input">
-                <input
-                    type={currentTreeType === 'trie' ? 'text' : 'number'}
-                    value={nodeValue}
-                    onChange={(e) => setNodeValue(e.target.value)}
-                    placeholder={currentTreeType === 'trie' ? "Enter a word..." : "Enter a number..."}
-                    style={{ borderColor: themeColor }}
-                />
-
-                <div className="operation-buttons">
-                    <button
-                        onClick={() => {
-                            if (!nodeValue) {
-                                setDescription("Please enter a value");
-                                return;
-                            }
-
-                            const value = currentTreeType === 'trie' ?
-                                nodeValue :
-                                parseInt(nodeValue);
-
-                            switch (currentTreeType) {
-                                case 'bst':
-                                    insertBST(value);
-                                    break;
-                                case 'avl':
-                                    insertAVL(value);
-                                    break;
-                                case 'rbt':
-                                    insertRBT(value);
-                                    break;
-                                case 'trie':
-                                    insertTrie(value);
-                                    break;
-                                default:
-                                    setDescription("Insert not implemented for this tree type yet");
-                            }
-
-                            setNodeValue('');
-                        }}
+                <div className="input-group">
+                    <input
+                        type="text"
+                        value={nodeValue}
+                        onChange={(e) => setNodeValue(e.target.value)}
+                        placeholder="Enter node value"
                         disabled={isAnimating}
-                        style={{ borderColor: themeColor }}
-                    >
+                    />
+                    <button onClick={handleSubmit} disabled={isAnimating || !nodeValue}>
                         Insert
                     </button>
-                    <button
-                        onClick={() => {
-                            if (!nodeValue) {
-                                setDescription("Please enter a value");
-                                return;
-                            }
+                </div>
 
-                            const value = currentTreeType === 'trie' ?
-                                nodeValue :
-                                parseInt(nodeValue);
-
-                            switch (currentTreeType) {
-                                case 'bst':
-                                    searchBST(value);
-                                    break;
-                                case 'avl':
-                                    searchAVL(value);
-                                    break;
-                                default:
-                                    setDescription("Search not implemented for this tree type yet");
-                            }
-                        }}
-                        disabled={isAnimating}
-                        style={{ borderColor: themeColor }}
-                    >
-                        Search
+                <div className="history-controls">
+                    <button onClick={handleUndo} disabled={historyIndex <= 0 || isAnimating}>
+                        Undo
                     </button>
-                    <button
-                        onClick={() => {
-                            if (!nodeValue) {
-                                setDescription("Please enter a value");
-                                return;
-                            }
-
-                            const value = parseInt(nodeValue);
-                            if (isNaN(value)) {
-                                setDescription("Invalid number");
-                                return;
-                            }
-
-                            switch (currentTreeType) {
-                                case 'bst':
-                                    deleteBST(value);
-                                    break;
-                                default:
-                                    setDescription("Delete not implemented for this tree type yet");
-                            }
-
-                            setNodeValue('');
-                        }}
-                        disabled={isAnimating}
-                        style={{ borderColor: themeColor }}
-                    >
-                        Delete
+                    <button onClick={handleRedo} disabled={historyIndex >= history.length - 1 || isAnimating}>
+                        Redo
                     </button>
+                </div>
 
+                <div className="toggle-controls">
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={useD3Layout}
+                            onChange={() => setUseD3Layout(!useD3Layout)}
+                            disabled={isAnimating}
+                        />
+                        Use D3 Layout
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={useGsapAnimations}
+                            onChange={() => setUseGsapAnimations(!useGsapAnimations)}
+                            disabled={isAnimating}
+                        />
+                        Use GSAP Animations
+                    </label>
                 </div>
             </div>
 
-            <div className="canvas-container">
-                <canvas
-                    ref={canvasRef}
-                    className="tree-canvas"
-                    width={1000}
-                    height={500}
-                    style={{ borderColor: themeColor }}
-                ></canvas>
+            <div className="description">{description}</div>
 
+            <div ref={canvasContainerRef} className="canvas-container">
+                <Sketch
+                    setup={setupSketch}
+                    draw={drawSketch}
+                    mousePressed={mousePressed}
+                    mouseReleased={mouseReleased}
+                    mouseDragged={mouseDragged}
+                />
+                {useGsapAnimations && (
+                    <svg ref={d3ContainerRef} className="d3-overlay" width="1000" height="500" />
+                )}
+            </div>
+
+            <AnimatePresence>
                 {showTutorial && (
-                    <div className="tutorial-overlay" onClick={() => setShowTutorial(false)}>
-                        <div className="tutorial-content">
-                            <h3>Interactive Tree Visualizer</h3>
-                            <ul>
-                                <li>Click on nodes to highlight them</li>
-                                <li>Drag nodes to reposition</li>
-                                <li>Double-click on canvas to add a node (BST only)</li>
-                                <li>Use controls to manipulate the tree</li>
-                            </ul>
-                            <p>Click anywhere to close</p>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {currentTreeType === 'trie' && (
-                <div className="trie-words-box">
-                    <h3>Words in Trie</h3>
-                    <div className="trie-words-table">
-                        <table>
-                            <tbody>
-                            {trieWords.length === 0 ? (
-                                <tr><td>No words yet</td></tr>
-                            ) : (
-                                trieWords.map((word, index) => (
-                                    <tr key={index}>
-                                        <td>{word}</td>
-                                        <td>
-                                            <button
-                                                className="mini-button"
-                                                onClick={() => searchTrie(word)}
-                                            >
-                                                Search
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
-
-            <div className="explanation-box" style={{ borderColor: themeColor }}>
-                <h3>{getTabFullName(currentTreeType)}</h3>
-                {currentTreeType === 'bst' && (
-                    <>
-                        <p>A Binary Search Tree (BST) is a tree data structure where each node has at most two children, and for each node, all elements in the left subtree are less than the node's value, and all elements in the right subtree are greater.</p>
-                        <ul className="feature-list">
-                            <li><span role="img" aria-label="Properties">📝</span> Left child &lt; Parent &lt; Right child</li>
-                            <li><span role="img" aria-label="Time">⏱️</span> Average search/insert/delete: O(log n)</li>
-                            <li><span role="img" aria-label="Warning">⚠️</span> Worst case: O(n) if unbalanced</li>
+                    <motion.div
+                        className="tutorial"
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                    >
+                        <h3>Tutorial</h3>
+                        <ul>
+                            {['Select tree type', 'Enter node value', 'Click insert', 'Drag nodes', 'Use undo/redo'].map((item, i) => (
+                                <motion.li
+                                    key={item}
+                                    variants={listItemVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    custom={i}
+                                >
+                                    {item}
+                                </motion.li>
+                            ))}
                         </ul>
-                    </>
+                        <button onClick={() => setShowTutorial(false)}>Close</button>
+                    </motion.div>
                 )}
+            </AnimatePresence>
 
-                {currentTreeType === 'avl' && (
-                    <>
-                        <p>An AVL Tree is a self-balancing binary search tree where the height difference between left and right subtrees cannot be more than one for any node.</p>
-                        <ul className="feature-list">
-                            <li><span role="img" aria-label="Balance">⚖️</span> Self-balancing with rotation operations</li>
-                            <li><span role="img" aria-label="Height">📏</span> Balance factor = height(left) - height(right)</li>
-                            <li><span role="img" aria-label="Time">⏱️</span> All operations: O(log n) guaranteed</li>
-                        </ul>
-                    </>
-                )}
-
-                {currentTreeType === 'rbt' && (
-                    <>
-                        <p>A Red-Black Tree is a self-balancing binary search tree where nodes are colored red or black according to specific rules to maintain balance.</p>
-                        <ul className="feature-list">
-                            <li><span role="img" aria-label="Rule">🔴</span> Every node is red or black</li>
-                            <li><span role="img" aria-label="Rule">⚫</span> The root is black</li>
-                            <li><span role="img" aria-label="Rule">🔴</span> No red node has a red child</li>
-                            <li><span role="img" aria-label="Rule">⚫</span> All paths from root to leaf have the same number of black nodes</li>
-                        </ul>
-                    </>
-                )}
-
-                {currentTreeType === 'trie' && (
-                    <>
-                        <p>A Trie (prefix tree) is a tree-like data structure used to store a dynamic set of strings, typically used for efficient prefix-based searches.</p>
-                        <ul className="feature-list">
-                            <li><span role="img" aria-label="Use">📚</span> Dictionary/autocomplete implementation</li>
-                            <li><span role="img" aria-label="Search">🔍</span> O(m) search time where m is key length</li>
-                            <li><span role="img" aria-label="Space">💾</span> Space-efficient for common prefixes</li>
-                        </ul>
-                    </>
-                )}
-            </div>
-
-            <div className="footer">
-                <button
-                    className="help-button"
-                    onClick={() => setShowTutorial(true)}
-                >
-                    <span role="img" aria-label="Help">❓</span> Help
-                </button>
-                <div className="status">
-                    <span>Nodes: {getCurrentNodes().length}</span>
-                </div>
-            </div>
-        </div>
+            <button className="tutorial-toggle" onClick={() => setShowTutorial(!showTutorial)}>
+                {showTutorial ? 'Hide' : 'Show'} Tutorial
+            </button>
+        </motion.div>
     );
 };
 
