@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="Circle stuff fixed">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/TreeVisualization.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/TreeVisualization.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/TreeVisualization.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/TreeVisualization.js" afterDir="false" />
-    </list>
+    <list default="true" id="649a3b38-a345-4b8b-a3a2-18a960b292db" name="Changes" comment="Music choice" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -114,7 +108,7 @@
       <workItem from="1746216667722" duration="7050000" />
       <workItem from="1746230926575" duration="5801000" />
       <workItem from="1746579930322" duration="7775000" />
-      <workItem from="1746670462749" duration="7591000" />
+      <workItem from="1746670462749" duration="7921000" />
     </task>
     <task id="LOCAL-00001" summary="updates to animations">
       <option name="closed" value="true" />
@@ -188,7 +182,23 @@
       <option name="project" value="LOCAL" />
       <updated>1746671287716</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Trees Fixed">
+      <option name="closed" value="true" />
+      <created>1746701380588</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1746701380588</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Music choice">
+      <option name="closed" value="true" />
+      <created>1746701403723</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1746701403723</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -230,6 +240,8 @@
     <MESSAGE value="AI chatbot added" />
     <MESSAGE value="Music stuff in progress" />
     <MESSAGE value="Circle stuff fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="Circle stuff fixed" />
+    <MESSAGE value="Trees Fixed" />
+    <MESSAGE value="Music choice" />
+    <option name="LAST_COMMIT_MESSAGE" value="Music choice" />
   </component>
 </project>
