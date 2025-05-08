@@ -19,7 +19,7 @@ import StackQueuePage from './pages/stackqueue';
 import Sudoku from './pages/sudoku';
 
 import GraphVisualization from './pages/GraphVisualization';
-import TreeVisualization from './pages/TreeVisualization';
+import Trees from './pages/Trees';
 import SortingAlgorithms from './pages/SortingAlgorithms';
 import Hashtables from './pages/hashtables';
 import LinkedList from './pages/linkedlist';
@@ -50,7 +50,7 @@ const App = () => {
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/graphs" element={<GraphVisualization />} />
-                        <Route path="/trees" element={<TreeVisualization />} />
+                        <Route path="/trees" element={<Trees />} />
                         <Route path="/sorting" element={<SortingAlgorithms />} />
                         <Route path="/arrays" element={<ArraysPage />} /> {/* Add the route for Arrays page */}
                         <Route path="/math" element={<MathPage />} />
