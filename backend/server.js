@@ -2,14 +2,14 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const dotenv = require('dotenv');
 
 // Import routes - make sure these imports come AFTER declaring app
 // const authRoutes = require('./src/routes/auth');
 // const chatbotRoutes = require('./src/routes/chatbot');
 
 // Load environment variables
-dotenv.config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Initialize the app - this must come BEFORE using app
 const app = express();
@@ -17,14 +17,8 @@ const app = express();
 // Middleware
 app.use(helmet()); // Security middleware
 // In your server.js file
-app.use(cors({
-    origin: [
-        'http://localhost:8080',
-        'http://localhost:8083'
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-}));
+app.use(cors());
+
 app.use(express.json());
 
 // Import routes - alternatively, you can move these imports here
@@ -47,3 +41,5 @@ app.listen(PORT, () => {
 });
 
 module.exports = app; // For testing
+
+

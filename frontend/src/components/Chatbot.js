@@ -1,6 +1,8 @@
 // frontend/src/components/Chatbot.js
 import React, { useState, useRef, useEffect } from 'react';
 import './Chatbot.css';
+import botAvatar from '../assets/images/bot-avatar.png';
+
 
 /**
  * AI Chatbot component with Mistral-7B-Instruct-v0.2 integration
@@ -127,10 +129,19 @@ const Chatbot = ({
 
         return (
             <div
-                className={`message ${isUser ? 'user-message' : 'assistant-message'}`}
+                className={`message-bubble ${isUser ? 'user-message' : 'assistant-message'}`}
                 key={index}
             >
-                <div className="message-content">
+                {!isUser && (
+                    <div className="avatar-box">
+                        <img
+                            src={botAvatar}
+                            alt="Bot"
+                            className="bot-avatar-boxed"
+                        />
+                    </div>
+                )}
+                <div className="text-box">
                     {message.content}
                 </div>
             </div>

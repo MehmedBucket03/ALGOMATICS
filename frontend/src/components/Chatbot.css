@@ -306,3 +306,31 @@
         left: auto;
     }
 }
+
+.message-bubble {
+    display: flex;
+    align-items: flex-start;
+    margin: 10px 0;
+    gap: 8px;
+}
+
+
+
+.bot-avatar-boxed {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.text-box {
+    background-color: #ff55aa;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    line-height: 1.5;
+    word-break: break-word;
+    max-width: 200px;
+}

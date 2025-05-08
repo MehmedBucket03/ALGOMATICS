@@ -74,7 +74,7 @@ const App = () => {
 
                 {/* Add the AI Chatbot component using Mistral-7B-Instruct-v0.3 */}
                 <Chatbot
-                    apiUrl="http://localhost:5000/api/chat"
+                    apiUrl = 'http://localhost:5000/api/chat'
                     position="bottom-right"
                     theme="light"
                     initialMessage="Hello! I'm powered by Mistral-7B-Instruct-v0.3."

@@ -10,9 +10,11 @@ const AudioPlayer = () => {
 
     // Try different audio sources if one doesn't work
     const audioSources = [
-        "/music/Lofi.mp3",           // From public/music folder
-        "/assets/music/Lofi.mp3",    // Alternative path
-        "/Lofi.mp3"                  // Root of public folder
+        //"/music/Lofi.mp3",           // From public/music folder
+        //"/assets/music/Lofi.mp3",    // Alternative path
+        //"/Lofi.mp3"                  // Root of public folder
+        "/music/Lofi.mp3" // from public/music folder, wont run unless in poublic
+
     ];
 
     const [currentSourceIndex, setCurrentSourceIndex] = useState(0);
